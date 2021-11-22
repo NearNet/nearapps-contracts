@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
-set -x
+set -ex
 
-RUSTFLAGS='-C linker=clang-9' cargo build --target wasm32-unknown-unknown --release
+cargo +stable build --target wasm32-unknown-unknown --release
+cp target/wasm32-unknown-unknown/release/nearapps_contracts.wasm ./res/

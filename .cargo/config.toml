@@ -1,0 +1,4 @@
+[target.wasm32-unknown-unknown]
+rustflags = ["-C", "link-arg=-s"]
+# rustflags = ["-C", "linker=clang-9", "-C", "link-arg=-s"]
+# rustflags = ["-C", "link-arg=-s", "-C", "linker-plugin-lto"]

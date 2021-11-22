@@ -8,9 +8,19 @@ edition = "2018"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-near-sdk = "3.1.0"
-near-crypto = "0.10.0"
-getrandom = { version = "0.2", features = ["js"] }
+near-sdk = {version = "4.0.0-pre.4", features = ["unstable"]}
+# getrandom = { version = "0.2", features = ["js"] }
+
+[dependencies.secp256k1]
+version = "0.20.3"
+features = ["std", "recovery"]
+
+[dependencies.bitcoin_hashes]
+version = "0.10.0"
+features = ["std"]
+
+[dev-dependencies]
+near-sdk-sim = "4.0.0-pre.4"
 
 [profile.release]
 codegen-units = 1

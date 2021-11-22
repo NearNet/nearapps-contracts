@@ -11,6 +11,8 @@
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::{env, near_bindgen};
 
+mod signing;
+
 near_sdk::setup_alloc!();
 
 // add the following attributes to prepare your code for serialization and invocation on the blockchain
