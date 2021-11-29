@@ -8,6 +8,6 @@ use crate::utils::*;
 
 #[test]
 fn test_sign() {
-    let (root, counter) = setup_counter();
-    call!(&root, counter.test_sign());
+    let (root, contract) = setup_contract();
+    call!(&root, contract.test_sign());
 }

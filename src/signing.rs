@@ -1,7 +1,11 @@
-use crate::*;
+use crate::Contract;
+use near_sdk::near_bindgen;
+
+#[cfg(not(target_arch = "wasm32"))]
+use crate::ContractContract;
 
 #[near_bindgen]
-impl Counter {
+impl Contract {
     /// test signatures.
     ///
     /// Based on two examples:

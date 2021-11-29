@@ -10,25 +10,25 @@ use near_sdk_sim::{
 
 use near_sdk::json_types::U128;
 
-use nearapps_contracts::CounterContract;
+use nearapps_contracts::ContractContract;
 
 near_sdk_sim::lazy_static_include::lazy_static_include_bytes! {
-    COUNTER_WASM_BYTES => "res/nearapps_contracts.wasm"
+    CONTRACT_WASM_BYTES => "res/nearapps_contracts.wasm"
 }
 
-pub type Contract = ContractAccount<CounterContract>;
+pub type Contract = ContractAccount<ContractContract>;
 
-pub fn setup_counter() -> (UserAccount, Contract) {
+pub fn setup_contract() -> (UserAccount, Contract) {
     let root = init_simulator(None);
-    let counter = deploy!(
-        contract: CounterContract,
-        contract_id: "counter".to_string(),
-        bytes: &COUNTER_WASM_BYTES,
+    let contract = deploy!(
+        contract: ContractContract,
+        contract_id: "contract".to_string(),
+        bytes: &CONTRACT_WASM_BYTES,
         signer_account: root,
         deposit: to_yocto("200"),
         // init_method: new()
     );
-    (root, counter)
+    (root, contract)
 }
 
 fn user(id: u32) -> AccountId {
