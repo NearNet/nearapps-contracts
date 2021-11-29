@@ -142,6 +142,9 @@ name = "bitcoin_hashes"
 version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "006cc91e1a1d99819bc5b8214be3555c1f0611b169f527a1fdc54ed1f2b745b0"
+dependencies = [
+ "serde",
+]
 
 [[package]]
 name = "bitflags"
@@ -1744,9 +1747,11 @@ name = "nearapps-contracts"
 version = "0.1.0"
 dependencies = [
  "bitcoin_hashes",
+ "ed25519-dalek",
  "near-sdk",
  "near-sdk-sim",
  "secp256k1",
+ "serde-big-array",
 ]
 
 [[package]]
@@ -2414,6 +2419,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "97d03ceae636d0fed5bae6a7f4f664354c5f4fcedf6eef053fef17e49f837d0a"
 dependencies = [
  "secp256k1-sys",
+ "serde",
 ]
 
 [[package]]
@@ -2475,6 +2481,16 @@ checksum = "d733da87e79faaac25616e33d26299a41143fd4cd42746cbb0e91d8feea243fd"
 dependencies = [
  "byteorder",
  "serde",
+]
+
+[[package]]
+name = "serde-big-array"
+version = "0.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "18b20e7752957bbe9661cff4e0bb04d183d0948cdab2ea58cdb9df36a61dfe62"
+dependencies = [
+ "serde",
+ "serde_derive",
 ]
 
 [[package]]
