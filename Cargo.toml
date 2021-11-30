@@ -9,12 +9,20 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 near-sdk = {version = "4.0.0-pre.4", features = ["unstable"]}
+
 # getrandom = { version = "0.2", features = ["js"] }
 
 # crypto: ecdsa on secp256k1
-[dependencies.secp256k1]
-version = "0.20.3"
-features = ["std", "recovery", "serde"]
+# [dependencies.secp256k1]
+# version = "0.20.3"
+# path = "../rust-secp256k1/"
+# default-features = false
+# # features = ["std", "recovery", "serde", "lowmemory"]
+# features = ["alloc", "recovery", "serde", "lowmemory"]
+
+[dependencies.k256]
+version = "0.9.6"
+
 
 # crypto: schnorr on ed25519
 [dependencies.ed25519-dalek]
@@ -23,11 +31,13 @@ version = "1.0.1"
 # hash: sha256
 [dependencies.bitcoin_hashes]
 version = "0.10.0"
+default-features = false
 features = ["std", "serde-std"]
 
 # to de/serialize [u8; u64] arrays
 [dependencies.serde-big-array]
 version = "0.3.2"
+default-features = false
 features = ["const-generics"]
 
 [dev-dependencies]

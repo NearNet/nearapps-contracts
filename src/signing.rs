@@ -110,16 +110,19 @@ impl Contract {
     /// Based on two examples:
     /// - https://github.com/rust-bitcoin/rust-secp256k1/blob/master/examples/sign_verify.rs
     /// - https://github.com/rust-bitcoin/rust-secp256k1/blob/master/examples/sign_verify_recovery.rs
-    pub fn test_sign(&mut self) {
+    pub fn test_sign(&self) {
         use secp256k1::{self as s};
 
-        let secp = s::Secp256k1::new();
+        let secp = Self::secp256k1_init_verify_only();
+
+        // let secp = s::Secp256k1::new();
 
         let seckey = [
             59, 148, 11, 85, 134, 130, 61, 253, 2, 174, 59, 70, 27, 180, 51, 107, 94, 203, 174,
             253, 102, 39, 170, 146, 46, 252, 4, 143, 236, 12, 136, 28,
         ];
         let pubkey = Self::gen_pubkey(seckey);
+        panic!("PANIC 4");
         assert_eq!(
             pubkey.serialize(),
             [
@@ -127,6 +130,15 @@ impl Contract {
                 91, 141, 134, 245, 114, 45, 63, 82, 19, 251, 210, 57, 79, 54,
             ]
         );
+        panic!("PANIC 5");
+        assert_eq!(
+            pubkey.serialize(),
+            [
+                2, 29, 21, 35, 7, 198, 183, 43, 14, 208, 65, 139, 14, 112, 205, 128, 231, 245, 41,
+                91, 141, 134, 245, 114, 45, 63, 82, 19, 251, 210, 57, 79, 53,
+            ]
+        );
+        panic!("PANIC 6");
         let msg = "This is some message";
 
         // normal signature
@@ -147,6 +159,7 @@ impl Contract {
         }
 
         // recoverable signature
+        /*
         {
             let (recovery_id, serialized_recoverable_sig) = {
                 let msg_hash = Self::hash_sha256(msg.as_bytes().to_vec());
@@ -189,5 +202,6 @@ impl Contract {
 
             assert_eq!(recovered_pubkey, pubkey);
         }
+        */
     }
 }
