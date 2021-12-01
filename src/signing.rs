@@ -62,7 +62,9 @@ impl Contract {
     /// Creates a Public Key serialized in compressed form.
     ///
     /// Has a total size of 33 bytes.
-    pub fn secp256k1_pubkey(seckey: types::secp256k1::SecKey) -> types::secp256k1::PubKeyCompact {
+    pub fn secp256k1_pubkey_compressed(
+        seckey: types::secp256k1::SecKey,
+    ) -> types::secp256k1::PubKeyCompressed {
         let seckey = k256::SecretKey::from_bytes(&seckey.0).unwrap();
         let mut res = [0; 33];
         let pubkey = {
@@ -71,7 +73,34 @@ impl Contract {
         };
         assert_eq!(pubkey.as_slice().len(), 33);
         res.copy_from_slice(&pubkey.as_slice()[0..33]);
-        types::secp256k1::PubKeyCompact(res)
+        types::secp256k1::PubKeyCompressed(res)
+    }
+
+    /// Creates a Public Key serialized in uncompressed form.
+    ///
+    /// Has a total size of 65 bytes.
+    pub fn secp256k1_pubkey_uncompressed(
+        seckey: types::secp256k1::SecKey,
+    ) -> types::secp256k1::PubKeyUncompressed {
+        let seckey = k256::SecretKey::from_bytes(&seckey.0).unwrap();
+        let mut res = [0; 65];
+        let pubkey = {
+            let pubkey = seckey.public_key();
+            let affine = pubkey.as_affine();
+
+            let compress = false;
+            {
+                use k256::elliptic_curve::sec1::ToEncodedPoint;
+                affine.to_encoded_point(compress)
+            }
+            // let mut result = k256::CompressedPoint::default();
+            // result[..encoded.len()].copy_from_slice(encoded.as_bytes());
+            // result
+        };
+        let pubkey = pubkey.as_bytes();
+        assert_eq!(pubkey.len(), 65);
+        res.copy_from_slice(&pubkey[0..65]);
+        types::secp256k1::PubKeyUncompressed(res)
     }
 
     // TODO: hide behing a feature as this will not
@@ -120,31 +149,20 @@ impl Contract {
     ///
     /// The `msg` is hashed using `sha256` and that is used
     /// to verify the signature's authenticity.
-    pub fn ecdsa_secp256k1_verify(
-        pubkey: types::secp256k1::PubKeyCompact,
+    pub fn ecdsa_secp256k1_verify_compressed(
+        pubkey: types::secp256k1::PubKeyCompressed,
         sign: types::secp256k1::SignCompact,
         msg: String,
     ) -> bool {
-        let pubkey = k256::PublicKey::from_sec1_bytes(&pubkey.0).unwrap();
+        Self::ecdsa_secp256k1_verify(&pubkey.0, sign, msg)
+    }
 
-        let hashed_msg = {
-            use ecdsa::hazmat::FromDigest;
-            let hashed_msg = types::hash::Sha256::hash_bytes(msg.as_bytes());
-            k256::Scalar::from_digest(hashed_msg)
-        };
-
-        let sign = {
-            use k256::ecdsa::signature::Signature;
-            k256::ecdsa::Signature::from_bytes(&sign.0).unwrap()
-        };
-
-        {
-            use ecdsa::hazmat::VerifyPrimitive;
-            pubkey
-                .as_affine()
-                .verify_prehashed(&hashed_msg, &sign)
-                .is_ok()
-        }
+    pub fn ecdsa_secp256k1_verify_uncompressed(
+        pubkey: types::secp256k1::PubKeyUncompressed,
+        sign: types::secp256k1::SignCompact,
+        msg: String,
+    ) -> bool {
+        Self::ecdsa_secp256k1_verify(&pubkey.0, sign, msg)
     }
 
     /// Returns `true` if `pubkey` authenticates the
@@ -153,30 +171,26 @@ impl Contract {
     ///
     /// The `msg_hash` must be the result of a `sha256` of the msg,
     /// and must have a total size of 32-bytes.
-    pub fn ecdsa_secp256k1_verify_prehashed(
-        pubkey: types::secp256k1::PubKeyCompact,
+    pub fn ecdsa_secp256k1_verify_prehashed_compressed(
+        pubkey: types::secp256k1::PubKeyCompressed,
         sign: types::secp256k1::SignCompact,
         hashed_msg: types::hash::Sha256,
     ) -> bool {
-        let pubkey = k256::PublicKey::from_sec1_bytes(&pubkey.0).unwrap();
+        Self::ecdsa_secp256k1_verify_prehashed(&pubkey.0, sign, hashed_msg)
+    }
 
-        let hashed_msg = {
-            use ecdsa::hazmat::FromDigest;
-            k256::Scalar::from_digest(hashed_msg)
-        };
-
-        let sign = {
-            use k256::ecdsa::signature::Signature;
-            k256::ecdsa::Signature::from_bytes(&sign.0).unwrap()
-        };
-
-        {
-            use ecdsa::hazmat::VerifyPrimitive;
-            pubkey
-                .as_affine()
-                .verify_prehashed(&hashed_msg, &sign)
-                .is_ok()
-        }
+    /// Returns `true` if `pubkey` authenticates the
+    /// `sign` of the `sha256` hash of the `msg`.  
+    /// Returns `false` otherwise.
+    ///
+    /// The `msg_hash` must be the result of a `sha256` of the msg,
+    /// and must have a total size of 32-bytes.
+    pub fn ecdsa_secp256k1_verify_prehashed_uncompressed(
+        pubkey: types::secp256k1::PubKeyUncompressed,
+        sign: types::secp256k1::SignCompact,
+        hashed_msg: types::hash::Sha256,
+    ) -> bool {
+        Self::ecdsa_secp256k1_verify_prehashed(&pubkey.0, sign, hashed_msg)
     }
 
     // TODO: hide behing a feature as this will not
@@ -207,20 +221,20 @@ impl Contract {
 
     // TODO: hide behing a feature as this will not
     // be needed as a near app.
-    //
-    // TODO: change the return into PrehashedSign
     pub fn eddsa_ed25519_sign_prehashed(
         seckey: types::ed25519::SecKey,
         msg_hash: types::hash::Sha512,
-    ) -> types::ed25519::Sign {
+        context: Option<String>,
+    ) -> types::ed25519::SignPrehashed {
         let seckey = ed25519_dalek::SecretKey::from_bytes(&seckey.0).unwrap();
         let pubkey: ed25519_dalek::PublicKey = (&seckey).into();
         let keypair = ed25519_dalek::Keypair {
             secret: seckey,
             public: pubkey,
         };
-        let sign: ed25519_dalek::Signature = keypair.sign_prehashed(msg_hash, None).unwrap();
-        types::ed25519::Sign(sign.to_bytes())
+        let context = context.as_ref().map(|s| s.as_bytes());
+        let sign: ed25519_dalek::Signature = keypair.sign_prehashed(msg_hash, context).unwrap();
+        types::ed25519::SignPrehashed(sign.to_bytes())
     }
 
     pub fn eddsa_ed25519_verify(
@@ -239,11 +253,80 @@ impl Contract {
 
     pub fn eddsa_ed25519_verify_prehashed(
         pubkey: types::ed25519::PubKey,
-        sign: types::ed25519::Sign,
+        sign: types::ed25519::SignPrehashed,
         msg_hash: types::hash::Sha512,
+        context: Option<String>,
     ) -> bool {
         let pubkey = ed25519_dalek::PublicKey::from_bytes(&pubkey.0).unwrap();
         let sign = ed25519_dalek::Signature::from_bytes(&sign.0).unwrap();
-        pubkey.verify_prehashed(msg_hash, None, &sign).is_ok()
+        let context = context.as_ref().map(|s| s.as_bytes());
+        pubkey.verify_prehashed(msg_hash, context, &sign).is_ok()
+    }
+}
+
+impl Contract {
+    /// Returns `true` if `pubkey` authenticates the
+    /// `sign` of the `msg_hash`.  
+    /// Returns `false` otherwise.
+    ///
+    /// The `msg` is hashed using `sha256` and that is used
+    /// to verify the signature's authenticity.
+    pub fn ecdsa_secp256k1_verify(
+        pubkey: &[u8],
+        sign: types::secp256k1::SignCompact,
+        msg: String,
+    ) -> bool {
+        let pubkey = k256::PublicKey::from_sec1_bytes(pubkey).unwrap();
+
+        let hashed_msg = {
+            use ecdsa::hazmat::FromDigest;
+            let hashed_msg = types::hash::Sha256::hash_bytes(msg.as_bytes());
+            k256::Scalar::from_digest(hashed_msg)
+        };
+
+        let sign = {
+            use k256::ecdsa::signature::Signature;
+            k256::ecdsa::Signature::from_bytes(&sign.0).unwrap()
+        };
+
+        {
+            use ecdsa::hazmat::VerifyPrimitive;
+            pubkey
+                .as_affine()
+                .verify_prehashed(&hashed_msg, &sign)
+                .is_ok()
+        }
+    }
+
+    /// Returns `true` if `pubkey` authenticates the
+    /// `sign` of the `sha256` hash of the `msg`.  
+    /// Returns `false` otherwise.
+    ///
+    /// The `msg_hash` must be the result of a `sha256` of the msg,
+    /// and must have a total size of 32-bytes.
+    pub fn ecdsa_secp256k1_verify_prehashed(
+        pubkey: &[u8],
+        sign: types::secp256k1::SignCompact,
+        hashed_msg: types::hash::Sha256,
+    ) -> bool {
+        let pubkey = k256::PublicKey::from_sec1_bytes(pubkey).unwrap();
+
+        let hashed_msg = {
+            use ecdsa::hazmat::FromDigest;
+            k256::Scalar::from_digest(hashed_msg)
+        };
+
+        let sign = {
+            use k256::ecdsa::signature::Signature;
+            k256::ecdsa::Signature::from_bytes(&sign.0).unwrap()
+        };
+
+        {
+            use ecdsa::hazmat::VerifyPrimitive;
+            pubkey
+                .as_affine()
+                .verify_prehashed(&hashed_msg, &sign)
+                .is_ok()
+        }
     }
 }

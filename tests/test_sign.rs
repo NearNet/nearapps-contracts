@@ -20,16 +20,27 @@ fn test_ecdsa_secp256k1() {
     let seckey = types::secp256k1::SecKey(seckey);
 
     // generates the pubkey on the contract
-    let pubkey: types::secp256k1::PubKeyCompact = {
-        let res = call!(&root, contract.secp256k1_pubkey(seckey.clone()));
+    let pubkey_compressed: types::secp256k1::PubKeyCompressed = {
+        let res = call!(&root, contract.secp256k1_pubkey_compressed(seckey.clone()));
         assert!(res.gas_burnt().0 < 33 * MEGA * MEGA);
         res.unwrap_json()
     };
+    let pubkey_compressed = &pubkey_compressed;
     let expected_pubkey = [
         2, 29, 21, 35, 7, 198, 183, 43, 14, 208, 65, 139, 14, 112, 205, 128, 231, 245, 41, 91, 141,
         134, 245, 114, 45, 63, 82, 19, 251, 210, 57, 79, 54,
     ];
-    assert_eq!(pubkey.0, expected_pubkey);
+    assert_eq!(pubkey_compressed.0, expected_pubkey);
+
+    let pubkey_uncompressed: types::secp256k1::PubKeyUncompressed = {
+        let res = call!(
+            &root,
+            contract.secp256k1_pubkey_uncompressed(seckey.clone())
+        );
+        assert!(res.gas_burnt().0 < 33 * MEGA * MEGA);
+        res.unwrap_json()
+    };
+    let pubkey_uncompressed = &pubkey_uncompressed;
 
     let msg = "This is some message";
 
@@ -42,6 +53,7 @@ fn test_ecdsa_secp256k1() {
         assert!(res.gas_burnt().0 < 45 * MEGA * MEGA);
         res.unwrap_json()
     };
+    let sign = &sign;
 
     // copy and change the resulting signature
     // (so we have one that is wrong)
@@ -50,13 +62,18 @@ fn test_ecdsa_secp256k1() {
         bad_sign.0[0] += 1;
         bad_sign
     };
+    let bad_sign = &bad_sign;
     assert!(sign != bad_sign);
 
     // ok: verifies the msg's signature with the pubkey
     let verify1: bool = {
         let res = call!(
             &root,
-            contract.ecdsa_secp256k1_verify(pubkey.clone(), sign.clone(), msg.to_string())
+            contract.ecdsa_secp256k1_verify_compressed(
+                pubkey_compressed.clone(),
+                sign.clone(),
+                msg.to_string()
+            )
         );
         assert!(res.gas_burnt().0 < 65 * MEGA * MEGA);
         res.unwrap_json()
@@ -67,7 +84,11 @@ fn test_ecdsa_secp256k1() {
     let bad_verify1: bool = {
         let res = call!(
             &root,
-            contract.ecdsa_secp256k1_verify(pubkey.clone(), bad_sign.clone(), msg.to_string())
+            contract.ecdsa_secp256k1_verify_compressed(
+                pubkey_compressed.clone(),
+                bad_sign.clone(),
+                msg.to_string()
+            )
         );
         assert!(res.gas_burnt().0 < 65 * MEGA * MEGA);
         res.unwrap_json()
@@ -84,7 +105,11 @@ fn test_ecdsa_secp256k1() {
 
         let res = call!(
             &root,
-            contract.ecdsa_secp256k1_verify_prehashed(pubkey.clone(), sign.clone(), msg_hash)
+            contract.ecdsa_secp256k1_verify_prehashed_compressed(
+                pubkey_compressed.clone(),
+                sign.clone(),
+                msg_hash
+            )
         );
         assert!(res.gas_burnt().0 < 65 * MEGA * MEGA);
         res.unwrap_json()
@@ -101,12 +126,89 @@ fn test_ecdsa_secp256k1() {
 
         let res = call!(
             &root,
-            contract.ecdsa_secp256k1_verify_prehashed(pubkey.clone(), bad_sign, msg_hash)
+            contract.ecdsa_secp256k1_verify_prehashed_compressed(
+                pubkey_compressed.clone(),
+                bad_sign.clone(),
+                msg_hash
+            )
         );
         assert!(res.gas_burnt().0 < 65 * MEGA * MEGA);
         res.unwrap_json()
     };
     assert!(!bad_verify2);
+
+    // ok: verifies the msg's signature with the uncompressed pubkey
+    let verify3: bool = {
+        let res = call!(
+            &root,
+            contract.ecdsa_secp256k1_verify_uncompressed(
+                pubkey_uncompressed.clone(),
+                sign.clone(),
+                msg.to_string()
+            )
+        );
+        assert!(res.gas_burnt().0 < 65 * MEGA * MEGA);
+        res.unwrap_json()
+    };
+    assert!(verify3);
+
+    // fail: same, but pass in the wrong signature
+    let bad_verify3: bool = {
+        let res = call!(
+            &root,
+            contract.ecdsa_secp256k1_verify_uncompressed(
+                pubkey_uncompressed.clone(),
+                bad_sign.clone(),
+                msg.to_string()
+            )
+        );
+        assert!(res.gas_burnt().0 < 65 * MEGA * MEGA);
+        res.unwrap_json()
+    };
+    assert!(!bad_verify3);
+
+    // ok: verifies the msg's signature with the uncompressed pubkey
+    // verifies without sending the msg (only it's hash)
+    let verify4: bool = {
+        // ok: get the hash.
+        // could be generated locally, without using the contract
+        let res = call!(&root, contract.hash_sha256(msg.as_bytes().to_vec()));
+        assert!(res.gas_burnt().0 < 3 * MEGA * MEGA);
+        let msg_hash: types::hash::Sha256 = res.unwrap_json();
+
+        let res = call!(
+            &root,
+            contract.ecdsa_secp256k1_verify_prehashed_uncompressed(
+                pubkey_uncompressed.clone(),
+                sign.clone(),
+                msg_hash
+            )
+        );
+        assert!(res.gas_burnt().0 < 65 * MEGA * MEGA);
+        res.unwrap_json()
+    };
+    assert!(verify4);
+
+    // fail: same, but pass in the wrong signature
+    let bad_verify4: bool = {
+        // ok: get the hash.
+        // could be generated locally, without using the contract
+        let res = call!(&root, contract.hash_sha256(msg.as_bytes().to_vec()));
+        assert!(res.gas_burnt().0 < 3 * MEGA * MEGA);
+        let msg_hash: types::hash::Sha256 = res.unwrap_json();
+
+        let res = call!(
+            &root,
+            contract.ecdsa_secp256k1_verify_prehashed_uncompressed(
+                pubkey_uncompressed.clone(),
+                bad_sign.clone(),
+                msg_hash
+            )
+        );
+        assert!(res.gas_burnt().0 < 65 * MEGA * MEGA);
+        res.unwrap_json()
+    };
+    assert!(!bad_verify4);
 
     // ok: sanity assertions with rust-secp256k1
     // (this is linked to the same library that bitcoin uses)
@@ -116,7 +218,7 @@ fn test_ecdsa_secp256k1() {
 
         // ok: pubkeys match
         let pubkey2 = s::gen_pubkey(seckey.clone());
-        assert_eq!(pubkey.0, pubkey2.serialize());
+        assert_eq!(pubkey_compressed.0, pubkey2.serialize());
 
         let msg_hash: Sha256 =
             call!(&root, contract.hash_sha256(msg.as_bytes().to_vec())).unwrap_json();
@@ -134,7 +236,7 @@ fn test_ecdsa_secp256k1() {
 
         // ok: it's signing match
         let sign2 = s::ecdsa_secp256k1_sign_hashed(seckey, msg_hash);
-        assert_eq!(&sign, &sign2);
+        assert_eq!(sign, &sign2);
     }
 }
 
@@ -200,16 +302,14 @@ fn test_eddsa_ed25519() {
         assert_eq!(&sha2_hash[..], &msg_hash.0);
     }
 
-    // TODO: change to SignPrehashed
-    //
     // ok: sign the prehashed version
     // note: this results in a different signature from the normal sign!
-    let prehashed_sign: types::ed25519::Sign = {
+    let prehashed_sign: types::ed25519::SignPrehashed = {
         let seckey = types::ed25519::SecKey(seckey_bytes);
 
         let res = call!(
             &root,
-            contract.eddsa_ed25519_sign_prehashed(seckey, msg_hash.clone())
+            contract.eddsa_ed25519_sign_prehashed(seckey, msg_hash.clone(), None)
         );
         assert!(res.gas_burnt().0 < 24 * MEGA * MEGA);
         res.unwrap_json()
@@ -263,7 +363,7 @@ fn test_eddsa_ed25519() {
         // ok: checks by using the contract
         let res = call!(
             &root,
-            contract.eddsa_ed25519_verify_prehashed(pubkey, prehashed_sign, msg_hash)
+            contract.eddsa_ed25519_verify_prehashed(pubkey, prehashed_sign, msg_hash, None)
         );
         assert!(res.gas_burnt().0 < 35 * MEGA * MEGA);
         res.unwrap_json()

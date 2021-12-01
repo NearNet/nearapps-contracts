@@ -13,9 +13,6 @@ pub mod secp256k1 {
         pub [u8; 32],
     );
 
-    // TODO: replace by extended pubkey, as this is what the
-    // nearcore uses
-    //
     /// Public Key serialized in compressed form.  
     /// Instead of having both `x` and `y` values, only `x` is present,
     /// as `y` can be derived from that.
@@ -29,10 +26,29 @@ pub mod secp256k1 {
     #[derive(near_sdk::serde::Serialize, near_sdk::serde::Deserialize, Clone, PartialEq, Debug)]
     #[serde(crate = "near_sdk::serde")]
     #[serde(transparent)]
-    pub struct PubKeyCompact(
+    pub struct PubKeyCompressed(
         #[serde(with = "serde_big_array::BigArray")]
         //
         pub [u8; 33],
+    );
+
+    // TODO: check if the order is x,y or y,x
+    //
+    /// Public Key serialized in extended form.  
+    /// Contains both `x` and `y` values.
+    ///
+    /// Has a total size of 65 bytes, containing:
+    ///
+    /// - `header` (1-byte, with value `0x04`);
+    /// - `x` (32-bytes).
+    /// - `y` (32-bytes).
+    #[derive(near_sdk::serde::Serialize, near_sdk::serde::Deserialize, Clone, PartialEq, Debug)]
+    #[serde(crate = "near_sdk::serde")]
+    #[serde(transparent)]
+    pub struct PubKeyUncompressed(
+        #[serde(with = "serde_big_array::BigArray")]
+        //
+        pub [u8; 65],
     );
 
     /// Signature in serialized compact form.
@@ -81,10 +97,6 @@ pub mod ed25519 {
         pub [u8; ed25519_dalek::PUBLIC_KEY_LENGTH],
     );
 
-    // TODO: replace by a recoverable signature,
-    // which has an additional byte at msb (last byte),
-    // as this is what nearcore uses
-    //
     /// Signature in serialized form.
     ///
     /// Has a total size of 64 bytes.
@@ -92,6 +104,31 @@ pub mod ed25519 {
     #[serde(crate = "near_sdk::serde")]
     #[serde(transparent)]
     pub struct Sign(
+        #[serde(with = "serde_big_array::BigArray")]
+        //
+        pub [u8; 64],
+    );
+
+    /// Signature in serialized form, formed from a prehashed message.  
+    /// Note that this Signature itself is not "prehashed".
+    ///
+    /// A [`Sign`] that is formed from a non-prehashed message _m_ will
+    /// use the `Ed25519` algorithm, while a [`SignPrehashed`] that is
+    /// formed from a prehashed _m_ will use the `Ed25519ph` algorithm.  
+    /// This results in different and incompatible signatures. The
+    /// verification also uses different algorithms, so `Ed25519` cannot
+    /// be used to verify a [`SignPrehashed`] and `Ed25519ph` cannot be
+    /// used to verify a [`Sign`].
+    ///
+    /// Note that in case of `ecdsa-secp256k1`, the same algorithm is used
+    /// (ie. the hashing is "transparent") and the resulting signatures
+    /// _are_ the same.
+    ///
+    /// Has a total size of 64 bytes.
+    #[derive(near_sdk::serde::Serialize, near_sdk::serde::Deserialize, Clone, PartialEq, Debug)]
+    #[serde(crate = "near_sdk::serde")]
+    #[serde(transparent)]
+    pub struct SignPrehashed(
         #[serde(with = "serde_big_array::BigArray")]
         //
         pub [u8; 64],
@@ -118,8 +155,6 @@ pub mod hash {
         pub fn hash_bytes(msg_bytes: &[u8]) -> Self {
             // TODO: check if using `env` actually saves gas cost
             // (although it should save storage cost)
-            //
-            // TODO: it could return a [u8; 32] instead of Vec
             let hash = near_sdk::env::sha256(msg_bytes);
             let hash = hash.as_slice();
             assert_eq!(hash.len(), 32);
