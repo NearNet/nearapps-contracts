@@ -9,16 +9,34 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 near-sdk = {version = "4.0.0-pre.4", features = ["unstable"]}
+sha2 = "0.9.0"
+digest = "0.9.0"
 
 [dependencies.k256]
 # version = "0.10.0-pre.1"
 version = "0.9.6"
 default-features = false
-features = ["arithmetic", "ecdsa", "pkcs8", "sha256"]
+features = ["arithmetic", "ecdsa", "pkcs8"]
+# features = ["arithmetic", "ecdsa", "pkcs8", "sha256"]
 git = "https://github.com/nearcomponents/elliptic-curves"
 rev = "c8cae83"
 # branch = "0.9.6-no-rand"
 
+[dependencies.ecdsa]
+version = "0.12.1"
+default-features = false
+# features = ["der"]
+git = "https://github.com/nearcomponents/signatures"
+rev = "e054a2c"
+# branch = "0.12.1-no-rand"
+
+# [dependencies.elliptic-curve]
+# version = "0.10.5"
+# default-features = false
+# features = ["hazmat"]
+# git = "https://github.com/nearcomponents/traits"
+# rev = "f6c1d86"
+# # branch = "0.10.5-no-rand"
 
 # crypto: schnorr on ed25519
 # [dependencies.ed25519-dalek]
