@@ -1,14 +1,13 @@
 #![allow(dead_code)]
-use std::convert::TryFrom;
+
+pub mod _secp256k1;
 
 pub use near_sdk::json_types::{Base64VecU8, U64};
-use near_sdk::{AccountId, Balance};
+use near_sdk::AccountId;
 use near_sdk_sim::transaction::ExecutionStatus;
 use near_sdk_sim::{
-    call, deploy, init_simulator, to_yocto, ContractAccount, ExecutionResult, UserAccount,
+    deploy, init_simulator, to_yocto, ContractAccount, ExecutionResult, UserAccount,
 };
-
-use near_sdk::json_types::U128;
 
 use nearapps_contracts::ContractContract;
 
@@ -17,6 +16,10 @@ near_sdk_sim::lazy_static_include::lazy_static_include_bytes! {
 }
 
 pub type Contract = ContractAccount<ContractContract>;
+
+pub const KILO: u64 = 1000;
+pub const MEGA: u64 = KILO * KILO;
+pub const YOTTA: u128 = (MEGA as u128) * (MEGA as u128) * (MEGA as u128) * (MEGA as u128);
 
 pub fn setup_contract() -> (UserAccount, Contract) {
     let root = init_simulator(None);
