@@ -39,10 +39,11 @@ rev = "e054a2c"
 # # branch = "0.10.5-no-rand"
 
 # crypto: schnorr on ed25519
-# [dependencies.ed25519-dalek]
-# version = "1.0.1"
-# default-features = false
-# features = ["std", "u64_backend"]
+[dependencies.ed25519-dalek]
+version = "1.0.1"
+default-features = false
+features = ["u64_backend"]
+
 
 # to de/serialize [u8; u64] arrays
 [dependencies.serde-big-array]

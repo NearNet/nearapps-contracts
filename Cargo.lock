@@ -1836,6 +1836,7 @@ dependencies = [
  "bitcoin_hashes",
  "digest 0.9.0",
  "ecdsa",
+ "ed25519-dalek",
  "k256",
  "near-sdk",
  "near-sdk-sim",

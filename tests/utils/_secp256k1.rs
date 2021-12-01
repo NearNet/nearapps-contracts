@@ -1,4 +1,4 @@
-use nearapps_contracts::signing::{SecKey, SignCompact};
+use nearapps_contracts::signing::types::secp256k1::{SecKey, SignCompact};
 use secp256k1 as s;
 
 pub fn secp256k1_init_all() -> s::Secp256k1<s::All> {

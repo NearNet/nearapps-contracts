@@ -4,123 +4,65 @@ use near_sdk::{env, near_bindgen};
 #[cfg(not(target_arch = "wasm32"))]
 use crate::ContractContract;
 
-pub use types::{PubKey, SecKey, Sha256, SignCompact};
-
-pub mod types {
-    use digest::consts::{U32, U64};
-    use digest::{BlockInput, FixedOutputDirty, Reset, Update};
-    use near_sdk::env;
-
-    /// Private Key value.
-    ///
-    /// Has a total size of 32 bytes.
-    #[derive(near_sdk::serde::Serialize, near_sdk::serde::Deserialize, Clone, PartialEq, Debug)]
-    #[serde(crate = "near_sdk::serde")]
-    #[serde(transparent)]
-    pub struct SecKey(
-        #[serde(with = "serde_big_array::BigArray")]
-        //
-        pub [u8; 32],
-    );
-
-    /// Sha256 value.
-    ///
-    /// Has a total size of 32 bytes.
-    #[derive(
-        near_sdk::serde::Serialize, near_sdk::serde::Deserialize, Clone, PartialEq, Debug, Default,
-    )]
-    #[serde(crate = "near_sdk::serde")]
-    #[serde(transparent)]
-    pub struct Sha256(
-        #[serde(with = "serde_big_array::BigArray")]
-        //
-        pub [u8; 32],
-    );
-
-    impl Sha256 {
-        pub fn hash_bytes(msg_bytes: &[u8]) -> Self {
-            let hash = env::sha256(msg_bytes);
-            let hash = hash.as_slice();
-            assert_eq!(hash.len(), 32);
-            let mut res = [0u8; 32];
-            res.copy_from_slice(hash);
-            Sha256(res)
-        }
-    }
-
-    // needed so this is a Digest
-    impl BlockInput for Sha256 {
-        type BlockSize = U64;
-    }
-
-    // needed so this is a Digest
-    // but this is not needed for sign verification
-    impl Update for Sha256 {
-        fn update(&mut self, _input: impl AsRef<[u8]>) {
-            unimplemented!();
-        }
-    }
-
-    // needed so this is a Digest
-    // but this is not needed for sign verification
-    impl Reset for Sha256 {
-        fn reset(&mut self) {
-            unimplemented!();
-        }
-    }
-
-    // needed so this is a Digest
-    impl FixedOutputDirty for Sha256 {
-        type OutputSize = U32;
-
-        fn finalize_into_dirty(&mut self, out: &mut digest::Output<Self>) {
-            out.copy_from_slice(&self.0);
-        }
-    }
-
-    /// Public Key serialized in compressed form.  
-    /// Instead of having both `x` and `y` values, only `x` is present,
-    /// as `y` can be derived from that.
-    ///
-    /// Has a total size of 33 bytes, containing:
-    ///
-    /// - `header` (1-byte);
-    ///   - If `y` was even, the `header` is `0x02`;
-    ///   - If `y` was odd, the `header` is `0x03`.
-    /// - `x` (32-bytes).
-    #[derive(near_sdk::serde::Serialize, near_sdk::serde::Deserialize, Clone, PartialEq, Debug)]
-    #[serde(crate = "near_sdk::serde")]
-    #[serde(transparent)]
-    pub struct PubKey(
-        #[serde(with = "serde_big_array::BigArray")]
-        //
-        pub [u8; 33],
-    );
-
-    /// Signature in serialized compact form.
-    ///
-    /// Has a total size of 64 bytes, containing:
-    ///
-    /// - `r` (32-bytes big-endian);
-    /// - `s` (32-bytes big-endian).
-    ///
-    /// See also: [`k256::ecdsa::Signature`].
-    #[derive(near_sdk::serde::Serialize, near_sdk::serde::Deserialize, Clone, PartialEq, Debug)]
-    #[serde(crate = "near_sdk::serde")]
-    #[serde(transparent)]
-    pub struct SignCompact(
-        #[serde(with = "serde_big_array::BigArray")]
-        //
-        pub [u8; 64],
-    );
-}
+pub mod types;
 
 #[near_bindgen]
 impl Contract {
+    /// Generates a `sha256` hash of the given bytes.
+    ///
+    /// The returned hash has a total size of 32-bytes.
+    ///
+    /// See also: [`Self::hash_sha256_msg`]
+    pub fn hash_sha256(msg_bytes: Vec<u8>) -> types::hash::Sha256 {
+        let hash = env::sha256(&msg_bytes);
+        let hash = hash.as_slice();
+        assert_eq!(hash.len(), 32);
+        let mut res = [0u8; 32];
+        res.copy_from_slice(hash);
+        types::hash::Sha256(res)
+    }
+
+    /// Generates a `sha256` hash of the byte-repesentation of the
+    /// given `msg`.
+    ///
+    /// The returned hash has a total size of 32-bytes.
+    ///
+    /// See also: [`Self::hash_sha256`]
+    pub fn hash_sha256_msg(msg: String) -> types::hash::Sha256 {
+        let hash = env::sha256(msg.as_bytes());
+        let hash = hash.as_slice();
+        assert_eq!(hash.len(), 32);
+        let mut res = [0u8; 32];
+        res.copy_from_slice(hash);
+        types::hash::Sha256(res)
+    }
+
+    /// Generates a `sha512` hash of the given bytes.
+    ///
+    /// The returned hash has a total size of 64-bytes.
+    ///
+    /// See also: [`Self::hash_sha512_msg`]
+    pub fn hash_sha512(msg_bytes: Vec<u8>) -> types::hash::Sha512 {
+        types::hash::Sha512::hash_bytes(&msg_bytes)
+    }
+
+    /// Generates a `sha512` hash of the byte-repesentation of the
+    /// given `msg`.
+    ///
+    /// The returned hash has a total size of 64-bytes.
+    ///
+    /// See also: [`Self::hash_sha512`]
+    pub fn hash_sha512_msg(msg: String) -> types::hash::Sha512 {
+        types::hash::Sha512::hash_bytes(msg.as_bytes())
+    }
+
+    // TODO: hide behing a feature as this will not
+    // be needed as a near app.
+    //
     /// Creates a Public Key serialized in compressed form.
     ///
     /// Has a total size of 33 bytes.
-    pub fn secp256k1_pubkey(seckey: SecKey) -> PubKey {
+    pub fn secp256k1_pubkey(seckey: types::secp256k1::SecKey) -> types::secp256k1::PubKeyCompact {
         let seckey = k256::SecretKey::from_bytes(&seckey.0).unwrap();
         let mut res = [0; 33];
         let pubkey = {
@@ -129,7 +71,7 @@ impl Contract {
         };
         assert_eq!(pubkey.as_slice().len(), 33);
         res.copy_from_slice(&pubkey.as_slice()[0..33]);
-        PubKey(res)
+        types::secp256k1::PubKeyCompact(res)
     }
 
     // TODO: hide behing a feature as this will not
@@ -150,7 +92,10 @@ impl Contract {
     ///
     /// Returns the signature in serialized compact form.
     /// Has a total size of 64-bytes.
-    pub fn ecdsa_secp256k1_sign(seckey: SecKey, msg: String) -> SignCompact {
+    pub fn ecdsa_secp256k1_sign(
+        seckey: types::secp256k1::SecKey,
+        msg: String,
+    ) -> types::secp256k1::SignCompact {
         let seckey = k256::SecretKey::from_bytes(&seckey.0).unwrap();
         let signing_key = k256::ecdsa::SigningKey::from(seckey);
         let mut sign: k256::ecdsa::Signature = {
@@ -165,7 +110,7 @@ impl Contract {
             let mut res = [0u8; 64];
             assert_eq!(sign.as_bytes().len(), 64);
             res.copy_from_slice(&sign.as_bytes()[0..64]);
-            SignCompact(res)
+            types::secp256k1::SignCompact(res)
         }
     }
 
@@ -175,12 +120,16 @@ impl Contract {
     ///
     /// The `msg` is hashed using `sha256` and that is used
     /// to verify the signature's authenticity.
-    pub fn ecdsa_secp256k1_verify(pubkey: PubKey, sign: SignCompact, msg: String) -> bool {
+    pub fn ecdsa_secp256k1_verify(
+        pubkey: types::secp256k1::PubKeyCompact,
+        sign: types::secp256k1::SignCompact,
+        msg: String,
+    ) -> bool {
         let pubkey = k256::PublicKey::from_sec1_bytes(&pubkey.0).unwrap();
 
         let hashed_msg = {
             use ecdsa::hazmat::FromDigest;
-            let hashed_msg = Sha256::hash_bytes(msg.as_bytes());
+            let hashed_msg = types::hash::Sha256::hash_bytes(msg.as_bytes());
             k256::Scalar::from_digest(hashed_msg)
         };
 
@@ -204,10 +153,10 @@ impl Contract {
     ///
     /// The `msg_hash` must be the result of a `sha256` of the msg,
     /// and must have a total size of 32-bytes.
-    pub fn ecdsa_secp256k1_verify_hashed(
-        pubkey: PubKey,
-        sign: SignCompact,
-        hashed_msg: Sha256,
+    pub fn ecdsa_secp256k1_verify_prehashed(
+        pubkey: types::secp256k1::PubKeyCompact,
+        sign: types::secp256k1::SignCompact,
+        hashed_msg: types::hash::Sha256,
     ) -> bool {
         let pubkey = k256::PublicKey::from_sec1_bytes(&pubkey.0).unwrap();
 
@@ -230,32 +179,71 @@ impl Contract {
         }
     }
 
-    /// Generates a `sha256` hash of the given bytes.
-    ///
-    /// The returned hash has a total size of 32-bytes.
-    ///
-    /// See also: [`Self::hash_sha256_msg`]
-    pub fn hash_sha256(msg_bytes: Vec<u8>) -> Sha256 {
-        let hash = env::sha256(&msg_bytes);
-        let hash = hash.as_slice();
-        assert_eq!(hash.len(), 32);
-        let mut res = [0u8; 32];
-        res.copy_from_slice(hash);
-        Sha256(res)
+    // TODO: hide behing a feature as this will not
+    // be needed as a near app.
+    //
+    pub fn ed25519_pubkey(seckey: types::ed25519::SecKey) -> types::ed25519::PubKey {
+        let seckey = ed25519_dalek::SecretKey::from_bytes(&seckey.0).unwrap();
+        let pubkey: ed25519_dalek::PublicKey = (&seckey).into();
+        types::ed25519::PubKey(pubkey.to_bytes())
     }
 
-    /// Generates a `sha256` hash of the byte-repesentation of the
-    /// given `msg`.
-    ///
-    /// The returned hash has a total size of 32-bytes.
-    ///
-    /// See also: [`Self::hash_sha256`]
-    pub fn hash_sha256_msg(msg_bytes: Vec<u8>) -> Sha256 {
-        let hash = env::sha256(&msg_bytes);
-        let hash = hash.as_slice();
-        assert_eq!(hash.len(), 32);
-        let mut res = [0u8; 32];
-        res.copy_from_slice(hash);
-        Sha256(res)
+    // TODO: hide behing a feature as this will not
+    // be needed as a near app.
+    //
+    pub fn eddsa_ed25519_sign(seckey: types::ed25519::SecKey, msg: String) -> types::ed25519::Sign {
+        let seckey = ed25519_dalek::SecretKey::from_bytes(&seckey.0).unwrap();
+        let pubkey: ed25519_dalek::PublicKey = (&seckey).into();
+        let keypair = ed25519_dalek::Keypair {
+            secret: seckey,
+            public: pubkey,
+        };
+        let sign: ed25519_dalek::Signature = {
+            use ed25519_dalek::Signer;
+            keypair.sign(msg.as_bytes())
+        };
+        types::ed25519::Sign(sign.to_bytes())
+    }
+
+    // TODO: hide behing a feature as this will not
+    // be needed as a near app.
+    //
+    // TODO: change the return into PrehashedSign
+    pub fn eddsa_ed25519_sign_prehashed(
+        seckey: types::ed25519::SecKey,
+        msg_hash: types::hash::Sha512,
+    ) -> types::ed25519::Sign {
+        let seckey = ed25519_dalek::SecretKey::from_bytes(&seckey.0).unwrap();
+        let pubkey: ed25519_dalek::PublicKey = (&seckey).into();
+        let keypair = ed25519_dalek::Keypair {
+            secret: seckey,
+            public: pubkey,
+        };
+        let sign: ed25519_dalek::Signature = keypair.sign_prehashed(msg_hash, None).unwrap();
+        types::ed25519::Sign(sign.to_bytes())
+    }
+
+    pub fn eddsa_ed25519_verify(
+        pubkey: types::ed25519::PubKey,
+        sign: types::ed25519::Sign,
+        msg: String,
+    ) -> bool {
+        let pubkey = ed25519_dalek::PublicKey::from_bytes(&pubkey.0).unwrap();
+        let sign = ed25519_dalek::Signature::from_bytes(&sign.0).unwrap();
+
+        {
+            use ed25519_dalek::Verifier;
+            pubkey.verify(msg.as_bytes(), &sign).is_ok()
+        }
+    }
+
+    pub fn eddsa_ed25519_verify_prehashed(
+        pubkey: types::ed25519::PubKey,
+        sign: types::ed25519::Sign,
+        msg_hash: types::hash::Sha512,
+    ) -> bool {
+        let pubkey = ed25519_dalek::PublicKey::from_bytes(&pubkey.0).unwrap();
+        let sign = ed25519_dalek::Signature::from_bytes(&sign.0).unwrap();
+        pubkey.verify_prehashed(msg_hash, None, &sign).is_ok()
     }
 }
