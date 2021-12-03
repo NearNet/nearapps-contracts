@@ -1,3 +1,4 @@
+use crate::signing::eddsa_ed25519 as ed;
 use crate::Contract;
 use near_sdk::serde::{Deserialize, Serialize};
 use near_sdk::{env, ext_contract, near_bindgen, AccountId, Promise};
@@ -21,8 +22,8 @@ pub struct ContractCall {
 #[serde(crate = "near_sdk::serde")]
 pub struct CallContext {
     pub contract_call: ContractCall,
-    pub public_key: types::ed25519::PubKey,
-    pub signature: types::ed25519::Sign,
+    pub public_key: ed::types::PubKey,
+    pub signature: ed::types::Sign,
     pub app_id: Option<String>,
     pub caller: Option<CallerInformation>,
 }
@@ -44,13 +45,13 @@ impl Contract {
                 context.contract_call.method_name,
                 context.contract_call.args.as_bytes().to_vec(),
                 env::attached_deposit(),
-                env::prepaid_gas(),
+                env::prepaid_gas() / 3,
             )
             .then(ext_self::check_promise(
                 context.caller,
                 env::current_account_id(),
                 0,
-                env::prepaid_gas(),
+                env::prepaid_gas() / 3,
             ))
     }
 }
