@@ -12,13 +12,19 @@ pub trait ExtSelf {
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "near_sdk::serde")]
-pub struct CallContext {
+pub struct ContractCall {
     pub contract_id: AccountId,
-    pub action_id: String,
+    pub method_name: String,
     pub args: String,
+}
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "near_sdk::serde")]
+pub struct CallContext {
+    pub contract_call: ContractCall,
+    pub public_key: types::ed25519::PubKey,
+    pub signature: types::ed25519::Sign,
     pub app_id: Option<String>,
     pub caller: Option<CallerInformation>,
-    pub api_hash: Option<String>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -33,10 +39,10 @@ pub struct CallerInformation {
 impl Contract {
     #[payable]
     pub fn execute(&mut self, context: CallContext) -> Promise {
-        Promise::new(context.contract_id)
+        Promise::new(context.contract_call.contract_id)
             .function_call(
-                context.action_id,
-                context.args.as_bytes().to_vec(),
+                context.contract_call.method_name,
+                context.contract_call.args.as_bytes().to_vec(),
                 env::attached_deposit(),
                 env::prepaid_gas(),
             )
