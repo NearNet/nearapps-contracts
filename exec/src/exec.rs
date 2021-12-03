@@ -1,7 +1,7 @@
 use crate::signing::eddsa_ed25519 as ed;
 use crate::Contract;
 use near_sdk::serde::{Deserialize, Serialize};
-use near_sdk::{env, ext_contract, near_bindgen, AccountId, Promise};
+use near_sdk::{env, ext_contract, near_bindgen, AccountId, Promise, serde_json, PromiseResult};
 
 #[cfg(not(target_arch = "wasm32"))]
 use crate::ContractContract;
@@ -18,6 +18,7 @@ pub struct ContractCall {
     pub method_name: String,
     pub args: String,
 }
+
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "near_sdk::serde")]
 pub struct CallContext {
@@ -39,7 +40,7 @@ pub struct CallerInformation {
 #[near_bindgen]
 impl Contract {
     #[payable]
-    pub fn execute(&mut self, context: CallContext) -> Promise {
+    pub fn execute(context: CallContext) -> Promise {
         Promise::new(context.contract_call.contract_id)
             .function_call(
                 context.contract_call.method_name,
@@ -53,5 +54,19 @@ impl Contract {
                 0,
                 env::prepaid_gas() / 3,
             ))
+    }
+
+    ///Can only be called by predecessor_account_id().
+    #[private]
+    pub fn check_promise(caller: Option<CallerInformation>) {
+        match env::promise_result(0) {
+            PromiseResult::Successful(val) => {
+                if let Some(inf) = caller {
+                    env::log_str(&serde_json::to_string(&inf).unwrap());
+                }
+                env::value_return(&val);
+            }
+            _ => env::panic_str("Promise with index 0 failed"),
+        }
     }
 }
