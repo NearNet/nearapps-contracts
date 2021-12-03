@@ -12,7 +12,7 @@ use near_sdk_sim::{
 use nearapps_exec::ContractContract;
 
 near_sdk_sim::lazy_static_include::lazy_static_include_bytes! {
-    CONTRACT_WASM_BYTES => "../res/nearapps_contracts.wasm"
+    EXEC_WASM_BYTES => "../res/nearapps_exec.wasm"
 }
 
 pub type Contract = ContractAccount<ContractContract>;
@@ -26,7 +26,7 @@ pub fn setup_contract() -> (UserAccount, Contract) {
     let contract = deploy!(
         contract: ContractContract,
         contract_id: "contract".to_string(),
-        bytes: &CONTRACT_WASM_BYTES,
+        bytes: &EXEC_WASM_BYTES,
         signer_account: root,
         deposit: to_yocto("200"),
         // init_method: new()
