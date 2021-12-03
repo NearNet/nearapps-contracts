@@ -1,7 +1,7 @@
 use crate::signing::eddsa_ed25519 as ed;
 use crate::Contract;
 use near_sdk::serde::{Deserialize, Serialize};
-use near_sdk::{env, ext_contract, near_bindgen, AccountId, Promise, serde_json, PromiseResult};
+use near_sdk::{env, ext_contract, near_bindgen, serde_json, AccountId, Promise, PromiseResult};
 
 #[cfg(not(target_arch = "wasm32"))]
 use crate::ContractContract;
@@ -23,10 +23,15 @@ pub struct ContractCall {
 #[serde(crate = "near_sdk::serde")]
 pub struct CallContext {
     pub contract_call: ContractCall,
-    pub public_key: ed::types::PubKey,
-    pub signature: ed::types::Sign,
     pub app_id: Option<String>,
     pub caller: Option<CallerInformation>,
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "near_sdk::serde")]
+pub struct CreateAccountCallContext {
+    pub public_key: ed::types::PubKey,
+    pub signature: ed::types::Sign,
 }
 
 #[derive(Serialize, Deserialize)]
