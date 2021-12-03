@@ -25,6 +25,12 @@ pub struct PubKey(
     pub [u8; ed25519_dalek::PUBLIC_KEY_LENGTH],
 );
 
+impl From<ed25519_dalek::PublicKey> for PubKey {
+    fn from(pubkey: ed25519_dalek::PublicKey) -> Self {
+        PubKey(pubkey.to_bytes())
+    }
+}
+
 /// Signature in serialized form.
 ///
 /// Has a total size of 64 bytes.
@@ -36,6 +42,12 @@ pub struct Sign(
     //
     pub [u8; 64],
 );
+
+impl From<ed25519_dalek::Signature> for Sign {
+    fn from(sign: ed25519_dalek::Signature) -> Self {
+        Sign(sign.to_bytes())
+    }
+}
 
 /// Signature in serialized form, formed from a prehashed message.  
 /// Note that this Signature itself is not "prehashed".
@@ -61,3 +73,9 @@ pub struct SignPrehashed(
     //
     pub [u8; 64],
 );
+
+impl From<ed25519_dalek::Signature> for SignPrehashed {
+    fn from(sign: ed25519_dalek::Signature) -> Self {
+        SignPrehashed(sign.to_bytes())
+    }
+}

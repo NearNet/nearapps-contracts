@@ -29,6 +29,17 @@ pub struct PubKeyCompressed(
     pub [u8; 33],
 );
 
+impl From<k256::PublicKey> for PubKeyCompressed {
+    fn from(pubkey: k256::PublicKey) -> Self {
+        use k256::elliptic_curve::group::GroupEncoding;
+        let pubkey = pubkey.as_affine().to_bytes();
+        assert_eq!(pubkey.as_slice().len(), 33);
+        let mut res = [0; 33];
+        res.copy_from_slice(&pubkey.as_slice()[0..33]);
+        PubKeyCompressed(res)
+    }
+}
+
 // TODO: check if the order is x,y or y,x
 //
 /// Public Key serialized in extended form.  
@@ -48,6 +59,20 @@ pub struct PubKeyUncompressed(
     pub [u8; 65],
 );
 
+impl From<k256::PublicKey> for PubKeyUncompressed {
+    fn from(pubkey: k256::PublicKey) -> Self {
+        use k256::elliptic_curve::sec1::ToEncodedPoint;
+        let affine = pubkey.as_affine();
+        let compress = false;
+        let pubkey = affine.to_encoded_point(compress);
+        let pubkey = pubkey.as_bytes();
+        assert_eq!(pubkey.len(), 65);
+        let mut res = [0; 65];
+        res.copy_from_slice(&pubkey[0..65]);
+        PubKeyUncompressed(res)
+    }
+}
+
 /// Signature in serialized compact form.
 ///
 /// Has a total size of 64 bytes, containing:
@@ -64,3 +89,13 @@ pub struct SignCompact(
     //
     pub [u8; 64],
 );
+
+impl From<k256::ecdsa::Signature> for SignCompact {
+    fn from(sign: k256::ecdsa::Signature) -> Self {
+        use k256::ecdsa::signature::Signature;
+        let mut res = [0u8; 64];
+        assert_eq!(sign.as_bytes().len(), 64);
+        res.copy_from_slice(&sign.as_bytes()[0..64]);
+        SignCompact(res)
+    }
+}

@@ -16,14 +16,8 @@ impl Contract {
     /// Has a total size of 33 bytes.
     pub fn secp256k1_pubkey_compressed(seckey: types::SecKey) -> types::PubKeyCompressed {
         let seckey = k256::SecretKey::from_bytes(&seckey.0).unwrap();
-        let mut res = [0; 33];
-        let pubkey = {
-            use k256::elliptic_curve::group::GroupEncoding;
-            seckey.public_key().as_affine().to_bytes()
-        };
-        assert_eq!(pubkey.as_slice().len(), 33);
-        res.copy_from_slice(&pubkey.as_slice()[0..33]);
-        types::PubKeyCompressed(res)
+        let pubkey = seckey.public_key();
+        pubkey.into()
     }
 
     /// Creates a Public Key serialized in uncompressed form.
@@ -31,24 +25,8 @@ impl Contract {
     /// Has a total size of 65 bytes.
     pub fn secp256k1_pubkey_uncompressed(seckey: types::SecKey) -> types::PubKeyUncompressed {
         let seckey = k256::SecretKey::from_bytes(&seckey.0).unwrap();
-        let mut res = [0; 65];
-        let pubkey = {
-            let pubkey = seckey.public_key();
-            let affine = pubkey.as_affine();
-
-            let compress = false;
-            {
-                use k256::elliptic_curve::sec1::ToEncodedPoint;
-                affine.to_encoded_point(compress)
-            }
-            // let mut result = k256::CompressedPoint::default();
-            // result[..encoded.len()].copy_from_slice(encoded.as_bytes());
-            // result
-        };
-        let pubkey = pubkey.as_bytes();
-        assert_eq!(pubkey.len(), 65);
-        res.copy_from_slice(&pubkey[0..65]);
-        types::PubKeyUncompressed(res)
+        let pubkey = seckey.public_key();
+        pubkey.into()
     }
 
     // TODO: hide behing a feature as this will not
@@ -79,13 +57,7 @@ impl Contract {
             signing_key.try_sign_digest(digest).unwrap()
         };
         sign.normalize_s().unwrap();
-        {
-            use k256::ecdsa::signature::Signature;
-            let mut res = [0u8; 64];
-            assert_eq!(sign.as_bytes().len(), 64);
-            res.copy_from_slice(&sign.as_bytes()[0..64]);
-            types::SignCompact(res)
-        }
+        sign.into()
     }
 
     /// Returns `true` if `pubkey` authenticates the

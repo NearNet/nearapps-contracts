@@ -25,11 +25,6 @@ pub struct CallContext {
     pub contract_call: ContractCall,
     pub app_id: Option<String>,
     pub caller: Option<CallerInformation>,
-}
-
-#[derive(Serialize, Deserialize)]
-#[serde(crate = "near_sdk::serde")]
-pub struct CreateAccountCallContext {
     pub public_key: ed::types::PubKey,
     pub signature: ed::types::Sign,
 }

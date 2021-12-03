@@ -14,7 +14,7 @@ impl Contract {
     pub fn ed25519_pubkey(seckey: types::SecKey) -> types::PubKey {
         let seckey = ed25519_dalek::SecretKey::from_bytes(&seckey.0).unwrap();
         let pubkey: ed25519_dalek::PublicKey = (&seckey).into();
-        types::PubKey(pubkey.to_bytes())
+        pubkey.into()
     }
 
     // TODO: hide behing a feature as this will not
@@ -31,7 +31,7 @@ impl Contract {
             use ed25519_dalek::Signer;
             keypair.sign(msg.as_bytes())
         };
-        types::Sign(sign.to_bytes())
+        sign.into()
     }
 
     // TODO: hide behing a feature as this will not
@@ -49,7 +49,7 @@ impl Contract {
         };
         let context = context.as_ref().map(|s| s.as_bytes());
         let sign: ed25519_dalek::Signature = keypair.sign_prehashed(msg_hash, context).unwrap();
-        types::SignPrehashed(sign.to_bytes())
+        sign.into()
     }
 
     pub fn eddsa_ed25519_verify(pubkey: types::PubKey, sign: types::Sign, msg: String) -> bool {
