@@ -9,7 +9,7 @@ mod utils;
 fn test_ecdsa_secp256k1() {
     use nearapps_exec::{hash, signing::ecdsa_secp256k1 as ec};
 
-    let (root, contract) = setup_contract();
+    let (root, contract) = setup_exec();
 
     let seckey = [
         59, 148, 11, 85, 134, 130, 61, 253, 2, 174, 59, 70, 27, 180, 51, 107, 94, 203, 174, 253,

@@ -10,7 +10,7 @@ mod utils;
 fn test_eddsa_ed25519() {
     use nearapps_exec::{hash, signing::eddsa_ed25519 as ed};
 
-    let (root, contract) = setup_contract();
+    let (root, contract) = setup_exec();
 
     // the msg is an empty string
     let msg = "";

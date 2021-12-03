@@ -1848,6 +1848,7 @@ dependencies = [
  "k256",
  "near-sdk",
  "near-sdk-sim",
+ "nearapps-counter",
  "secp256k1",
  "serde-big-array",
  "sha2",
