@@ -1,6 +1,6 @@
 #![allow(clippy::ref_in_deref)]
 
-use crate::utils::*;
+use crate::utils::{setup_exec, TERA};
 use near_sdk_sim::call;
 
 mod utils;
@@ -38,7 +38,7 @@ fn test_eddsa_ed25519() {
     let pubkey: ed::types::PubKey = {
         let seckey = ed::types::SecKey(seckey_bytes);
         let res = call!(&root, contract.ed25519_pubkey(seckey));
-        assert!(res.gas_burnt().0 < 13 * MEGA * MEGA);
+        assert!(res.gas_burnt().0 < 13 * TERA);
         res.unwrap_json()
     };
     assert_eq!(pubkey.0, expected_pubkey_bytes);
@@ -47,7 +47,7 @@ fn test_eddsa_ed25519() {
     let sign: ed::types::Sign = {
         let seckey = ed::types::SecKey(seckey_bytes);
         let res = call!(&root, contract.eddsa_ed25519_sign(seckey, msg.to_string()));
-        assert!(res.gas_burnt().0 < 23 * MEGA * MEGA);
+        assert!(res.gas_burnt().0 < 23 * TERA);
         res.unwrap_json()
     };
     assert_eq!(sign.0, expected_sign_bytes);
@@ -55,7 +55,7 @@ fn test_eddsa_ed25519() {
     // ok: get the msg hash (to be used by prehashed calls)
     let msg_hash: hash::Sha512 = {
         let res = call!(&root, contract.hash_sha512(msg.as_bytes().to_vec()));
-        assert!(res.gas_burnt().0 < 3 * MEGA * MEGA);
+        assert!(res.gas_burnt().0 < 3 * TERA);
         res.unwrap_json()
     };
     // ok: confirms that it matches with directly using sha2 library
@@ -76,7 +76,7 @@ fn test_eddsa_ed25519() {
             &root,
             contract.eddsa_ed25519_sign_prehashed(seckey, msg_hash.clone(), None)
         );
-        assert!(res.gas_burnt().0 < 24 * MEGA * MEGA);
+        assert!(res.gas_burnt().0 < 24 * TERA);
         res.unwrap_json()
     };
 
@@ -94,7 +94,7 @@ fn test_eddsa_ed25519() {
             &root,
             contract.eddsa_ed25519_verify(pubkey.clone(), sign.clone(), msg.to_string())
         );
-        assert!(res.gas_burnt().0 < 35 * MEGA * MEGA);
+        assert!(res.gas_burnt().0 < 35 * TERA);
         res.unwrap_json()
     };
     assert!(verify1);
@@ -105,7 +105,7 @@ fn test_eddsa_ed25519() {
             &root,
             contract.eddsa_ed25519_verify(pubkey.clone(), bad_sign, msg.to_string())
         );
-        assert!(res.gas_burnt().0 < 35 * MEGA * MEGA);
+        assert!(res.gas_burnt().0 < 35 * TERA);
         res.unwrap_json()
     };
     assert!(!bad_verify1);
@@ -130,7 +130,7 @@ fn test_eddsa_ed25519() {
             &root,
             contract.eddsa_ed25519_verify_prehashed(pubkey, prehashed_sign, msg_hash, None)
         );
-        assert!(res.gas_burnt().0 < 35 * MEGA * MEGA);
+        assert!(res.gas_burnt().0 < 35 * TERA);
         res.unwrap_json()
     };
     assert!(verify2);

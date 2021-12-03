@@ -7,7 +7,12 @@ mod utils;
 
 #[test]
 fn test_exec() {
-    use nearapps_exec::exec;
+    use nearapps_exec::exec as exec_lib;
 
-    let (root, contract) = setup_exec();
+    let (root, exec) = setup_exec();
+    let counter = setup_counter(&root);
+
+    let res = call!(&root, counter.increment());
+    let val: u8 = res.unwrap_json();
+    assert_eq!(val, 1);
 }

@@ -18,6 +18,7 @@ pub struct ContractCall {
     pub method_name: String,
     pub args: String,
 }
+
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "near_sdk::serde")]
 pub struct CallContext {
