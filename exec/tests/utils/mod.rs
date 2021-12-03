@@ -9,10 +9,10 @@ use near_sdk_sim::{
     deploy, init_simulator, to_yocto, ContractAccount, ExecutionResult, UserAccount,
 };
 
-use nearapps_contracts::ContractContract;
+use nearapps_exec::ContractContract;
 
 near_sdk_sim::lazy_static_include::lazy_static_include_bytes! {
-    CONTRACT_WASM_BYTES => "res/nearapps_contracts.wasm"
+    CONTRACT_WASM_BYTES => "../res/nearapps_contracts.wasm"
 }
 
 pub type Contract = ContractAccount<ContractContract>;

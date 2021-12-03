@@ -1,5 +1,4 @@
-#!/usr/bin/env bash
-
+#!/bin/bash
 set -ex
 
 cargo +stable build --target wasm32-unknown-unknown --release

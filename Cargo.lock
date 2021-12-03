@@ -1830,7 +1830,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "nearapps-contracts"
+name = "nearapps-exec"
 version = "0.1.0"
 dependencies = [
  "bitcoin_hashes",

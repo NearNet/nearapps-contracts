@@ -1,6 +1,5 @@
 use crate::Contract;
-use near_sdk::serde::{Deserialize, Serialize};
-use near_sdk::{env, ext_contract, near_bindgen, AccountId, Promise};
+use near_sdk::{env, near_bindgen};
 
 #[cfg(not(target_arch = "wasm32"))]
 use crate::ContractContract;
