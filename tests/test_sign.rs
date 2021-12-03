@@ -8,7 +8,7 @@ use crate::utils::*;
 
 #[test]
 fn test_ecdsa_secp256k1() {
-    use nearapps_contracts::signing::types;
+    use nearapps_contracts::{hash, signing::ecdsa_secp256k1 as ec};
 
     let (root, contract) = setup_contract();
 
@@ -17,10 +17,10 @@ fn test_ecdsa_secp256k1() {
         102, 39, 170, 146, 46, 252, 4, 143, 236, 12, 136, 28,
     ];
 
-    let seckey = types::secp256k1::SecKey(seckey);
+    let seckey = ec::types::SecKey(seckey);
 
     // generates the pubkey on the contract
-    let pubkey_compressed: types::secp256k1::PubKeyCompressed = {
+    let pubkey_compressed: ec::types::PubKeyCompressed = {
         let res = call!(&root, contract.secp256k1_pubkey_compressed(seckey.clone()));
         assert!(res.gas_burnt().0 < 33 * MEGA * MEGA);
         res.unwrap_json()
@@ -32,7 +32,7 @@ fn test_ecdsa_secp256k1() {
     ];
     assert_eq!(pubkey_compressed.0, expected_pubkey);
 
-    let pubkey_uncompressed: types::secp256k1::PubKeyUncompressed = {
+    let pubkey_uncompressed: ec::types::PubKeyUncompressed = {
         let res = call!(
             &root,
             contract.secp256k1_pubkey_uncompressed(seckey.clone())
@@ -45,7 +45,7 @@ fn test_ecdsa_secp256k1() {
     let msg = "This is some message";
 
     // sign the message on the contract
-    let sign: types::secp256k1::SignCompact = {
+    let sign: ec::types::SignCompact = {
         let res = call!(
             &root,
             contract.ecdsa_secp256k1_sign(seckey.clone(), msg.to_string())
@@ -101,7 +101,7 @@ fn test_ecdsa_secp256k1() {
         // could be generated locally, without using the contract
         let res = call!(&root, contract.hash_sha256(msg.as_bytes().to_vec()));
         assert!(res.gas_burnt().0 < 3 * MEGA * MEGA);
-        let msg_hash: types::hash::Sha256 = res.unwrap_json();
+        let msg_hash: hash::Sha256 = res.unwrap_json();
 
         let res = call!(
             &root,
@@ -122,7 +122,7 @@ fn test_ecdsa_secp256k1() {
         // could be generated locally, without using the contract
         let res = call!(&root, contract.hash_sha256(msg.as_bytes().to_vec()));
         assert!(res.gas_burnt().0 < 3 * MEGA * MEGA);
-        let msg_hash: types::hash::Sha256 = res.unwrap_json();
+        let msg_hash: hash::Sha256 = res.unwrap_json();
 
         let res = call!(
             &root,
@@ -174,7 +174,7 @@ fn test_ecdsa_secp256k1() {
         // could be generated locally, without using the contract
         let res = call!(&root, contract.hash_sha256(msg.as_bytes().to_vec()));
         assert!(res.gas_burnt().0 < 3 * MEGA * MEGA);
-        let msg_hash: types::hash::Sha256 = res.unwrap_json();
+        let msg_hash: hash::Sha256 = res.unwrap_json();
 
         let res = call!(
             &root,
@@ -195,7 +195,7 @@ fn test_ecdsa_secp256k1() {
         // could be generated locally, without using the contract
         let res = call!(&root, contract.hash_sha256(msg.as_bytes().to_vec()));
         assert!(res.gas_burnt().0 < 3 * MEGA * MEGA);
-        let msg_hash: types::hash::Sha256 = res.unwrap_json();
+        let msg_hash: hash::Sha256 = res.unwrap_json();
 
         let res = call!(
             &root,
@@ -214,7 +214,7 @@ fn test_ecdsa_secp256k1() {
     // (this is linked to the same library that bitcoin uses)
     {
         use _secp256k1 as s;
-        use nearapps_contracts::signing::types::hash::Sha256;
+        use nearapps_contracts::hash::Sha256;
 
         // ok: pubkeys match
         let pubkey2 = s::gen_pubkey(seckey.clone());
@@ -243,7 +243,7 @@ fn test_ecdsa_secp256k1() {
 #[allow(clippy::zero_prefixed_literal)]
 #[test]
 fn test_eddsa_ed25519() {
-    use nearapps_contracts::signing::types;
+    use nearapps_contracts::{hash, signing::eddsa_ed25519 as ed};
 
     let (root, contract) = setup_contract();
 
@@ -270,8 +270,8 @@ fn test_eddsa_ed25519() {
     ];
 
     // ok: get the pub key using the contract
-    let pubkey: types::ed25519::PubKey = {
-        let seckey = types::ed25519::SecKey(seckey_bytes);
+    let pubkey: ed::types::PubKey = {
+        let seckey = ed::types::SecKey(seckey_bytes);
         let res = call!(&root, contract.ed25519_pubkey(seckey));
         assert!(res.gas_burnt().0 < 13 * MEGA * MEGA);
         res.unwrap_json()
@@ -279,8 +279,8 @@ fn test_eddsa_ed25519() {
     assert_eq!(pubkey.0, expected_pubkey_bytes);
 
     // ok: sign the msg using the contract
-    let sign: types::ed25519::Sign = {
-        let seckey = types::ed25519::SecKey(seckey_bytes);
+    let sign: ed::types::Sign = {
+        let seckey = ed::types::SecKey(seckey_bytes);
         let res = call!(&root, contract.eddsa_ed25519_sign(seckey, msg.to_string()));
         assert!(res.gas_burnt().0 < 23 * MEGA * MEGA);
         res.unwrap_json()
@@ -288,7 +288,7 @@ fn test_eddsa_ed25519() {
     assert_eq!(sign.0, expected_sign_bytes);
 
     // ok: get the msg hash (to be used by prehashed calls)
-    let msg_hash: types::hash::Sha512 = {
+    let msg_hash: hash::Sha512 = {
         let res = call!(&root, contract.hash_sha512(msg.as_bytes().to_vec()));
         assert!(res.gas_burnt().0 < 3 * MEGA * MEGA);
         res.unwrap_json()
@@ -304,8 +304,8 @@ fn test_eddsa_ed25519() {
 
     // ok: sign the prehashed version
     // note: this results in a different signature from the normal sign!
-    let prehashed_sign: types::ed25519::SignPrehashed = {
-        let seckey = types::ed25519::SecKey(seckey_bytes);
+    let prehashed_sign: ed::types::SignPrehashed = {
+        let seckey = ed::types::SecKey(seckey_bytes);
 
         let res = call!(
             &root,
