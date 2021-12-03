@@ -2,6 +2,7 @@
 # include a member for each contract
 members = [
   "exec",
+  "counter"
 ]
 
 [profile.release]

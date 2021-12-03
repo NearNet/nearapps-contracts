@@ -1830,6 +1830,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "nearapps-counter"
+version = "0.1.0"
+dependencies = [
+ "near-sdk",
+ "near-sdk-sim",
+]
+
+[[package]]
 name = "nearapps-exec"
 version = "0.1.0"
 dependencies = [
