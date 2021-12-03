@@ -11,6 +11,8 @@ crate-type = ["cdylib", "rlib"]
 near-sdk = {version = "4.0.0-pre.4", features = ["unstable"]}
 sha2 = "0.9.0"
 digest = "0.9.0"
+strum = "0.23"
+strum_macros = "0.23"
 
 [dependencies.k256]
 # version = "0.10.0-pre.1"

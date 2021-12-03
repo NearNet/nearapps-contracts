@@ -1,6 +1,7 @@
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::near_bindgen;
 
+pub mod error;
 pub mod exec;
 pub mod hash;
 pub mod signing;
