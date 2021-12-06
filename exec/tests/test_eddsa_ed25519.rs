@@ -8,7 +8,7 @@ mod utils;
 #[allow(clippy::zero_prefixed_literal)]
 #[test]
 fn test_eddsa_ed25519() {
-    use nearapps_exec::{hash, signing::eddsa_ed25519 as ed};
+    use nearapps_exec::{crypto::eddsa_ed25519 as ed, hash};
 
     let (root, contract) = setup_exec();
 
@@ -92,7 +92,7 @@ fn test_eddsa_ed25519() {
     let verify1: bool = {
         let res = call!(
             &root,
-            contract.eddsa_ed25519_verify(pubkey.clone(), sign.clone(), msg.to_string())
+            contract.eddsa_ed25519_verify_msg(pubkey.clone(), sign.clone(), msg.to_string())
         );
         assert!(res.gas_burnt().0 < 35 * TERA);
         res.unwrap_json()
@@ -103,7 +103,7 @@ fn test_eddsa_ed25519() {
     let bad_verify1: bool = {
         let res = call!(
             &root,
-            contract.eddsa_ed25519_verify(pubkey.clone(), bad_sign, msg.to_string())
+            contract.eddsa_ed25519_verify_msg(pubkey.clone(), bad_sign, msg.to_string())
         );
         assert!(res.gas_burnt().0 < 35 * TERA);
         res.unwrap_json()
@@ -159,3 +159,90 @@ fn test_eddsa_ed25519() {
         assert!(keypair.verify(msg_bytes, &sig2).is_ok());
     }
 }
+
+// test based on data from:
+// https://github.com/near/near-api-js/blob/7ea21f330af1a00543b1ae655761a98820f6a368/test/key_pair.test.js#L5
+#[allow(unused_variables)]
+#[test]
+fn test_near_verification() {
+    let msg = "message";
+    let pubkey = "ed25519:AYWv9RAN1hpSQA4p1DLhCNnpnNXwxhfH9qeHN8B4nJ59";
+    let sign =
+        "26gFr4xth7W9K7HPWAxq3BLsua8oTy378mC1MYFiEXHBBpeBjP8WmJEJo8XTBowetvqbRshcQEtBUdwQcAqDyP8T";
+
+    // test using the contract / call!()
+    {
+        let (root, contract) = setup_exec();
+
+        // ok: signature verified
+        let res = call!(
+            &root,
+            contract.verify_msg(sign.to_string(), pubkey.to_string(), msg.to_string())
+        );
+        res.assert_success();
+        let verify: bool = res.unwrap_json();
+        assert!(verify);
+
+        // fail: different message
+        let verify2: bool = call!(
+            &root,
+            contract.verify_msg(sign.to_string(), pubkey.to_string(), msg.to_string() + "0")
+        )
+        .unwrap_json();
+        assert!(!verify2);
+
+        // fail: different signature
+        let sign3 = "3".to_string() + &sign.chars().skip(1).collect::<String>();
+        let verify3: bool = call!(
+            &root,
+            contract.verify_msg(sign3, pubkey.to_string(), msg.to_string())
+        )
+        .unwrap_json();
+        assert!(!verify3);
+
+        // fail: different pubkey
+        let pubkey4 = "ed25519:9m52dqbkTFJWDxb3oSZ5EuHav1YaR8PbCTux59q4xRwM";
+        let verify4: bool = call!(
+            &root,
+            contract.verify_msg(sign.to_string(), pubkey4.to_string(), msg.to_string())
+        )
+        .unwrap_json();
+        assert!(!verify4);
+    }
+
+    // direct test (no contract / call!() involved)
+    {
+        // for the Ft.. part,
+        // must skip the first byte as it's used to indicate the curve type
+        let pubkey: near_sdk::PublicKey = pubkey.parse().unwrap();
+        let pubkey = &pubkey.as_bytes()[1..];
+
+        let mut sign_res = [0u8; 64];
+        let _sign = near_sdk::bs58::decode(sign.as_bytes())
+            .into(&mut sign_res)
+            .unwrap();
+        let sign = sign_res;
+
+        let msg_hash = {
+            use digest::Digest;
+            let mut sha2_hash = sha2::Sha256::new();
+            sha2_hash.update(msg.as_bytes());
+            let sha2_hash = sha2_hash.finalize();
+            sha2_hash.to_vec()
+        };
+
+        {
+            use ed25519_dalek::{PublicKey, Signature};
+            let pubkey = PublicKey::from_bytes(pubkey).unwrap();
+            let sign = Signature::from_bytes(&sign).unwrap();
+
+            use ecdsa::signature::Verifier;
+            assert!(pubkey.verify(&msg_hash, &sign).is_ok());
+        }
+    }
+}
+
+// let msg = r#"{"contract_id":"testnet","method_name":"create_account","args":{"new_account_id":"dasasdasd.testnet","new_public_key":"ed25519:FtB84LCX12AmjovMjXxq86sA8pdbMnixk7aixudPNNuN"}}"#;
+// let expected_hash = "7146bfc46487e635c5dbdc2976dc0cda1eac1c36fbdfe7481ff41c70196b9081";
+// let pubkey = "ed25519:FtB84LCX12AmjovMjXxq86sA8pdbMnixk7aixudPNNuN";
+// let sign = "679dbb85416ee137cdbb8327b630368dbd89fae811ccae47b39ca2082fd62a966ac72c9dabbd55f92d5c1e6a696a7e640e5d60ff10a6428741f04a92746a7e0a";

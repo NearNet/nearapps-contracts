@@ -1,10 +1,10 @@
 #![allow(clippy::ref_in_deref)]
+#![allow(clippy::needless_borrow)]
 
 use crate::utils::{setup_counter, setup_exec};
-use near_sdk::serde_json::json;
 use near_sdk_sim::call;
+use nearapps_exec::crypto::eddsa_ed25519::types::{PubKey, Sign};
 use nearapps_exec::exec::{CallContext, ContractCall};
-use nearapps_exec::signing::eddsa_ed25519::types::{PubKey, Sign};
 
 mod utils;
 

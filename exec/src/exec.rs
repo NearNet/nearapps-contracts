@@ -1,7 +1,7 @@
 #![allow(clippy::let_and_return)]
 
+use crate::crypto::eddsa_ed25519 as ed;
 use crate::error::Error;
-use crate::signing::eddsa_ed25519 as ed;
 use crate::Contract;
 use near_sdk::serde::{Deserialize, Serialize};
 use near_sdk::{env, ext_contract, near_bindgen, serde_json, AccountId, Promise, PromiseResult};
