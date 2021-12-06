@@ -2,13 +2,16 @@
 #![allow(clippy::needless_borrow)]
 
 use crate::utils::{setup_counter, setup_exec};
+use crypto::eddsa_ed25519 as ed;
 use near_sdk_sim::call;
-use nearapps_exec::crypto::eddsa_ed25519::types::{PubKey, Sign};
+use nearapps_exec::crypto;
 use nearapps_exec::exec::{CallContext, ContractCall};
 
 mod utils;
 
-fn sign(ctx: &ContractCall) -> (PubKey, Sign) {
+fn sign(ctx: &ContractCall) -> (near_sdk::PublicKey, crypto::Bs58EncodedSignature) {
+    use std::convert::TryInto;
+
     use ed25519_dalek::{Keypair, PublicKey, SecretKey, Signature};
     let seckey_bytes: [u8; 32] = [
         62, 70, 27, 163, 92, 182, 11, 3, 77, 234, 98, 4, 11, 127, 79, 228, 243, 187, 150, 73, 201,
@@ -27,7 +30,11 @@ fn sign(ctx: &ContractCall) -> (PubKey, Sign) {
         keypair.sign(msg_bytes.as_bytes())
     };
 
-    (public.into(), sign.into())
+    let public: ed::types::PubKey = public.into();
+    let sign: ed::types::Sign = sign.into();
+    let sign: crypto::Bs58EncodedSignature = sign.into();
+
+    (public.try_into().unwrap(), sign)
 }
 
 fn into_callctx(ctx: ContractCall) -> CallContext {

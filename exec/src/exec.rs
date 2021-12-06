@@ -1,6 +1,5 @@
 #![allow(clippy::let_and_return)]
 
-use crate::crypto::eddsa_ed25519 as ed;
 use crate::error::Error;
 use crate::Contract;
 use near_sdk::serde::{Deserialize, Serialize};
@@ -34,8 +33,8 @@ pub struct CallContext {
     pub app_id: Option<String>,
     pub caller: Option<CallerInformation>,
     //
-    pub public_key: ed::types::PubKey,
-    pub signature: ed::types::Sign,
+    pub public_key: near_sdk::PublicKey,
+    pub signature: crate::crypto::Bs58EncodedSignature,
 }
 
 #[derive(Serialize, Deserialize)]
