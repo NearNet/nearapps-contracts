@@ -1,8 +1,9 @@
 [workspace]
 # include a member for each contract
 members = [
-  "exec",
-  "counter"
+  "app-exec",
+  "app-wallet",
+  "app-counter"
 ]
 
 [profile.release]
