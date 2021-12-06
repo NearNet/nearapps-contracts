@@ -1,5 +1,5 @@
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
-use near_sdk::{env, near_bindgen, Promise};
+use near_sdk::{env, near_bindgen, Gas, Promise, PromiseOrValue};
 
 #[near_bindgen]
 #[derive(Default, BorshDeserialize, BorshSerialize)]
@@ -7,9 +7,15 @@ pub struct Counter {
     val: u8,
 }
 
+pub const KILO: u64 = 1000;
+pub const MEGA: u64 = KILO * KILO;
+pub const TERA: u64 = MEGA * MEGA;
+pub const YOTTA: u128 = (TERA as u128) * (TERA as u128);
+
 #[near_sdk::ext_contract(ext_self)]
 pub trait ExtSelf {
     fn increment() -> u8;
+    fn call_until(value: u8, target: u8) -> u8;
 }
 
 #[near_bindgen]
@@ -45,13 +51,16 @@ impl Counter {
     /// Makes an `increment()` call into itself.
     #[allow(clippy::let_and_return)]
     pub fn call_increment() -> near_sdk::Promise {
+        const GAS_CURRENT: Gas = Gas(5 * TERA);
+        let gas = env::prepaid_gas() - env::used_gas() - GAS_CURRENT;
+
         let call = ext_self::increment(
             // calling into itself
             env::current_account_id(),
             // deposit
             0,
-            // gas (TODO: change for a value)
-            0.into(),
+            // gas
+            gas,
         );
         call
     }
@@ -81,5 +90,26 @@ impl Counter {
             //
             .transfer(qty as u128);
         transfer
+    }
+
+    /// Calls repeteadly into itself until `value`
+    /// reaches `target`.
+    pub fn call_until(value: u8, target: u8) -> near_sdk::PromiseOrValue<u8> {
+        const GAS_CURRENT: Gas = Gas(5 * TERA);
+        let gas = env::prepaid_gas() - env::used_gas() - GAS_CURRENT;
+
+        if value >= target {
+            PromiseOrValue::Value(value)
+        } else {
+            let call = ext_self::call_until(
+                //
+                value + 1,
+                target,
+                env::current_account_id(),
+                0,
+                gas,
+            );
+            PromiseOrValue::Promise(call)
+        }
     }
 }

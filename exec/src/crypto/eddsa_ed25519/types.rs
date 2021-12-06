@@ -1,3 +1,5 @@
+use std::convert::TryFrom;
+
 // todo: replace this by an extended key, as this
 // is what nearcore uses
 //
@@ -28,6 +30,38 @@ pub struct PubKey(
 impl From<ed25519_dalek::PublicKey> for PubKey {
     fn from(pubkey: ed25519_dalek::PublicKey) -> Self {
         PubKey(pubkey.to_bytes())
+    }
+}
+
+impl From<PubKey> for ed25519_dalek::PublicKey {
+    fn from(val: PubKey) -> Self {
+        ed25519_dalek::PublicKey::from_bytes(&val.0).unwrap()
+    }
+}
+
+impl From<near_sdk::PublicKey> for PubKey {
+    fn from(pubkey: near_sdk::PublicKey) -> Self {
+        use near_sdk::CurveType;
+        match pubkey.curve_type() {
+            CurveType::ED25519 => {
+                let pubkey = pubkey.as_bytes();
+                assert_eq!(pubkey.len(), ed25519_dalek::PUBLIC_KEY_LENGTH + 1);
+                let mut res = [0; ed25519_dalek::PUBLIC_KEY_LENGTH];
+                res.copy_from_slice(&pubkey[1..]);
+                PubKey(res)
+            }
+            CurveType::SECP256K1 => panic!("wrong pubkey type"),
+        }
+    }
+}
+
+impl std::convert::TryFrom<PubKey> for near_sdk::PublicKey {
+    type Error = <near_sdk::PublicKey as TryFrom<Vec<u8>>>::Error;
+    fn try_from(pubkey: PubKey) -> Result<Self, Self::Error> {
+        let mut res = Vec::with_capacity(ed25519_dalek::PUBLIC_KEY_LENGTH + 1);
+        res.push(near_sdk::CurveType::ED25519 as u8);
+        res.extend_from_slice(&pubkey.0);
+        near_sdk::PublicKey::try_from(res)
     }
 }
 

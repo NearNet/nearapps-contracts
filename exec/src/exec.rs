@@ -1,4 +1,7 @@
-use crate::signing::eddsa_ed25519 as ed;
+#![allow(clippy::let_and_return)]
+
+use crate::crypto::eddsa_ed25519 as ed;
+use crate::error::Error;
 use crate::Contract;
 use near_sdk::serde::{Deserialize, Serialize};
 use near_sdk::{env, ext_contract, near_bindgen, serde_json, AccountId, Promise, PromiseResult};
@@ -8,6 +11,10 @@ use crate::ContractContract;
 
 #[ext_contract(ext_self)]
 pub trait ExtSelf {
+    /// Executes an external contract's function, logging on the callback
+    /// and forwarding the calls result back.
+    ///
+    /// Only forwards the first result.
     fn check_promise(caller: Option<CallerInformation>) -> Vec<u8>;
 }
 
@@ -23,8 +30,10 @@ pub struct ContractCall {
 #[serde(crate = "near_sdk::serde")]
 pub struct CallContext {
     pub contract_call: ContractCall,
+    //
     pub app_id: Option<String>,
     pub caller: Option<CallerInformation>,
+    //
     pub public_key: ed::types::PubKey,
     pub signature: ed::types::Sign,
 }
@@ -39,8 +48,17 @@ pub struct CallerInformation {
 
 #[near_bindgen]
 impl Contract {
+    /// Executes an external contract's function, logging on the callback
+    /// and forwarding the calls result back.
+    ///
+    /// Only forwards the first result.
     #[payable]
     pub fn execute(context: CallContext) -> Promise {
+        // makes sure it won't call an internal private function
+        if context.contract_call.contract_id == env::current_account_id() {
+            Error::CallCurrentAccount.panic()
+        }
+
         Promise::new(context.contract_call.contract_id)
             .function_call(
                 context.contract_call.method_name,
@@ -56,17 +74,19 @@ impl Contract {
             ))
     }
 
-    ///Can only be called by predecessor_account_id().
+    /// Checks the first result of an external call that was made,
+    /// forwarding the first promise result as the value result.
+    ///
+    /// Logs on successful promise.
     #[private]
     pub fn check_promise(caller: Option<CallerInformation>) {
-        match env::promise_result(0) {
-            PromiseResult::Successful(val) => {
-                if let Some(inf) = caller {
-                    env::log_str(&serde_json::to_string(&inf).unwrap());
-                }
-                env::value_return(&val);
-            }
+        let ret = match env::promise_result(0) {
+            PromiseResult::Successful(val) => val,
             _ => env::panic_str("Promise with index 0 failed"),
+        };
+        if let Some(inf) = caller {
+            env::log_str(&serde_json::to_string(&inf).unwrap());
         }
+        env::value_return(&ret)
     }
 }

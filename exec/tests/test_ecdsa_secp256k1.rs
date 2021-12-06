@@ -7,7 +7,7 @@ mod utils;
 
 #[test]
 fn test_ecdsa_secp256k1() {
-    use nearapps_exec::{hash, signing::ecdsa_secp256k1 as ec};
+    use nearapps_exec::{crypto::ecdsa_secp256k1 as ec, hash};
 
     let (root, contract) = setup_exec();
 
@@ -68,7 +68,7 @@ fn test_ecdsa_secp256k1() {
     let verify1: bool = {
         let res = call!(
             &root,
-            contract.ecdsa_secp256k1_verify_compressed(
+            contract.ecdsa_secp256k1_verify_compressed_msg(
                 pubkey_compressed.clone(),
                 sign.clone(),
                 msg.to_string()
@@ -83,7 +83,7 @@ fn test_ecdsa_secp256k1() {
     let bad_verify1: bool = {
         let res = call!(
             &root,
-            contract.ecdsa_secp256k1_verify_compressed(
+            contract.ecdsa_secp256k1_verify_compressed_msg(
                 pubkey_compressed.clone(),
                 bad_sign.clone(),
                 msg.to_string()
@@ -140,7 +140,7 @@ fn test_ecdsa_secp256k1() {
     let verify3: bool = {
         let res = call!(
             &root,
-            contract.ecdsa_secp256k1_verify_uncompressed(
+            contract.ecdsa_secp256k1_verify_uncompressed_msg(
                 pubkey_uncompressed.clone(),
                 sign.clone(),
                 msg.to_string()
@@ -155,7 +155,7 @@ fn test_ecdsa_secp256k1() {
     let bad_verify3: bool = {
         let res = call!(
             &root,
-            contract.ecdsa_secp256k1_verify_uncompressed(
+            contract.ecdsa_secp256k1_verify_uncompressed_msg(
                 pubkey_uncompressed.clone(),
                 bad_sign.clone(),
                 msg.to_string()
