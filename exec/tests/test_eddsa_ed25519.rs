@@ -177,7 +177,11 @@ fn test_near_verification() {
         // ok: signature verified
         let res = call!(
             &root,
-            contract.verify_msg(sign.to_string(), pubkey.to_string(), msg.to_string())
+            contract.verify_msg(
+                sign.to_string().into(),
+                pubkey.to_string().into(),
+                msg.to_string()
+            )
         );
         res.assert_success();
         let verify: bool = res.unwrap_json();
@@ -186,7 +190,11 @@ fn test_near_verification() {
         // fail: different message
         let verify2: bool = call!(
             &root,
-            contract.verify_msg(sign.to_string(), pubkey.to_string(), msg.to_string() + "0")
+            contract.verify_msg(
+                sign.to_string().into(),
+                pubkey.to_string().into(),
+                msg.to_string() + "0"
+            )
         )
         .unwrap_json();
         assert!(!verify2);
@@ -195,7 +203,7 @@ fn test_near_verification() {
         let sign3 = "3".to_string() + &sign.chars().skip(1).collect::<String>();
         let verify3: bool = call!(
             &root,
-            contract.verify_msg(sign3, pubkey.to_string(), msg.to_string())
+            contract.verify_msg(sign3.into(), pubkey.to_string().into(), msg.to_string())
         )
         .unwrap_json();
         assert!(!verify3);
@@ -204,7 +212,11 @@ fn test_near_verification() {
         let pubkey4 = "ed25519:9m52dqbkTFJWDxb3oSZ5EuHav1YaR8PbCTux59q4xRwM";
         let verify4: bool = call!(
             &root,
-            contract.verify_msg(sign.to_string(), pubkey4.to_string(), msg.to_string())
+            contract.verify_msg(
+                sign.to_string().into(),
+                pubkey4.to_string().into(),
+                msg.to_string()
+            )
         )
         .unwrap_json();
         assert!(!verify4);

@@ -13,24 +13,21 @@ pub use ecdsa_secp256k1::types::SignRecoverable as EcdsaSecp256k1Signature;
 pub use eddsa_ed25519::types::PubKey as EddsaEd25519PublicKey;
 pub use eddsa_ed25519::types::Sign as EddsaEd25519Signature;
 
-pub type Bs58EncodedString = String;
-pub type PubKey = String;
-
 #[near_bindgen]
 impl Contract {
     // TODO: write comments
     //
     // signature verification that is compatible to Near
     pub fn verify_hashed_msg(
-        sign: Bs58EncodedString,
-        pubkey: PubKey,
+        sign: Bs58EncodedSignature,
+        pubkey: NearEncodedPubkey,
         msg_hash: crate::hash::Sha256,
     ) -> bool {
-        let pubkey: near_sdk::PublicKey = pubkey.parse().unwrap();
+        let pubkey = pubkey.parse();
         Self::verify_inner(sign, pubkey, msg_hash)
     }
 
-    pub fn verify_msg(sign: Bs58EncodedString, pubkey: PubKey, msg: String) -> bool {
+    pub fn verify_msg(sign: Bs58EncodedSignature, pubkey: NearEncodedPubkey, msg: String) -> bool {
         let msg_hash = {
             use digest::Digest;
             let mut sha2_hash = sha2::Sha256::new();
@@ -41,7 +38,7 @@ impl Contract {
             arr.copy_from_slice(sha2_hash.as_slice());
             crate::hash::Sha256(arr)
         };
-        let pubkey: near_sdk::PublicKey = pubkey.parse().unwrap();
+        let pubkey = pubkey.parse();
         Self::verify_inner(sign, pubkey, msg_hash)
     }
 }
@@ -51,12 +48,12 @@ impl Contract {
     //
     // signature verification that is compatible to Near
     pub fn verify_inner(
-        sign: Bs58EncodedString,
+        sign: Bs58EncodedSignature,
         pubkey: near_sdk::PublicKey,
         msg_hash: crate::hash::Sha256,
     ) -> bool {
         use near_sdk::CurveType;
-        let sign = near_sdk::bs58::decode(sign).into_vec().unwrap();
+        let sign = sign.decode();
         match (pubkey.curve_type(), sign.len()) {
             (CurveType::ED25519, 64) => {
                 let mut sign_raw = [0; 64];
@@ -83,5 +80,52 @@ impl Contract {
                 sign_len, curve_type
             ),
         }
+    }
+}
+
+#[derive(
+    near_sdk::serde::Serialize, near_sdk::serde::Deserialize, Clone, PartialEq, Debug, Default,
+)]
+#[serde(crate = "near_sdk::serde")]
+#[serde(transparent)]
+pub struct NearEncodedPubkey(pub String);
+
+impl NearEncodedPubkey {
+    pub fn parse(&self) -> near_sdk::PublicKey {
+        self.0.parse().unwrap()
+    }
+}
+
+impl From<String> for NearEncodedPubkey {
+    fn from(s: String) -> Self {
+        Self(s)
+    }
+}
+
+#[derive(
+    near_sdk::serde::Serialize, near_sdk::serde::Deserialize, Clone, PartialEq, Debug, Default,
+)]
+#[serde(crate = "near_sdk::serde")]
+#[serde(transparent)]
+pub struct Bs58EncodedSignature(pub String);
+
+impl Bs58EncodedSignature {
+    pub fn decode(&self) -> Vec<u8> {
+        near_sdk::bs58::decode(&self.0).into_vec().unwrap()
+    }
+    pub fn encode(bytes: &[u8]) -> Self {
+        Self(near_sdk::bs58::encode(bytes).into_string())
+    }
+}
+
+impl From<String> for Bs58EncodedSignature {
+    fn from(s: String) -> Self {
+        Self(s)
+    }
+}
+
+impl From<EddsaEd25519Signature> for Bs58EncodedSignature {
+    fn from(sign: EddsaEd25519Signature) -> Self {
+        Self::encode(&sign.0)
     }
 }
