@@ -70,7 +70,7 @@ curl --location --request POST 'https://api.nearapps.net/testnet/v1/execute' \
 
 Approval:
 
-method: `nft_approve`
+method: `nft_approve_from`
 
 Parameters:
 
@@ -80,6 +80,7 @@ Parameters:
 ```json
 {
   "token_id": "1",
+  "sender_id": "my-account.testnet",
   "account_id": "my-friend.testnet"
 }
 ```
@@ -95,7 +96,7 @@ curl --location --request POST 'https://api.nearapps.net/testnet/v1/execute' \
 --header 'x-api-key: <api key>' \
 --header 'Content-Type: application/json' \
 --data-raw '{
-    "message": "{\"contract_id\":\"nft.naps.testnet\",\"method_name\":\"nft_approve\",\"args\": \"{\"token_id\":\"1\",\"account_id\":\"my-friend.testnet\"}\"}",
+    "message": "{\"contract_id\":\"nft.naps.testnet\",\"method_name\":\"nft_approve_from\",\"args\": \"{\"token_id\":\"1\",\"account_id\":\"my-friend.testnet\"}\"}",
     "sender": "my-account.testnet",
     "signed": {
         "signature": "4FJecZiY22ReWiJHxCSjDw71Jyd8WVgkkeNfH1Zj21uhQEV1c7QQ4bQYc7QMgH3Tcz5LxYJMxPYuHoETN8i4sQNq",
@@ -106,17 +107,18 @@ curl --location --request POST 'https://api.nearapps.net/testnet/v1/execute' \
 
 Transfer:
 
-method: `nft_transfer`
+method: `nft_transfer_from`
 
 Parameters:
 
 - `token_id`: string - the token id to give allowance on
 - `receiver_id`: string - the account to receive the token
-- `approval_id`: string - the approval id from `nft_approve`
+- `approval_id`: string - the approval id from `nft_approve_from`
 
 ```json
 {
   "token_id": "1",
+  "sender_id": "my-account.testnet",
   "receiver_id": "my-friend.testnet",
   "approval_id": "4711"
 }
@@ -133,7 +135,7 @@ curl --location --request POST 'https://api.nearapps.net/testnet/v1/execute' \
 --header 'x-api-key: <api key>' \
 --header 'Content-Type: application/json' \
 --data-raw '{
-    "message": "{\"contract_id\":\"nft.naps.testnet\",\"method_name\":\"nft_transfer\",\"args\": \"{\"token_id\":\"1\",\"receiver_id\":\"my-friend.testnet\",\"approval_id\":\"4711\"}\",
+    "message": "{\"contract_id\":\"nft.naps.testnet\",\"method_name\":\"nft_transfer_from\",\"args\": \"{\"token_id\":\"1\",\"receiver_id\":\"my-friend.testnet\",\"approval_id\":\"4711\"}\",
     "sender": "my-account.testnet",
     "signed": {
         "signature": "4FJecZiY22ReWiJHxCSjDw71Jyd8WVgkkeNfH1Zj21uhQEV1c7QQ4bQYc7QMgH3Tcz5LxYJMxPYuHoETN8i4sQNq",
@@ -173,7 +175,7 @@ curl --location --request POST 'https://api.nearapps.net/testnet/v1/execute' \
 --header 'x-api-key: <api key>' \
 --header 'Content-Type: application/json' \
 --data-raw '{
-    "message": "{\"contract_id\":\"nft.naps.testnet\",\"method_name\":\"nft_transfer\",\"args\": \"{\"token_id\":\"1\",\"sender_id\":\"my-account.testnet\", \"receiver_id\":\"my-friend.testnet\"}\",
+    "message": "{\"contract_id\":\"nft.naps.testnet\",\"method_name\":\"nft_transfer_from\",\"args\": \"{\"token_id\":\"1\",\"sender_id\":\"my-account.testnet\", \"receiver_id\":\"my-friend.testnet\"}\",
     "sender": "my-account.testnet",
     "signed": {
         "signature": "4FJecZiY22ReWiJHxCSjDw71Jyd8WVgkkeNfH1Zj21uhQEV1c7QQ4bQYc7QMgH3Tcz5LxYJMxPYuHoETN8i4sQNq",
