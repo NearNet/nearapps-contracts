@@ -55,7 +55,7 @@ features = ["const-generics"]
 
 [dev-dependencies]
 near-sdk-sim = "4.0.0-pre.4"
-nearapps-counter = { path = "../counter" }
+nearapps-counter = { path = "../app-counter" }
 
 # hash: sha256
 [dev-dependencies.bitcoin_hashes]

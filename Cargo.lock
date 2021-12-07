@@ -1847,6 +1847,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "nearapps-wallet"
+version = "0.1.0"
+dependencies = [
+ "near-sdk",
+ "near-sdk-sim",
+ "strum 0.23.0",
+ "strum_macros 0.23.1",
+]
+
+[[package]]
 name = "nix"
 version = "0.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
