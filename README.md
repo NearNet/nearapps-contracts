@@ -11,17 +11,17 @@
 
 method: `verify_hashed_msg`
 
-Parameters:
+###### Parameters
 
 - `sign`: string - the signature, in base58. Can be a `Ed25519` or a `Secp256k1` signature.
 - `pubkey`: string - the public key, in base58 with an optional `{header}:` as prefix. Can be a `Ed25519` or a `Secp256k1` public key. On a missing prefix, `ed25519:` is assumed.
 - `msg_hash`: number[] - the message hash, in a 32-sized array of bytes, resulted from a sha256 hash of them message.
 
-Returns:
+###### Returns
 
 - `is_match`: boolean - whether the `msg_hash` matched the `pubkey` on the `sign`.
 
-Sample:
+###### Sample
 
 ```json
 {
@@ -35,17 +35,17 @@ Sample:
 
 method: `verify_msg`
 
-Parameters:
+###### Parameters
 
 - `sign`: string - the signature, in base58. Can be a `Ed25519` or a `Secp256k1` signature.
 - `pubkey`: string - the public key, in base58 with an optional `{header}:` as prefix. Can be a `Ed25519` or a `Secp256k1` public key. On a missing prefix, `ed25519:` is assumed.
 - `msg`: string - the message. It will be hashed internally by the contract.
 
-Returns:
+###### Returns
 
 - `is_match`: boolean - whether the sha256 hash of the `msg` matched the `pubkey` on the `sign`.
 
-Sample:
+###### Sample
 
 ```json
 {
@@ -59,7 +59,7 @@ Sample:
 
 method: `execute`
 
-Parameters:
+###### Parameters
 
 - `context`: the call context.
     - `contract_call`: the contract call context.
@@ -74,12 +74,12 @@ Parameters:
     - `public_key`: string - the public key, in base58 which an optional `{header}:` as prefix. Can be a `Ed25519` or a `Secp256k1` public key. Note: currently disabled as the message still needs to be specified. A placeholder value is being used.
     - `signature`: string - the signature, in base58. Can be a `Ed25519` or a `Secp256k1` signature. Note: currently disabled as the message still needs to be specified. A placeholder value is being used.
     
-Returns:
+###### Returns
 
 - `result` - the same return that `contract_id`'s method `method_name` with `args` would return.
 
 
-Sample:
+###### Sample
 
 ```json
 {
@@ -104,16 +104,18 @@ Contract Address:
 
 ### Interface
 
-- nft_approve_from
+
 - nft_revoke_from
 - nft_revoke_all_from
 - nft_is_approved
-- nft_transfer_from
+
+
 - nft_transfer_call_from
 - nft_token
-- nft_resolve_transfer
+
 - new_default_meta
 - new
+
 - nft_mint
 - nft_total_supply
 - nft_tokens
@@ -125,7 +127,7 @@ Contract Address:
 
 method: `nft_create_series`
 
-Parameters:
+###### Parameters
 
 - `creator_id`: string - the creator account of the nft
 - `token_metadata`: the tokens metadata
@@ -134,11 +136,11 @@ Parameters:
     - `reference`: string - URL to an off-chain JSON file with more info.
     - `copies`: number - number of copies of this set of metadata in existence when token was minted.
 
-Returns:
+###### Returns
 
 - `token_id`: the id of the token created
 
-Sample:
+###### Sample
 
 ```json
 {
@@ -152,7 +154,7 @@ Sample:
 }
 ```
 
-Reference Metadata JSON Sample:
+###### Reference Metadata JSON Sample
 
 ```json
 {
@@ -162,7 +164,7 @@ Reference Metadata JSON Sample:
 }
 ```
 
-Nearapps API Sample:
+###### Nearapps API Sample
 
 ```bash
 curl --location --request POST 'https://api.nearapps.net/testnet/v1/execute' \
@@ -180,35 +182,39 @@ curl --location --request POST 'https://api.nearapps.net/testnet/v1/execute' \
 
 #### Claim NFT
 
-Approval:
+##### Approval
 
 method: `nft_approve_from`
 
-Parameters:
+###### Parameters
 
 - `token_id`: string - the token id to give allowance on
+- `expected_owner_id`: string - the account that is expected to be the owner of the token in question
 - `account_id`: string - the account to allow token transfer
+- `msg`: optional string.
+
+###### Sample
 
 ```json
 {
   "token_id": "1",
-  "sender_id": "my-account.testnet",
+  "expected_owner_id": "my-account.testnet",
   "account_id": "my-friend.testnet"
 }
 ```
 
-Returns:
+###### Returns
 
 - `approval_id`: the id of the approval
 
-Nearapps API Sample:
+###### Nearapps API Sample
 
 ```bash
 curl --location --request POST 'https://api.nearapps.net/testnet/v1/execute' \
 --header 'x-api-key: <api key>' \
 --header 'Content-Type: application/json' \
 --data-raw '{
-    "message": "{\"contract_id\":\"nft.naps.testnet\",\"method_name\":\"nft_approve_from\",\"args\": \"{\"token_id\":\"1\",\"account_id\":\"my-friend.testnet\"}\"}",
+    "message": "{\"contract_id\":\"nft.naps.testnet\",\"method_name\":\"nft_approve_from\",\"args\": \"{\"token_id\":\"1\",\"expected_owner_id\": \"my-account.testnet\",\"account_id\":\"my-friend.testnet\"}\"}",
     "sender": "my-account.testnet",
     "signed": {
         "signature": "4FJecZiY22ReWiJHxCSjDw71Jyd8WVgkkeNfH1Zj21uhQEV1c7QQ4bQYc7QMgH3Tcz5LxYJMxPYuHoETN8i4sQNq",
@@ -217,37 +223,65 @@ curl --location --request POST 'https://api.nearapps.net/testnet/v1/execute' \
 }'
 ```
 
-Transfer:
+##### Check Approval
 
-method: `nft_transfer_from`
+method: `nft_is_approved`
 
-Parameters:
+###### Parameters
 
-- `token_id`: string - the token id to give allowance on
-- `receiver_id`: string - the account to receive the token
-- `approval_id`: string - the approval id from `nft_approve_from`
+- `token_id`: string - the token id to check allowance on
+- `approved_account_id`: string.
+- `approval_id`: optional number.
+
+###### Sample
+
+```json
+{
+}
+```
+
+###### Returns
+
+- `is_approved`: boolean - whether it is approved.
+
+###### Nearapps API Sample
+
+```bash
+
+```
+
+##### Revoke
+
+method: `nft_revoke_from`
+
+###### Parameters
+
+- `token_id`: string - the token id to revoke allowance on
+- `expected_owner_id`: string - the account that is expected to be the owner of the token in question
+- `account_id`: string - the account to disallow token transfer
+
+###### Sample
 
 ```json
 {
   "token_id": "1",
-  "sender_id": "my-account.testnet",
-  "receiver_id": "my-friend.testnet",
-  "approval_id": "4711"
+  "expected_owner_id": "my-account.testnet",
+  "account_id": "my-friend.testnet"
 }
 ```
 
-Returns:
+###### Returns
 
-- `success`: bool - was the transfer successful or not
+Has no returns.
 
-Nearapps API Sample:
+###### Nearapps API Sample
 
 ```bash
 curl --location --request POST 'https://api.nearapps.net/testnet/v1/execute' \
 --header 'x-api-key: <api key>' \
 --header 'Content-Type: application/json' \
 --data-raw '{
-    "message": "{\"contract_id\":\"nft.naps.testnet\",\"method_name\":\"nft_transfer_from\",\"args\": \"{\"token_id\":\"1\",\"receiver_id\":\"my-friend.testnet\",\"approval_id\":\"4711\"}\",
+    "message": "{\"contract_id\":\"nft.naps.testnet\",\"method_name\":\"nft_revoke_from\",\"args\": \"{\"token_id\":\"1\",\"expected_owner_id\": \"my-account.testnet\",\"account_id\":\"my-friend.testnet\"}\"}",
     "sender": "my-account.testnet",
     "signed": {
         "signature": "4FJecZiY22ReWiJHxCSjDw71Jyd8WVgkkeNfH1Zj21uhQEV1c7QQ4bQYc7QMgH3Tcz5LxYJMxPYuHoETN8i4sQNq",
@@ -256,17 +290,47 @@ curl --location --request POST 'https://api.nearapps.net/testnet/v1/execute' \
 }'
 ```
 
+##### Revoke All
+
+method: `nft_revoke_from`
+
+###### Parameters
+
+- `token_id`: string - the token id to revoke allowance on
+- `expected_owner_id`: string - the account that is expected to be the owner of the token in question
+
+###### Sample
+
+```json
+{
+  "token_id": "1",
+  "expected_owner_id": "my-account.testnet",
+}
+```
+###### Returns
+
+Has no return.
+
+###### Nearapps API Sample
+
+```bash
+```
+
 #### Send NFT
 
-Transfer:
+##### Transfer
 
 method: `nft_transfer_from`
 
-Parameters:
+###### Parameters
 
-- `token_id`: string - the token id to give allowance on
-- `sender_id`: string - the account that is holding the nft
-- `receiver_id`: string - the account to allow token transfer
+- `token_id`: string - the token id to give allowance on.
+- `sender_id`: string - the account that is holding the nft.
+- `receiver_id`: string - the account to allow token transfer.
+- `approval_id`: optional number - the approval id from `nft_approve_from`.
+- `memo`: optional string.
+
+###### Sample
 
 ```json
 {
@@ -276,11 +340,51 @@ Parameters:
 }
 ```
 
-Returns:
+###### Returns
 
 - `success`: bool - was the transfer successful or not
 
-Nearapps API Sample:
+###### Nearapps API Sample
+
+```bash
+curl --location --request POST 'https://api.nearapps.net/testnet/v1/execute' \
+--header 'x-api-key: <api key>' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "message": "{\"contract_id\":\"nft.naps.testnet\",\"method_name\":\"nft_transfer_from\",\"args\": \"{\"token_id\":\"1\",\"sender_id\":\"my-account.testnet\", \"receiver_id\":\"my-friend.testnet\"}\",
+    "sender": "my-account.testnet",
+    "signed": {
+        "signature": "4FJecZiY22ReWiJHxCSjDw71Jyd8WVgkkeNfH1Zj21uhQEV1c7QQ4bQYc7QMgH3Tcz5LxYJMxPYuHoETN8i4sQNq",
+        "publicKey": "ed25519:D5d84XpgHtTUHwg1hbvT3Ljy6LpeLnJhU34scBC1TNKp"
+    }
+}'
+```
+
+##### Transfer Call
+
+method: `nft_transfer_call_from`
+
+###### Parameters
+
+- `token_id`: string - the token id to give allowance on
+- `sender_id`: string - the account that is holding the nft
+- `receiver_id`: string - the account to allow token transfer
+
+###### Sample
+
+```json
+{
+  "token_id": "1",
+  "sender_id": "my-account.testnet",
+  "receiver_id": "my-friend.testnet"
+}
+```
+
+###### Returns
+
+- `success`: bool - was the transfer successful or not
+
+###### Nearapps API Sample
 
 ```bash
 curl --location --request POST 'https://api.nearapps.net/testnet/v1/execute' \
