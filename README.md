@@ -7,7 +7,93 @@
 
 ### Interface
 
-No public interface
+#### verify_hashed_msg
+
+method: `verify_hashed_msg`
+
+Parameters:
+
+- `sign`: string - the signature, in base58. Can be a `Ed25519` or a `Secp256k1` signature.
+- `pubkey`: string - the public key, in base58 which an optional `{header}:` as prefix. Can be a `Ed25519` or a `Secp256k1` public key.
+- `msg_hash`: number[] - the message hash, in a 32-sized array of bytes, resulted from a sha256 hash of them message.
+
+Returns:
+
+- `is_match`: boolean - whether the `msg_hash` matched the `pubkey` on the `sign`.
+
+Sample:
+
+```json
+{
+  "sign": "26gFr4xth7W9K7HPWAxq3BLsua8oTy378mC1MYFiEXHBBpeBjP8WmJEJo8XTBowetvqbRshcQEtBUdwQcAqDyP8T",
+  "pubkey": "ed25519:AYWv9RAN1hpSQA4p1DLhCNnpnNXwxhfH9qeHN8B4nJ59",
+  "msg_hash": [171, 83, 10, 19, 228, 89, 20, 152, 43, 121, 249, 183, 227, 251, 169, 148, 207, 209, 243, 251, 34, 247, 28, 234, 26, 251, 240, 43, 70, 12, 109, 29]
+}
+```
+
+#### verify_msg
+
+method: `verify_msg`
+
+Parameters:
+
+- `sign`: string - the signature, in base58. Can be a `Ed25519` or a `Secp256k1` signature.
+- `pubkey`: string - the public key, in base58 which an optional `{header}:` as prefix. Can be a `Ed25519` or a `Secp256k1` public key.
+- `msg`: string - the message. It will be hashed internally by the contract.
+
+Returns:
+
+- `is_match`: boolean - whether the sha256 hash of the `msg` matched the `pubkey` on the `sign`.
+
+Sample:
+
+```json
+{
+  "sign": "26gFr4xth7W9K7HPWAxq3BLsua8oTy378mC1MYFiEXHBBpeBjP8WmJEJo8XTBowetvqbRshcQEtBUdwQcAqDyP8T",
+  "pubkey": "ed25519:AYWv9RAN1hpSQA4p1DLhCNnpnNXwxhfH9qeHN8B4nJ59",
+  "msg": "message"
+}
+```
+
+#### execute
+
+method: `execute`
+
+Parameters:
+
+- `context`: the call context.
+    - `contract_call`: the contract call context.
+        - `contract_id`: string - the contract's AccountId that is being called.
+        - `method_name`: string - the name of the method being called.
+        - `args`: string - the arguments for the method that is being called. 
+    - `app_id`: optional string.
+    - `caller`: optional caller context.
+        - `company`: string.
+        - `contact`: optional string.
+        - `description`: string.
+    - `public_key`: string - the public key, in base58 which an optional `{header}:` as prefix. Can be a `Ed25519` or a `Secp256k1` public key. Note: currently disabled as the message still needs to be specified. A placeholder value is being used.
+    - `signature`: string - the signature, in base58. Can be a `Ed25519` or a `Secp256k1` signature. Note: currently disabled as the message still needs to be specified. A placeholder value is being used.
+    
+Returns:
+
+- `result` - the same return that `contract_id`'s method `method_name` with `args` would return.
+
+
+Sample:
+
+```json
+{
+  "context": {
+    "contract_call": {
+        "contract_id": "nft.naps.testnet",
+        "method_name": "nft_transfer_from",
+        "args": "\"token_id\": \"1\", \"sender_id\": \"my-account.testnet\", \"receiver_id\": \"my-friend.testnet\", \"approval_id\": \"4711\""
+    },
+    "public_key": "ed25519:AYWv9RAN1hpSQA4p1DLhCNnpnNXwxhfH9qeHN8B4nJ59",
+    "signature": "26gFr4xth7W9K7HPWAxq3BLsua8oTy378mC1MYFiEXHBBpeBjP8WmJEJo8XTBowetvqbRshcQEtBUdwQcAqDyP8T"
+  }
+}
+```
 
 ## NFT
 
