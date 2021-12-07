@@ -7,7 +7,7 @@
 
 ### Interface
 
-#### verify_hashed_msg
+#### Verification of a Prehashed Message
 
 method: `verify_hashed_msg`
 
@@ -31,7 +31,7 @@ Sample:
 }
 ```
 
-#### verify_msg
+#### Verification of a Message
 
 method: `verify_msg`
 
@@ -55,7 +55,7 @@ Sample:
 }
 ```
 
-#### execute
+#### Execution of a Proxied Contract Call
 
 method: `execute`
 
@@ -103,6 +103,23 @@ Contract Address:
 - `mainnet`: `nft.naps.near` not yet deployed
 
 ### Interface
+
+- nft_approve_from
+- nft_revoke_from
+- nft_revoke_all_from
+- nft_is_approved
+- nft_transfer_from
+- nft_transfer_call_from
+- nft_token
+- nft_resolve_transfer
+- new_default_meta
+- new
+- nft_mint
+- nft_total_supply
+- nft_tokens
+- nft_supply_for_owner
+- nft_tokens_for_owner
+- nft_metadata
 
 #### Mint NFT
 
