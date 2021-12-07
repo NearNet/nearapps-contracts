@@ -111,7 +111,8 @@ method: `nft_transfer`
 Parameters:
 
 - `token_id`: string - the token id to give allowance on
-- `account_id`: string - the account to allow token transfer
+- `receiver_id`: string - the account to receive the token
+- `approval_id`: string - the approval id from `nft_approve`
 
 ```json
 {
@@ -145,16 +146,18 @@ curl --location --request POST 'https://api.nearapps.net/testnet/v1/execute' \
 
 Transfer:
 
-method: `nft_transfer`
+method: `nft_transfer_from`
 
 Parameters:
 
 - `token_id`: string - the token id to give allowance on
-- `account_id`: string - the account to allow token transfer
+- `sender_id`: string - the account that is holding the nft
+- `receiver_id`: string - the account to allow token transfer
 
 ```json
 {
   "token_id": "1",
+  "sender_id": "my-account.testnet",
   "receiver_id": "my-friend.testnet"
 }
 ```
@@ -170,7 +173,7 @@ curl --location --request POST 'https://api.nearapps.net/testnet/v1/execute' \
 --header 'x-api-key: <api key>' \
 --header 'Content-Type: application/json' \
 --data-raw '{
-    "message": "{\"contract_id\":\"nft.naps.testnet\",\"method_name\":\"nft_transfer\",\"args\": \"{\"token_id\":\"1\",\"receiver_id\":\"my-friend.testnet\"}\",
+    "message": "{\"contract_id\":\"nft.naps.testnet\",\"method_name\":\"nft_transfer\",\"args\": \"{\"token_id\":\"1\",\"sender_id\":\"my-account.testnet\", \"receiver_id\":\"my-friend.testnet\"}\",
     "sender": "my-account.testnet",
     "signed": {
         "signature": "4FJecZiY22ReWiJHxCSjDw71Jyd8WVgkkeNfH1Zj21uhQEV1c7QQ4bQYc7QMgH3Tcz5LxYJMxPYuHoETN8i4sQNq",
