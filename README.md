@@ -123,7 +123,7 @@ Parameters:
 
 Returns:
 
-- `success`: bool - was the transfer was successful or not
+- `success`: bool - was the transfer successful or not
 
 Nearapps API Sample:
 
@@ -142,3 +142,39 @@ curl --location --request POST 'https://api.nearapps.net/testnet/v1/execute' \
 ```
 
 #### Send NFT
+
+Transfer:
+
+method: `nft_transfer`
+
+Parameters:
+
+- `token_id`: string - the token id to give allowance on
+- `account_id`: string - the account to allow token transfer
+
+```json
+{
+  "token_id": "1",
+  "receiver_id": "my-friend.testnet"
+}
+```
+
+Returns:
+
+- `success`: bool - was the transfer successful or not
+
+Nearapps API Sample:
+
+```bash
+curl --location --request POST 'https://api.nearapps.net/testnet/v1/execute' \
+--header 'x-api-key: <api key>' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "message": "{\"contract_id\":\"nft.naps.testnet\",\"method_name\":\"nft_transfer\",\"args\": \"{\"token_id\":\"1\",\"receiver_id\":\"my-friend.testnet\"}\",
+    "sender": "my-account.testnet",
+    "signed": {
+        "signature": "4FJecZiY22ReWiJHxCSjDw71Jyd8WVgkkeNfH1Zj21uhQEV1c7QQ4bQYc7QMgH3Tcz5LxYJMxPYuHoETN8i4sQNq",
+        "publicKey": "ed25519:D5d84XpgHtTUHwg1hbvT3Ljy6LpeLnJhU34scBC1TNKp"
+    }
+}'
+```
