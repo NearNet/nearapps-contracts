@@ -5,12 +5,16 @@
 - `testnet`: `naps.testnet` https://explorer.testnet.near.org/accounts/naps.testnet
 - `mainnet`: `naps.near` https://explorer.mainnet.near.org/accounts/naps.near
 
+### Interface
+
+No public interface
+
 ## NFT
 
 Contract Address:
 
 - `testnet`: `nft.naps.testnet` https://explorer.testnet.near.org/accounts/nft.naps.testnet
-- `mainnet`: `nft.naps.near` https://explorer.mainnet.near.org/accounts/nft.naps.near
+- `mainnet`: `nft.naps.near` not yet deployed
 
 ### Interface
 
