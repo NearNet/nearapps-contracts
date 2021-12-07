@@ -1,5 +1,10 @@
 # Nearapps Contracts
 
+## Execute Contract
+
+- `testnet`: `naps.testnet` https://explorer.testnet.near.org/accounts/naps.testnet
+- `mainnet`: not yet deployed
+
 ## NFT
 
 Contract Address:
