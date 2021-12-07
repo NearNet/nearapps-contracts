@@ -3,14 +3,14 @@
 ## Execute Contract
 
 - `testnet`: `naps.testnet` https://explorer.testnet.near.org/accounts/naps.testnet
-- `mainnet`: not yet deployed
+- `mainnet`: `naps.near` https://explorer.mainnet.near.org/accounts/naps.near
 
 ## NFT
 
 Contract Address:
 
 - `testnet`: `nft.naps.testnet` https://explorer.testnet.near.org/accounts/nft.naps.testnet
-- `mainnet`: not yet deployed
+- `mainnet`: `nft.naps.near` https://explorer.mainnet.near.org/accounts/nft.naps.near
 
 ### Interface
 
