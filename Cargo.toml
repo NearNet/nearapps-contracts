@@ -3,7 +3,8 @@
 members = [
   "app-exec",
   "app-wallet",
-  "app-counter"
+  "app-counter",
+  "app-nft"
 ]
 
 [profile.release]
