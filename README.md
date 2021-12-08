@@ -14,7 +14,6 @@ method: `new`
 ###### Parameters
 
 - `owner`: string - owner account id that will be allowed to make other calls into this contract
-- `initial_amount`: Balance
 - `defaults`: Object - the default parameters to be used during account creation.
     - `initial_amount`: string - the default initial amount to attach to created accounts, in yoctoNear.
     - `allowance`: string - the default allowance to attach to allowed calls on created accounts, in yoctoNear.
