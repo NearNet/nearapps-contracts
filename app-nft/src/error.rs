@@ -12,12 +12,23 @@ use strum_macros::AsRefStr;
 /// debugging and fixing the problem.
 #[derive(Debug, AsRefStr)]
 pub enum Error {
+    /// A call that was supposed to be made by the owner was made
+    /// by a different predecessor.
     #[strum(serialize = "ERR_NOT_OWNER")]
     NotOwner,
-    #[strum(serialize = "ERR_CALLBACK_RESULTS")]
-    BadCallbackResults,
-    #[strum(serialize = "ERR_ALREADY_QUEUED")]
-    AccountAlreadyQueued,
+    /// A standard minting operation tried to use the
+    /// token-series delimiter on the token's name, which
+    /// must not be allowed.
+    #[strum(serialize = "ERR_NFT_TOKEN_ID_WITH_DELIMITER")]
+    TokenIdWithSeriesDelimiter,
+    #[strum(serialize = "ERR_NFT_SERIES_MISSING")]
+    MissingSeries,
+    #[strum(serialize = "ERR_NFT_SERIES_MAX_CAPACITY")]
+    SeriesMaxCapacity,
+    #[strum(serialize = "ERR_NFT_SERIES_NOT_MINTABLE")]
+    SeriesNotMintable,
+    #[strum(serialize = "ERR_NFT_SERIES_NOT_ENOUGH_CAPACITY")]
+    SeriesNotEnoughtCapacity,
 }
 
 impl Error {

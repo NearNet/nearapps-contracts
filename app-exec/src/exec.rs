@@ -1,6 +1,6 @@
 #![allow(clippy::let_and_return)]
 
-use crate::error::Error;
+use crate::error::{ensure, Error};
 use crate::Contract;
 use near_sdk::serde::{Deserialize, Serialize};
 use near_sdk::{env, ext_contract, near_bindgen, serde_json, AccountId, Promise, PromiseResult};
@@ -54,9 +54,10 @@ impl Contract {
     #[payable]
     pub fn execute(context: CallContext) -> Promise {
         // makes sure it won't call an internal private function
-        if context.contract_call.contract_id == env::current_account_id() {
-            Error::CallCurrentAccount.panic()
-        }
+        ensure(
+            context.contract_call.contract_id != env::current_account_id(),
+            Error::CallCurrentAccount,
+        );
 
         Promise::new(context.contract_call.contract_id)
             .function_call(

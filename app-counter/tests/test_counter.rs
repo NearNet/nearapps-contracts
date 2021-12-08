@@ -10,9 +10,7 @@ near_sdk_sim::lazy_static_include::lazy_static_include_bytes! {
 
 pub const DEFAULT_GAS: u64 = 300_000_000_000_000;
 
-fn init() -> (UserAccount, ContractAccount<CounterContract>) {
-    let root = init_simulator(None);
-
+fn init(root: &UserAccount) -> ContractAccount<CounterContract> {
     let counter: ContractAccount<CounterContract> = deploy!(
         contract: CounterContract,
         contract_id: "counter".to_string(),
@@ -20,12 +18,13 @@ fn init() -> (UserAccount, ContractAccount<CounterContract>) {
         signer_account: root
     );
 
-    (root, counter)
+    counter
 }
 
 #[test]
 fn simulate_increment() {
-    let (root, counter) = init();
+    let root = init_simulator(None);
+    let counter = init(&root);
 
     let mut current_num: i8 = view!(counter.get()).unwrap_json();
     assert_eq!(&current_num, &0);

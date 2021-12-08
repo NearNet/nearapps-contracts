@@ -8,7 +8,7 @@ use near_sdk::{
 
 pub mod error;
 
-pub use error::Error;
+pub use error::{ensure, Error};
 
 pub const KILO: u64 = 1000;
 pub const MEGA: u64 = KILO * KILO;
@@ -139,14 +139,10 @@ impl AccountManager {
         const GAS_CURRENT: Gas = Gas(5 * TERA);
         let gas = env::prepaid_gas() - env::used_gas() - GAS_CURRENT;
 
-        if self.owner != env::predecessor_account_id() {
-            Error::NotOwner.panic()
-        }
+        ensure(self.owner == env::predecessor_account_id(), Error::NotOwner);
 
         let is_new_account = self.accounts_queue.insert(&config.account_id);
-        if !is_new_account {
-            Error::AccountAlreadyQueued.panic()
-        }
+        ensure(is_new_account, Error::AccountAlreadyQueued);
 
         let owner_pk = env::signer_account_pk();
 
@@ -180,9 +176,7 @@ impl AccountManager {
 
     #[private]
     pub fn on_account_created(&mut self, config: AccountConfig) -> bool {
-        if env::promise_results_count() != 1 {
-            Error::BadCallbackResults.panic()
-        }
+        ensure(env::promise_results_count() == 1, Error::BadCallbackResults);
 
         let success: Option<bool> = match env::promise_result(0) {
             near_sdk::PromiseResult::Successful(v) => {
