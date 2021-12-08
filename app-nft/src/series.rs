@@ -1,21 +1,27 @@
 use crate::error::{ensure, Error, OrPanicStr};
-use crate::{Contract, Owner, StorageKey};
-use near_contract_standards::non_fungible_token as nft;
+use crate::{Nft, Owner, StorageKey};
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
-use near_sdk::collections::{LazyOption, UnorderedSet};
-use near_sdk::{
-    env, near_bindgen, require, AccountId, BorshStorageKey, PanicOnDefault, Promise, PromiseOrValue,
-};
-use nft::metadata::{
-    NFTContractMetadata, NonFungibleTokenMetadataProvider, TokenMetadata, NFT_METADATA_SPEC,
-};
+use near_sdk::collections::UnorderedSet;
+use near_sdk::json_types::U64;
+use near_sdk::serde::{Deserialize, Serialize};
+use near_sdk::{near_bindgen, AccountId};
+use serde_with::{serde_as, FromInto};
 
 pub const SERIES_DELIMETER: char = ':';
 
 #[cfg(not(target_arch = "wasm32"))]
-use crate::ContractContract;
+use crate::NftContract;
 
-pub type SeriesId = u64;
+#[serde_as]
+#[derive(Serialize, Deserialize, BorshSerialize, BorshDeserialize, Clone, Copy)]
+#[serde(transparent)]
+#[serde(crate = "near_sdk::serde")]
+pub struct SeriesId(
+    #[serde_as(as = "FromInto<U64>")]
+    //
+    pub u64,
+);
+
 pub type SeriesName = String;
 
 /// The index of a token inside a series.
@@ -23,18 +29,29 @@ pub type SeriesName = String;
 /// The maximum value for a token's index will be
 /// `capacity - 1`.
 ///
-/// Can also represent the quantity of tokens minted.  
+/// Can also represent `len`, the quantity of tokens minted.  
 /// eg. `0` means no tokens have been minted.  
 /// eg. `1` means that a single token has been minted, which
 /// will have the index of `0`.  
 /// The maximum value for a serie's token `len` will be
 /// `capacity`.
 ///
-/// Can also represent the maximum capacity of a series.  
+/// Can also represent the maximum `capacity` of a series.  
 /// eg. `0` won't be able to have any tokens.  
 /// eg. `1` will be able to have a single token,
 /// which will have the index of `0`.
-pub type SeriesTokenIndex = usize;
+
+#[serde_as]
+#[derive(
+    Serialize, Deserialize, BorshSerialize, BorshDeserialize, PartialEq, PartialOrd, Clone, Copy,
+)]
+#[serde(transparent)]
+#[serde(crate = "near_sdk::serde")]
+pub struct SeriesTokenIndex(
+    #[serde_as(as = "FromInto<U64>")]
+    //
+    pub u64,
+);
 
 /// A token name produced from a series.
 ///
@@ -45,22 +62,22 @@ impl TokenSeriesId {
     /// Creates a new [`nft::TokenId`] based on the series names,
     /// [`SERIES_DELIMETER`], and some `index`.
     pub fn new(name: SeriesName, index: SeriesTokenIndex) -> Self {
-        Self(format!("{}{}{}", name, SERIES_DELIMETER, index))
+        Self(format!("{}{}{}", name, SERIES_DELIMETER, index.0))
     }
 }
 
-#[derive(BorshDeserialize, BorshSerialize)]
+#[derive(BorshDeserialize, BorshSerialize, Serialize, Deserialize)]
+#[serde(crate = "near_sdk::serde")]
 pub struct Series {
     pub id: SeriesId,
     pub name: String,
     pub creator: AccountId,
     pub len: SeriesTokenIndex,
-    /// The maximum number of token units that this series can mint.
+    /// The maximum number of token units that this series can have minted.
     ///
     /// eg. `0` means that it will never mint any token.
     pub capacity: SeriesTokenIndex,
     pub is_mintable: bool,
-    pub minted_tokens: UnorderedSet<SeriesTokenIndex>,
 }
 
 impl Series {
@@ -69,7 +86,7 @@ impl Series {
         ensure(self.len < self.capacity, Error::SeriesMaxCapacity);
 
         let token = TokenSeriesId::new(self.name.clone(), self.len);
-        self.len += 1;
+        self.len.0 += 1;
 
         if self.len == self.capacity {
             self.is_mintable = false;
@@ -77,10 +94,39 @@ impl Series {
 
         token
     }
+
+    pub fn last_token_index(&self) -> Option<SeriesTokenIndex> {
+        if self.len.0 > 0 {
+            Some(SeriesTokenIndex(self.len.0 - 1))
+        } else {
+            None
+        }
+    }
 }
 
 #[near_bindgen]
-impl Contract {
+impl Nft {
+    pub fn nft_series_get(&self, series_id: SeriesId) -> Series {
+        self.series
+            .get(&series_id)
+            .or_panic_str(Error::MissingSeries)
+    }
+
+    pub(crate) fn nft_series_get_minted_tokens(
+        &self,
+        series_id: SeriesId,
+    ) -> UnorderedSet<SeriesTokenIndex> {
+        self.series_minted_tokens
+            .get(&series_id)
+            .or_panic_str(Error::MissingSeries)
+    }
+
+    pub fn nft_series_get_minted_tokens_vec(&self, series_id: SeriesId) -> Vec<SeriesTokenIndex> {
+        self.nft_series_get_minted_tokens(series_id)
+            .iter()
+            .collect()
+    }
+
     pub fn nft_series_create(
         &mut self,
         name: SeriesName,
@@ -90,19 +136,47 @@ impl Contract {
         self.assert_owner();
 
         let id = self.next_series_id;
-        self.next_series_id += 1;
+        self.next_series_id.0 += 1;
 
         let series = Series {
             id,
             name,
             creator,
-            len: 0,
+            len: SeriesTokenIndex(0),
             capacity,
             is_mintable: true,
-            minted_tokens: UnorderedSet::new(StorageKey::TokensBySeries { series_id: id }),
         };
+
+        self.series_minted_tokens.insert(
+            &id,
+            &UnorderedSet::new(StorageKey::TokensBySeriesInner { series_id: id }),
+        );
 
         self.series.insert(&id, &series);
         id
+    }
+
+    pub fn nft_series_set_mintable(&mut self, series_id: SeriesId, is_mintable: bool) {
+        self.assert_owner();
+        let mut series = self.nft_series_get(series_id);
+        if series.is_mintable != is_mintable {
+            series.is_mintable = is_mintable;
+            self.series.insert(&series_id, &series);
+        }
+    }
+
+    pub fn nft_series_set_capacity(&mut self, series_id: SeriesId, capacity: SeriesTokenIndex) {
+        self.assert_owner();
+
+        let mut series = self.nft_series_get(series_id);
+        ensure(capacity >= series.len, Error::SeriesNotEnoughtCapacity);
+
+        series.capacity = capacity;
+
+        if capacity == series.len {
+            series.is_mintable = false;
+        }
+
+        self.series.insert(&series_id, &series);
     }
 }

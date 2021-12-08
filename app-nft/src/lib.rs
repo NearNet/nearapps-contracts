@@ -1,13 +1,12 @@
 use near_contract_standards::non_fungible_token as nft;
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
-use near_sdk::collections::{LazyOption, UnorderedMap};
+use near_sdk::collections::{LazyOption, UnorderedMap, UnorderedSet};
 use near_sdk::{env, near_bindgen, require, AccountId, BorshStorageKey, PanicOnDefault};
 use nft::metadata::{
     NFTContractMetadata, NonFungibleTokenMetadataProvider, TokenMetadata, NFT_METADATA_SPEC,
 };
 
 pub mod error;
-pub mod mint;
 pub mod series;
 pub mod utils;
 
@@ -16,11 +15,12 @@ pub use series::SERIES_DELIMETER;
 
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize, PanicOnDefault)]
-pub struct Contract {
+pub struct Nft {
     tokens: nft::NonFungibleToken,
     metadata: LazyOption<NFTContractMetadata>,
     series: UnorderedMap<series::SeriesId, series::Series>,
     next_series_id: series::SeriesId,
+    series_minted_tokens: UnorderedMap<series::SeriesId, UnorderedSet<series::SeriesTokenIndex>>,
 }
 
 #[derive(BorshSerialize, BorshStorageKey)]
@@ -31,11 +31,12 @@ enum StorageKey {
     Enumeration,
     Approval,
     Series,
-    TokensBySeries { series_id: series::SeriesId },
+    TokensBySeries,
+    TokensBySeriesInner { series_id: series::SeriesId },
 }
 
 #[near_bindgen]
-impl Contract {
+impl Nft {
     /// Adapted from the standard example.
     #[init]
     pub fn new(owner_id: AccountId, metadata: NFTContractMetadata) -> Self {
@@ -51,7 +52,8 @@ impl Contract {
             ),
             metadata: LazyOption::new(StorageKey::Metadata, Some(&metadata)),
             series: UnorderedMap::new(StorageKey::Series),
-            next_series_id: 0,
+            next_series_id: series::SeriesId(0),
+            series_minted_tokens: UnorderedMap::new(StorageKey::TokensBySeries),
         }
     }
 
@@ -71,25 +73,92 @@ impl Contract {
             },
         )
     }
+
+    /// Adapted from the standard example.
+    #[payable]
+    pub fn nft_mint(
+        &mut self,
+        token_id: nft::TokenId,
+        token_owner_id: AccountId,
+        token_metadata: TokenMetadata,
+    ) -> nft::Token {
+        self.assert_owner();
+
+        // token_id must not contain the series delimiter
+        ensure(
+            !token_id.contains(SERIES_DELIMETER),
+            Error::TokenIdWithSeriesDelimiter,
+        );
+
+        // standard minting
+        self.tokens
+            .internal_mint(token_id, token_owner_id, Some(token_metadata))
+    }
+
+    /// Adapted from the standard example.
+    #[payable]
+    pub fn nft_series_mint(
+        &mut self,
+        series_id: series::SeriesId,
+        token_owner_id: AccountId,
+        token_metadata: Option<TokenMetadata>,
+    ) -> nft::Token {
+        self.assert_owner();
+
+        let mut series = self.nft_series_get(series_id);
+        let mut minted_tokens = self.nft_series_get_minted_tokens(series_id);
+
+        let token = series.next_token();
+
+        // updates series
+        self.series.insert(&series_id, &series);
+
+        // updates minted_tokens
+        let token_index = series.last_token_index().unwrap();
+        minted_tokens.insert(&token_index);
+        self.series_minted_tokens.insert(&series_id, &minted_tokens);
+
+        let token_metadata = token_metadata.unwrap_or_else(|| TokenMetadata {
+            title: Some(token.0.clone()),
+            description: Some(format!(
+                "Token #{} from series {}",
+                token_index.0, series.name
+            )),
+            media: None,
+            media_hash: None,
+            copies: None,
+            issued_at: Some(env::block_timestamp().to_string()),
+            expires_at: None,
+            starts_at: None,
+            updated_at: None,
+            extra: None,
+            reference: None,
+            reference_hash: None,
+        });
+
+        // standard minting
+        self.tokens
+            .internal_mint(token.0, token_owner_id, Some(token_metadata))
+    }
 }
 
 pub mod std_impls {
     use super::nft::{Token, TokenId};
-    use super::Contract;
+    use super::Nft;
     use near_contract_standards as ncs;
     use near_sdk::{near_bindgen, AccountId, Promise, PromiseOrValue};
 
     #[cfg(not(target_arch = "wasm32"))]
-    use crate::ContractContract;
+    use crate::NftContract;
 
-    ncs::impl_non_fungible_token_core!(Contract, tokens);
-    ncs::impl_non_fungible_token_approval!(Contract, tokens);
-    ncs::impl_non_fungible_token_enumeration!(Contract, tokens);
+    ncs::impl_non_fungible_token_core!(Nft, tokens);
+    ncs::impl_non_fungible_token_approval!(Nft, tokens);
+    ncs::impl_non_fungible_token_enumeration!(Nft, tokens);
 }
 
 /// standard implementation.
 #[near_bindgen]
-impl NonFungibleTokenMetadataProvider for Contract {
+impl NonFungibleTokenMetadataProvider for Nft {
     fn nft_metadata(&self) -> NFTContractMetadata {
         self.metadata.get().unwrap()
     }
@@ -99,7 +168,7 @@ pub trait Owner {
     fn assert_owner(&self);
 }
 
-impl Owner for Contract {
+impl Owner for Nft {
     fn assert_owner(&self) {
         ensure(
             env::predecessor_account_id() == self.tokens.owner_id,

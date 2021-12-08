@@ -22,8 +22,33 @@ pub const MEGA: u64 = KILO * KILO;
 pub const TERA: u64 = MEGA * MEGA;
 pub const YOTTA: u128 = (TERA as u128) * (TERA as u128);
 
-pub fn setup_exec() -> (UserAccount, Contract) {
-    let root = init_simulator(None);
+pub trait AssertFailure {
+    fn assert_failure<E: AsRef<str>>(&self, action: u32, err: E);
+}
+
+impl AssertFailure for ExecutionResult {
+    fn assert_failure<E: AsRef<str>>(&self, action: u32, err: E) {
+        let err = format!(
+            "Action #{}: Smart contract panicked: {}",
+            action,
+            err.as_ref()
+        );
+        match self.status() {
+            ExecutionStatus::Failure(txerr_) => {
+                assert_eq!(txerr_.to_string(), err)
+            }
+            ExecutionStatus::Unknown => panic!("Got Unknown. Should have failed with {}", err),
+            ExecutionStatus::SuccessValue(_v) => {
+                panic!("Got SuccessValue. Should have failed with {}", err)
+            }
+            ExecutionStatus::SuccessReceiptId(_id) => {
+                panic!("Got SuccessReceiptId. Should have failed with {}", err)
+            }
+        }
+    }
+}
+
+pub fn setup_exec(root: &UserAccount) -> Contract {
     let contract = deploy!(
         contract: ContractContract,
         contract_id: "contract".to_string(),
@@ -32,7 +57,7 @@ pub fn setup_exec() -> (UserAccount, Contract) {
         deposit: 200 * YOTTA,
         // init_method: new()
     );
-    (root, contract)
+    contract
 }
 
 pub fn setup_counter(root: &UserAccount) -> ContractAccount<CounterContract> {
@@ -48,20 +73,4 @@ pub fn setup_counter(root: &UserAccount) -> ContractAccount<CounterContract> {
 
 fn user(id: u32) -> AccountId {
     format!("user{}", id).parse().unwrap()
-}
-
-pub fn should_fail_with(r: ExecutionResult, action: u32, err: &str) {
-    let err = format!("Action #{}: Smart contract panicked: {}", action, err);
-    match r.status() {
-        ExecutionStatus::Failure(txerr_) => {
-            assert_eq!(txerr_.to_string(), err)
-        }
-        ExecutionStatus::Unknown => panic!("Got Unknown. Should have failed with {}", err),
-        ExecutionStatus::SuccessValue(_v) => {
-            panic!("Got SuccessValue. Should have failed with {}", err)
-        }
-        ExecutionStatus::SuccessReceiptId(_id) => {
-            panic!("Got SuccessReceiptId. Should have failed with {}", err)
-        }
-    }
 }

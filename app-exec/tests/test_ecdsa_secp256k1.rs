@@ -1,7 +1,7 @@
 #![allow(clippy::ref_in_deref)]
 
 use crate::utils::{_secp256k1, setup_exec, TERA};
-use near_sdk_sim::call;
+use near_sdk_sim::{call, init_simulator};
 
 mod utils;
 
@@ -9,7 +9,8 @@ mod utils;
 fn test_ecdsa_secp256k1() {
     use nearapps_exec::{crypto::ecdsa_secp256k1 as ec, hash};
 
-    let (root, contract) = setup_exec();
+    let root = init_simulator(None);
+    let contract = setup_exec(&root);
 
     let seckey = [
         59, 148, 11, 85, 134, 130, 61, 253, 2, 174, 59, 70, 27, 180, 51, 107, 94, 203, 174, 253,

@@ -1,7 +1,7 @@
 #![allow(clippy::ref_in_deref)]
 
 use crate::utils::{setup_exec, TERA};
-use near_sdk_sim::call;
+use near_sdk_sim::{call, init_simulator};
 
 mod utils;
 
@@ -10,7 +10,8 @@ mod utils;
 fn test_eddsa_ed25519() {
     use nearapps_exec::{crypto::eddsa_ed25519 as ed, hash};
 
-    let (root, contract) = setup_exec();
+    let root = init_simulator(None);
+    let contract = setup_exec(&root);
 
     // the msg is an empty string
     let msg = "";
@@ -172,7 +173,8 @@ fn test_near_verification() {
 
     // test using the contract / call!()
     {
-        let (root, contract) = setup_exec();
+        let root = init_simulator(None);
+        let contract = setup_exec(&root);
 
         // ok: signature verified
         let res = call!(

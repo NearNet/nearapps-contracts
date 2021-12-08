@@ -3,7 +3,7 @@
 
 use crate::utils::{setup_counter, setup_exec};
 use crypto::eddsa_ed25519 as ed;
-use near_sdk_sim::call;
+use near_sdk_sim::{call, init_simulator};
 use nearapps_exec::crypto;
 use nearapps_exec::exec::{CallContext, ContractCall};
 
@@ -50,7 +50,8 @@ fn into_callctx(ctx: ContractCall) -> CallContext {
 
 #[test]
 fn test_exec_basic() {
-    let (root, exec) = setup_exec();
+    let root = init_simulator(None);
+    let exec = setup_exec(&root);
     let counter = setup_counter(&root);
 
     // ok: calls counter directly

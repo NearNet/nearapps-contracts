@@ -19,14 +19,16 @@ pub enum Error {
     /// A standard minting operation tried to use the
     /// token-series delimiter on the token's name, which
     /// must not be allowed.
-    #[strum(serialize = "ERR_TOKEN_ID_WITH_DELIMITER")]
+    #[strum(serialize = "ERR_NFT_TOKEN_ID_WITH_DELIMITER")]
     TokenIdWithSeriesDelimiter,
-    #[strum(serialize = "ERR_MISSING_SERIES")]
+    #[strum(serialize = "ERR_NFT_SERIES_MISSING")]
     MissingSeries,
-    #[strum(serialize = "ERR_SERIES_MAX_CAPACITY")]
+    #[strum(serialize = "ERR_NFT_SERIES_MAX_CAPACITY")]
     SeriesMaxCapacity,
-    #[strum(serialize = "ERR_SERIES_NOT_MINTABLE")]
+    #[strum(serialize = "ERR_NFT_SERIES_NOT_MINTABLE")]
     SeriesNotMintable,
+    #[strum(serialize = "ERR_NFT_SERIES_NOT_ENOUGH_CAPACITY")]
+    SeriesNotEnoughtCapacity,
 }
 
 impl Error {

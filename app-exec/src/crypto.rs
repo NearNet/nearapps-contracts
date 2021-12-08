@@ -27,6 +27,12 @@ impl Contract {
         Self::verify_inner(sign, pubkey, msg_hash)
     }
 
+    /// Verifies if `pubkey` matches `sign` with the `sha256` hash of
+    /// the `msg`.
+    ///
+    /// Note: Internally the hashed msg is hashed again by the
+    /// signature verification algorithm. This is compatible with
+    /// Near's behavior.
     pub fn verify_msg(sign: Bs58EncodedSignature, pubkey: NearEncodedPubkey, msg: String) -> bool {
         let msg_hash = {
             use digest::Digest;
@@ -44,9 +50,9 @@ impl Contract {
 }
 
 impl Contract {
-    // TODO: write comments
-    //
-    // signature verification that is compatible to Near
+    /// Note: Internally the hashed msg is hashed again by the
+    /// signature verification algorithm. This is compatible with
+    /// Near's behavior.
     pub fn verify_inner(
         sign: Bs58EncodedSignature,
         pubkey: near_sdk::PublicKey,
@@ -62,6 +68,8 @@ impl Contract {
 
                 let pubkey: EddsaEd25519PublicKey = pubkey.into();
 
+                // note: msg_hash will be hashed again internally, this is
+                // compatible with Near's behavior.
                 Contract::eddsa_ed25519_verify(pubkey, sign, &msg_hash.0)
             }
             (CurveType::SECP256K1, 65) => {
@@ -73,6 +81,8 @@ impl Contract {
                 let pubkey: EcdsaSecp256k1PublicKey = pubkey.into();
                 let pubkey: ecdsa_secp256k1::types::PubKeyUncompressed = pubkey.into();
 
+                // note: msg_hash will be hashed again internally, this is
+                // compatible with Near's behavior.
                 Contract::ecdsa_secp256k1_verify_uncompressed_msg_bytes(pubkey, sign, &msg_hash.0)
             }
             (curve_type, sign_len) => panic!(

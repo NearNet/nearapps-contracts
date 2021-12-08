@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use near_sdk::{env, require, AccountId, Balance, Promise};
 use std::collections::HashMap;
 
