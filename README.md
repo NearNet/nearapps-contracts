@@ -10,14 +10,14 @@
 
 methods:
 
-- `init`
+- `new`
 - `execute`
 - `verify_msg`
 - `verify_hashed_msg`
 
 #### Initialization
 
-method: `init`
+method: `new`
 
 ###### Parameters
 
