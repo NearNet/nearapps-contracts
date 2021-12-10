@@ -1,12 +1,13 @@
 #![allow(clippy::let_and_return)]
 
 use crate::error::{ensure, Error};
-use crate::Contract;
+use crate::Executor;
+use near_sdk::json_types::U64;
 use near_sdk::serde::{Deserialize, Serialize};
 use near_sdk::{env, ext_contract, near_bindgen, serde_json, AccountId, Promise, PromiseResult};
 
 #[cfg(not(target_arch = "wasm32"))]
-use crate::ContractContract;
+use crate::ExecutorContract;
 
 #[ext_contract(ext_self)]
 pub trait ExtSelf {
@@ -14,7 +15,7 @@ pub trait ExtSelf {
     /// and forwarding the calls result back.
     ///
     /// Only forwards the first result.
-    fn check_promise(caller: Option<CallerInformation>) -> Vec<u8>;
+    fn check_promise(tag_info: TagInfo) -> Vec<u8>;
 }
 
 #[derive(Serialize, Deserialize)]
@@ -30,29 +31,37 @@ pub struct ContractCall {
 pub struct CallContext {
     pub contract_call: ContractCall,
     //
-    pub app_id: Option<String>,
-    pub caller: Option<CallerInformation>,
+    pub tag_info: TagInfo,
     //
-    pub public_key: near_sdk::PublicKey,
-    pub signature: crate::crypto::Bs58EncodedSignature,
+    // pub public_key: near_sdk::PublicKey,
+    // pub signature: crate::crypto::Bs58EncodedSignature,
 }
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "near_sdk::serde")]
-pub struct CallerInformation {
-    company: String,
-    contact: Option<String>,
-    description: String,
+pub struct TagInfo {
+    pub app_id: String,
+    pub action_id: U64,
+    pub user_id: AccountId,
 }
 
 #[near_bindgen]
-impl Contract {
+impl Executor {
+    #[init]
+    pub fn new(owner_id: AccountId) -> Self {
+        ensure(!env::state_exists(), Error::AlreadyInitialized);
+        Self { owner_id }
+    }
+
     /// Executes an external contract's function, logging on the callback
     /// and forwarding the calls result back.
     ///
     /// Only forwards the first result.
     #[payable]
-    pub fn execute(context: CallContext) -> Promise {
+    pub fn execute(&mut self, context: CallContext) -> Promise {
+        use crate::Owner;
+        self.assert_owner();
+
         // makes sure it won't call an internal private function
         ensure(
             context.contract_call.contract_id != env::current_account_id(),
@@ -67,7 +76,7 @@ impl Contract {
                 env::prepaid_gas() / 3,
             )
             .then(ext_self::check_promise(
-                context.caller,
+                context.tag_info,
                 env::current_account_id(),
                 0,
                 env::prepaid_gas() / 3,
@@ -79,14 +88,12 @@ impl Contract {
     ///
     /// Logs on successful promise.
     #[private]
-    pub fn check_promise(caller: Option<CallerInformation>) {
+    pub fn check_promise(tag_info: TagInfo) {
         let ret = match env::promise_result(0) {
             PromiseResult::Successful(val) => val,
             _ => env::panic_str("Promise with index 0 failed"),
         };
-        if let Some(inf) = caller {
-            env::log_str(&serde_json::to_string(&inf).unwrap());
-        }
-        env::value_return(&ret)
+        env::log_str(&serde_json::to_string(&tag_info).unwrap());
+        env::value_return(&ret);
     }
 }

@@ -1,8 +1,8 @@
-use crate::Contract;
+use crate::Executor;
 use near_sdk::near_bindgen;
 
 #[cfg(not(target_arch = "wasm32"))]
-use crate::ContractContract;
+use crate::ExecutorContract;
 
 pub mod ecdsa_secp256k1;
 pub mod eddsa_ed25519;
@@ -14,7 +14,7 @@ pub use eddsa_ed25519::types::PubKey as EddsaEd25519PublicKey;
 pub use eddsa_ed25519::types::Sign as EddsaEd25519Signature;
 
 #[near_bindgen]
-impl Contract {
+impl Executor {
     // TODO: write comments
     //
     // signature verification that is compatible to Near
@@ -49,7 +49,7 @@ impl Contract {
     }
 }
 
-impl Contract {
+impl Executor {
     /// Note: Internally the hashed msg is hashed again by the
     /// signature verification algorithm. This is compatible with
     /// Near's behavior.
@@ -70,7 +70,7 @@ impl Contract {
 
                 // note: msg_hash will be hashed again internally, this is
                 // compatible with Near's behavior.
-                Contract::eddsa_ed25519_verify(pubkey, sign, &msg_hash.0)
+                Executor::eddsa_ed25519_verify(pubkey, sign, &msg_hash.0)
             }
             (CurveType::SECP256K1, 65) => {
                 let mut sign_raw = [0; 65];
@@ -83,7 +83,7 @@ impl Contract {
 
                 // note: msg_hash will be hashed again internally, this is
                 // compatible with Near's behavior.
-                Contract::ecdsa_secp256k1_verify_uncompressed_msg_bytes(pubkey, sign, &msg_hash.0)
+                Executor::ecdsa_secp256k1_verify_uncompressed_msg_bytes(pubkey, sign, &msg_hash.0)
             }
             (curve_type, sign_len) => panic!(
                 "Wrong sign length of {} for the curve type {:?}",

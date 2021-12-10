@@ -1,8 +1,8 @@
-use crate::Contract;
+use crate::Executor;
 use near_sdk::{env, near_bindgen};
 
 #[cfg(not(target_arch = "wasm32"))]
-use crate::ContractContract;
+use crate::ExecutorContract;
 
 /// Sha256 value.
 ///
@@ -124,7 +124,7 @@ impl digest::FixedOutputDirty for Sha512 {
 }
 
 #[near_bindgen]
-impl Contract {
+impl Executor {
     /// Generates a `sha256` hash of the given bytes.
     ///
     /// The returned hash has a total size of 32-bytes.

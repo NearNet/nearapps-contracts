@@ -1,12 +1,12 @@
 use super::types;
-use crate::{hash, Contract};
+use crate::{hash, Executor};
 use near_sdk::near_bindgen;
 
 #[cfg(not(target_arch = "wasm32"))]
-use crate::ContractContract;
+use crate::ExecutorContract;
 
 #[near_bindgen]
-impl Contract {
+impl Executor {
     pub fn eddsa_ed25519_verify_bytes(
         pubkey: types::PubKey,
         sign: types::Sign,
@@ -32,7 +32,7 @@ impl Contract {
     }
 }
 
-impl Contract {
+impl Executor {
     pub fn eddsa_ed25519_verify(
         pubkey: types::PubKey,
         sign: types::Sign,

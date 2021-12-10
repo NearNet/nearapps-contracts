@@ -1,15 +1,15 @@
-use crate::Contract;
+use crate::Executor;
 use near_sdk::near_bindgen;
 
 #[cfg(not(target_arch = "wasm32"))]
-use crate::ContractContract;
+use crate::ExecutorContract;
 
 pub mod sign;
 pub mod types;
 pub mod verify;
 
 #[near_bindgen]
-impl Contract {
+impl Executor {
     // TODO: hide behing a feature as this will not
     // be needed as a near app.
     //
