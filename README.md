@@ -45,11 +45,10 @@ method: `execute`
         - `contract_id`: string - the contract's AccountId that is being called.
         - `method_name`: string - the name of the method being called.
         - `args`: string - the arguments for the method that is being called. 
-    - `app_id`: optional string.
-    - `caller`: optional caller context.
-        - `company`: string.
-        - `contact`: optional string.
-        - `description`: string.
+    - `tag_info`: the tags information.
+        - `app_id`: string - app tag.
+        - `action_id`: string - action number.
+        - `user_id`: string - user account_id tag.
     <!-- - `public_key`: string - the public key, in base58 which an optional `{header}:` as prefix. Can be a `Ed25519` or a `Secp256k1` public key. Note: currently disabled as the message still needs to be specified. A placeholder value is being used. -->
     <!-- - `signature`: string - the signature, in base58. Can be a `Ed25519` or a `Secp256k1` signature. Note: currently disabled as the message still needs to be specified. A placeholder value is being used. -->
     
