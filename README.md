@@ -29,6 +29,8 @@ Has no returns.
 
 ###### Sample
 
+<!-- TODO: update -->
+
 ```json
 {
 }
@@ -58,6 +60,8 @@ method: `execute`
 
 
 ###### Sample
+
+<!-- TODO: update -->
 
 ```json
 {
@@ -123,6 +127,8 @@ method: `verify_hashed_msg`
 
 ## Wallet Creation
 
+<!-- TODO: update -->
+
 - `testnet`: `` 
 - `mainnet`: `` 
 
@@ -156,12 +162,16 @@ Has no returns.
 
 ###### Sample
 
+<!-- TODO: update -->
+
 ```json
 {
 }
 ```
 
 #### Account Creation
+
+<!-- TODO: update -->
 
 note: not tested.
 
@@ -185,12 +195,16 @@ method: `create_account`
 
 ###### Sample
 
+<!-- TODO: update -->
+
 ```json
 {
 }
 ```
 
 #### Sub-Account Creation
+
+<!-- TODO: update -->
 
 note: not tested.
 
@@ -213,6 +227,8 @@ method: `create_subaccount`
 - `account_created`: boolean - whether the accoutn was successfully created.
 
 ###### Sample
+
+<!-- TODO: update -->
 
 ```json
 {
@@ -275,6 +291,8 @@ Has no returns.
 
 ###### Sample
 
+<!-- TODO: update -->
+
 ```json
 {
 }
@@ -282,12 +300,16 @@ Has no returns.
 
 ###### Reference Metadata JSON Sample
 
+<!-- TODO: update -->
+
 ```json
 {
 }
 ```
 
 ###### Nearapps API Sample
+
+<!-- TODO: update -->
 
 ```bash
 ```
@@ -306,6 +328,8 @@ Has no returns.
 
 ###### Sample
 
+<!-- TODO: update -->
+
 ```json
 {
 }
@@ -313,12 +337,16 @@ Has no returns.
 
 ###### Reference Metadata JSON Sample
 
+<!-- TODO: update -->
+
 ```json
 {
 }
 ```
 
 ###### Nearapps API Sample
+
+<!-- TODO: update -->
 
 ```bash
 ```
@@ -340,6 +368,8 @@ method: `nft_mint`
 
 ###### Sample
 
+<!-- TODO: update -->
+
 ```json
 {
 }
@@ -347,12 +377,16 @@ method: `nft_mint`
 
 ###### Reference Metadata JSON Sample
 
+<!-- TODO: update -->
+
 ```json
 {
 }
 ```
 
 ###### Nearapps API Sample
+
+<!-- TODO: update -->
 
 ```bash
 ```
@@ -375,9 +409,6 @@ methods:
 - `nft_supply_for_owner`
 - `nft_tokens_for_owner`
 - `nft_metadata`
-
-
-
 
 
 ##### Transfer
@@ -405,6 +436,8 @@ method: `nft_transfer`
 - `success`: bool - was the transfer successful or not
 
 ###### Nearapps API Sample
+
+<!-- TODO: update -->
 
 ```bash
 curl --location --request POST 'https://api.nearapps.net/testnet/v1/execute' \
@@ -442,6 +475,8 @@ method: `nft_transfer_call`
 - `success`: bool - was the transfer successful or not
 
 ###### Nearapps API Sample
+
+<!-- TODO: update -->
 
 ```bash
 curl --location --request POST 'https://api.nearapps.net/testnet/v1/execute' \
@@ -481,6 +516,8 @@ method: `nft_approve`
 
 ###### Nearapps API Sample
 
+<!-- TODO: update -->
+
 ```bash
 curl --location --request POST 'https://api.nearapps.net/testnet/v1/execute' \
 --header 'x-api-key: <api key>' \
@@ -507,6 +544,8 @@ method: `nft_is_approved`
 
 ###### Sample
 
+<!-- TODO: update -->
+
 ```json
 {
 }
@@ -517,6 +556,8 @@ method: `nft_is_approved`
 - `is_approved`: boolean - whether it is approved.
 
 ###### Nearapps API Sample
+
+<!-- TODO: update -->
 
 ```bash
 
@@ -545,6 +586,8 @@ method: `nft_revoke`
 Has no returns.
 
 ###### Nearapps API Sample
+
+<!-- TODO: update -->
 
 ```bash
 curl --location --request POST 'https://api.nearapps.net/testnet/v1/execute' \
@@ -581,6 +624,8 @@ Has no return.
 
 ###### Nearapps API Sample
 
+<!-- TODO: update -->
+
 ```bash
 ```
 
@@ -615,6 +660,8 @@ method: `nft_series_create`
 
 ###### Sample
 
+<!-- TODO: update -->
+
 ```json
 {
 }
@@ -622,12 +669,16 @@ method: `nft_series_create`
 
 ###### Reference Metadata JSON Sample
 
+<!-- TODO: update -->
+
 ```json
 {
 }
 ```
 
 ###### Nearapps API Sample
+
+<!-- TODO: update -->
 
 ```bash
 ```
@@ -649,6 +700,8 @@ method: `nft_series_mint`
 
 ###### Sample
 
+<!-- TODO: update -->
+
 ```json
 {
 }
@@ -656,12 +709,16 @@ method: `nft_series_mint`
 
 ###### Reference Metadata JSON Sample
 
+<!-- TODO: update -->
+
 ```json
 {
 }
 ```
 
 ###### Nearapps API Sample
+
+<!-- TODO: update -->
 
 ```bash
 ```
@@ -687,6 +744,8 @@ method: `nft_series_get`
 
 ###### Sample
 
+<!-- TODO: update -->
+
 ```json
 {
 }
@@ -694,12 +753,16 @@ method: `nft_series_get`
 
 ###### Reference Metadata JSON Sample
 
+<!-- TODO: update -->
+
 ```json
 {
 }
 ```
 
 ###### Nearapps API Sample
+
+<!-- TODO: update -->
 
 ```bash
 ```
@@ -719,6 +782,8 @@ method: `nft_series_get_minted_tokens_vec`
 
 ###### Sample
 
+<!-- TODO: update -->
+
 ```json
 {
 }
@@ -726,12 +791,16 @@ method: `nft_series_get_minted_tokens_vec`
 
 ###### Reference Metadata JSON Sample
 
+<!-- TODO: update -->
+
 ```json
 {
 }
 ```
 
 ###### Nearapps API Sample
+
+<!-- TODO: update -->
 
 ```bash
 ```
@@ -752,6 +821,8 @@ Has no returns.
 
 ###### Sample
 
+<!-- TODO: update -->
+
 ```json
 {
 }
@@ -759,12 +830,16 @@ Has no returns.
 
 ###### Reference Metadata JSON Sample
 
+<!-- TODO: update -->
+
 ```json
 {
 }
 ```
 
 ###### Nearapps API Sample
+
+<!-- TODO: update -->
 
 ```bash
 ```
@@ -785,6 +860,8 @@ Has no returns.
 
 ###### Sample
 
+<!-- TODO: update -->
+
 ```json
 {
 }
@@ -792,12 +869,16 @@ Has no returns.
 
 ###### Reference Metadata JSON Sample
 
+<!-- TODO: update -->
+
 ```json
 {
 }
 ```
 
 ###### Nearapps API Sample
+
+<!-- TODO: update -->
 
 ```bash
 ```
