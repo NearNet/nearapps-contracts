@@ -8,37 +8,62 @@ pub const DEFAULT_GAS: u64 = 300_000_000_000_000;
 
 pub mod utils;
 
-use crate::utils::{user, AssertFailure, MEGA_TERA, TERA, YOTTA};
+use crate::utils::{user, ExecutionExt, MEGA_TERA, TERA, YOTTA};
 use nearapps_wallet::AccountConfig;
 
+// #[ignore]
+// #[test]
+// fn test_wallet_subaccount() {
+//     let root = init_simulator(None);
+//     let wallet = utils::setup_wallet(&root);
+
+//     let users: Vec<_> = (0..10)
+//         .into_iter()
+//         .map(|i| root.create_user(user(i), 100 * YOTTA))
+//         .collect();
+
+//     let created_01: &near_sdk::AccountId = &"created-01".parse().unwrap();
+
+//     let config = AccountConfig {
+//         account_id: created_01.clone(),
+//         user_public_key: pubkey(),
+//         initial_amount: Some(1.into()),
+//     };
+
+//     // errors: not within a catch_unsafe_unwind scope
+//     let res = root.function_call(
+//         //
+//         wallet.contract.create_subaccount(config, None),
+//         15 * TERA,
+//         1 * YOTTA / 100, // 0.01 N
+//     );
+//     res.assert_success();
+//     assert!(res.gas_burnt().0 < 4 * TERA);
+// }
+
+// ignored because the gas usage differs from the simulation to the testnet
 #[ignore]
 #[test]
-fn test_wallet() {
+fn test_wallet_account() {
     let root = init_simulator(None);
     let wallet = utils::setup_wallet(&root);
 
-    let users: Vec<_> = (0..10)
-        .into_iter()
-        .map(|i| root.create_user(user(i), 100 * YOTTA))
-        .collect();
+    // let created_01: &near_sdk::AccountId =
+    //     &"0123456789012345678901234567890123456789012345678.root"
+    //         .parse()
+    //         .unwrap();
 
-    let created_01: &near_sdk::AccountId = &"created-01".parse().unwrap();
+    let created_01: &near_sdk::AccountId = &"created-01.root".parse().unwrap();
 
-    let config = AccountConfig {
-        account_id: created_01.clone(),
-        user_public_key: pubkey(),
-        initial_amount: Some(1.into()),
-    };
-
-    // errors: not within a catch_unsafe_unwind scope
     let res = root.function_call(
         //
-        wallet.contract.create_subaccount(config, None),
-        15 * TERA,
+        wallet.contract.create_account(created_01.clone(), None),
+        26 * TERA,
         1 * YOTTA / 100, // 0.01 N
     );
-    res.assert_success();
-    assert!(res.gas_burnt().0 < 4 * TERA);
+    let success: bool = res.unwrap_json();
+    assert!(success);
+    assert!(res.total_gas_burnt().0 < 26 * TERA);
 }
 
 fn pubkey() -> near_sdk::PublicKey {

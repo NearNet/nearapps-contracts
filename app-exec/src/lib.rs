@@ -14,6 +14,15 @@ pub struct Executor {
     owner_id: AccountId,
 }
 
+#[near_bindgen]
+impl Executor {
+    #[init]
+    pub fn new(owner_id: AccountId) -> Self {
+        ensure(!env::state_exists(), Error::AlreadyInitialized);
+        Self { owner_id }
+    }
+}
+
 pub trait Owner {
     fn assert_owner(&self);
 }

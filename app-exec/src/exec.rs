@@ -47,12 +47,6 @@ pub struct TagInfo {
 
 #[near_bindgen]
 impl Executor {
-    #[init]
-    pub fn new(owner_id: AccountId) -> Self {
-        ensure(!env::state_exists(), Error::AlreadyInitialized);
-        Self { owner_id }
-    }
-
     /// Executes an external contract's function, logging on the callback
     /// and forwarding the calls result back.
     ///
