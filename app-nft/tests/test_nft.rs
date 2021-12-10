@@ -102,7 +102,7 @@ fn test_nft() {
     let tokens = token_ids(&tokens);
     assert_eq!(tokens, vec!["series-01:1"]);
 
-    // fail: root tries to mint the same series again
+    // fail: root tries to mint on the same series again
     // (no more capacity)
     let res = call!(
         &root,

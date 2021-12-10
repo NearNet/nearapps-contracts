@@ -40,7 +40,7 @@ rev = "e054a2c"
 # rev = "f6c1d86"
 # # branch = "0.10.5-no-rand"
 
-# crypto: schnorr on ed25519
+# crypto: eddsa on ed25519
 [dependencies.ed25519-dalek]
 version = "1.0.1"
 default-features = false

@@ -14,3 +14,14 @@ strum_macros = "0.23"
 
 [dev-dependencies]
 near-sdk-sim = "4.0.0-pre.4"
+
+[dev-dependencies.ed25519-dalek]
+version = "1.0.1"
+default-features = false
+features = ["u64_backend"]
+
+[dev-dependencies.nearapps-exec]
+path = "../app-exec/"
+# version = "1.0.1"
+# default-features = false
+# features = ["u64_backend"]

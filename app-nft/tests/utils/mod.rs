@@ -23,15 +23,15 @@ pub const MEGA_TERA: u128 = MEGA as u128 * TERA as u128;
 pub const YOTTA: u128 = (TERA as u128) * (TERA as u128);
 
 pub trait AssertFailure {
-    fn assert_failure<E: AsRef<str>>(&self, action: u32, err: E);
+    fn assert_failure<E: ToString>(&self, action: u32, err: E);
 }
 
 impl AssertFailure for ExecutionResult {
-    fn assert_failure<E: AsRef<str>>(&self, action: u32, err: E) {
+    fn assert_failure<E: ToString>(&self, action: u32, err: E) {
         let err = format!(
             "Action #{}: Smart contract panicked: {}",
             action,
-            err.as_ref()
+            err.to_string()
         );
         match self.status() {
             ExecutionStatus::Failure(txerr_) => {

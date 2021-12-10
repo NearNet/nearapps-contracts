@@ -2,8 +2,9 @@
 
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::{UnorderedMap, UnorderedSet};
+use near_sdk::json_types::U128;
 use near_sdk::{
-    env, near_bindgen, AccountId, Balance, BorshStorageKey, Gas, PanicOnDefault, Promise, PublicKey,
+    env, near_bindgen, AccountId, BorshStorageKey, Gas, PanicOnDefault, Promise, PublicKey,
 };
 
 pub mod error;
@@ -17,6 +18,7 @@ pub const YOTTA: u128 = (TERA as u128) * (TERA as u128);
 
 #[near_sdk::ext_contract(ext_self)]
 pub trait ExtSelf {
+    fn on_subaccount_created(config: AccountConfig) -> bool;
     fn on_account_created(config: AccountConfig) -> bool;
 }
 
@@ -45,10 +47,10 @@ pub struct AccountManager {
 
 pub struct Defaults {
     /// The default initial amount to attach to created accounts.
-    pub initial_amount: Balance,
+    pub initial_amount: U128,
     /// The default allowance to attach to allowed calls on created
     /// accounts.
-    pub allowance: Balance,
+    pub allowance: U128,
     /// The default allowed calls that new accounts are able to make.
     pub allowed_calls: Vec<AllowedCalls>,
 }
@@ -66,7 +68,7 @@ pub struct AccountConfig {
     ///
     /// If missing, the user will receive
     /// [`Defaults::initial_amount`]
-    pub initial_amount: Option<Balance>,
+    pub initial_amount: Option<U128>,
 }
 
 #[derive(
@@ -89,7 +91,7 @@ pub struct AllowedCalls {
     ///
     /// If missing, the value [`Defaults::allowance`]
     /// is used.
-    pub allowance: Option<Balance>,
+    pub allowance: Option<U128>,
     /// The contract address that the user is allowed to call into.
     pub receiver_id: AccountId,
     /// List of method names (eg. `["method_a", "method_b"]`) that the user
@@ -127,19 +129,28 @@ impl AccountManager {
     /// they are removed once the successfull creation has been
     /// confirmed.  
     /// The created account names are then tracked in [`Self::accounts`].
+    #[payable]
     pub fn create_account(
         &mut self,
         config: AccountConfig,
         allowed_calls: Option<Vec<AllowedCalls>>,
     ) -> Promise {
-        // TODO: check when too many methods or allowances extrapolates the
-        // reserved gas for the call
-        // otherwise, a constant quantity could be reserved for the
-        // callback only
-        const GAS_CURRENT: Gas = Gas(5 * TERA);
-        let gas = env::prepaid_gas() - env::used_gas() - GAS_CURRENT;
+        const _GAS_CURRENT: Gas = Gas(5 * TERA);
+        const GAS_CALLBACK: Gas = Gas(5 * TERA);
 
         ensure(self.owner == env::predecessor_account_id(), Error::NotOwner);
+
+        let amount = config
+            .initial_amount
+            .unwrap_or(self.defaults.initial_amount)
+            .0;
+
+        env::log_str(&format!(
+            "required: {}; attached: {}",
+            amount,
+            env::attached_deposit()
+        ));
+        ensure(env::attached_deposit() >= amount, Error::NotEnoughtDeposit);
 
         let is_new_account = self.accounts_queue.insert(&config.account_id);
         ensure(is_new_account, Error::AccountAlreadyQueued);
@@ -149,16 +160,12 @@ impl AccountManager {
         let mut new_account = Promise::new(config.account_id.clone())
             .create_account()
             .add_full_access_key(owner_pk)
-            .transfer(
-                config
-                    .initial_amount
-                    .unwrap_or(self.defaults.initial_amount),
-            );
+            .transfer(amount);
 
         for allowed in allowed_calls.unwrap_or_else(|| self.defaults.allowed_calls.clone()) {
             new_account = new_account.add_access_key(
                 config.user_public_key.clone(),
-                allowed.allowance.unwrap_or(self.defaults.allowance),
+                allowed.allowance.unwrap_or(self.defaults.allowance).0,
                 allowed.receiver_id,
                 allowed.method_names.join(","),
             );
@@ -168,7 +175,78 @@ impl AccountManager {
             config,
             env::current_account_id(),
             0u128,
-            gas,
+            GAS_CALLBACK,
+        ));
+
+        new_account
+    }
+
+    /// Creates a new user sub-account on the current contract account.  
+    /// The account name will be automatically postfixed with the current
+    /// contract account name.
+    ///
+    /// For now, the [`Self::owner`] will be the full owner of the new
+    /// account, where the actual public key is taken from the
+    /// [`env::signer_account_pk()`] value.
+    ///
+    /// The [`AccountConfig::user_public_key`] will be allowed to call
+    /// specific contracts and methods, as defined in `allowed_calls`.  
+    /// If the value is missing, the [`Defaults::allowed_calls`] is used.  
+    /// Otherwise if the value is present but the list is empty, then the
+    /// user will not be allowed to make any calls into any contracts.
+    ///
+    /// The accounts, while being created, first enter a queue from which
+    /// they are removed once the successfull creation has been
+    /// confirmed.  
+    /// The created account names are then tracked in [`Self::accounts`].
+    #[payable]
+    pub fn create_subaccount(
+        &mut self,
+        config: AccountConfig,
+        allowed_calls: Option<Vec<AllowedCalls>>,
+    ) -> Promise {
+        const _GAS_CURRENT: Gas = Gas(5 * TERA);
+        const GAS_CALLBACK: Gas = Gas(5 * TERA);
+
+        ensure(self.owner == env::predecessor_account_id(), Error::NotOwner);
+
+        let amount = config
+            .initial_amount
+            .unwrap_or(self.defaults.initial_amount)
+            .0;
+
+        env::log_str(&format!(
+            "required: {}; attached: {}",
+            amount,
+            env::attached_deposit()
+        ));
+        ensure(env::attached_deposit() >= amount, Error::NotEnoughtDeposit);
+
+        let is_new_account = self.accounts_queue.insert(&config.account_id);
+        ensure(is_new_account, Error::AccountAlreadyQueued);
+
+        let owner_pk = env::signer_account_pk();
+        let new_account = format!("{}.{}", &config.account_id, env::current_account_id());
+
+        let mut new_account = Promise::new(new_account.parse().unwrap())
+            .create_account()
+            .add_full_access_key(owner_pk)
+            .transfer(amount);
+
+        for allowed in allowed_calls.unwrap_or_else(|| self.defaults.allowed_calls.clone()) {
+            new_account = new_account.add_access_key(
+                config.user_public_key.clone(),
+                allowed.allowance.unwrap_or(self.defaults.allowance).0,
+                allowed.receiver_id,
+                allowed.method_names.join(","),
+            );
+        }
+
+        new_account = new_account.then(ext_self::on_subaccount_created(
+            config,
+            env::current_account_id(),
+            0u128,
+            GAS_CALLBACK,
         ));
 
         new_account
@@ -180,14 +258,19 @@ impl AccountManager {
 
         let success: Option<bool> = match env::promise_result(0) {
             near_sdk::PromiseResult::Successful(v) => {
-                // did not encounter any panicking failure,
-                // but could still fail (false)
-                Some(near_sdk::serde_json::from_slice(&v).unwrap())
+                // did not encounter any panicking failure
+                let res: bool = near_sdk::serde_json::from_slice(&v).unwrap();
+                Some(res)
             }
             // encountered some panicking failure
             _ => None,
         };
 
+        // TODO: test when the AccountManager doesn't have enough
+        // funds, if it falls into this case
+        //
+        // TODO: could the call still be ongoing?
+        // not sure if it can be removed from the queue here
         match success {
             Some(true) => {
                 let did_exist = self.accounts_queue.remove(&config.account_id);
@@ -202,23 +285,61 @@ impl AccountManager {
 
                 env::log_str(&format!("account {} created.", config.account_id));
             }
-            // The call has completed, but it resulted in the
-            // account not being created. So it's removed from the queue,
-            // as it can be retried later on
-            //
-            // TODO: test when the AccountManager doesn't have enough
-            // funds, if it falls into this case
             Some(false) => {
                 let did_exist = self.accounts_queue.remove(&config.account_id);
                 // sanity check
                 assert!(did_exist);
             }
-            // TODO: could the call still be ongoing?
-            // not sure if it can be removed form the queue here
-            None => {}
+            None => {
+                // some error occurred
+            }
+        }
+
+        success.unwrap_or_default()
+    }
+
+    #[private]
+    pub fn on_subaccount_created(&mut self, config: AccountConfig) -> bool {
+        ensure(env::promise_results_count() == 1, Error::BadCallbackResults);
+
+        let success: bool = match env::promise_result(0) {
+            near_sdk::PromiseResult::Successful(v) => {
+                // did not encounter any panicking failure,
+                // should return an empty byte array
+                assert_eq!(v, Vec::<u8>::new());
+                true
+            }
+            // encountered some panicking failure
+            _ => false,
         };
 
-        // returns false on `success` = None
-        success.unwrap_or_default()
+        #[allow(clippy::branches_sharing_code)]
+        if success {
+            let did_exist = self.accounts_queue.remove(&config.account_id);
+            // sanity check
+            assert!(did_exist);
+
+            let previous_element = self
+                .accounts
+                .insert(&config.account_id, &config.user_public_key);
+            // sanity check
+            assert!(previous_element.is_none());
+
+            env::log_str(&format!("account {} created.", config.account_id));
+        } else {
+            // some error occurred
+
+            // TODO: test when the AccountManager doesn't have enough
+            // funds, if it falls into this case
+            //
+            // TODO: could the call still be ongoing?
+            // not sure if it can be removed from the queue here
+
+            let did_exist = self.accounts_queue.remove(&config.account_id);
+            // sanity check
+            assert!(did_exist);
+        };
+
+        success
     }
 }

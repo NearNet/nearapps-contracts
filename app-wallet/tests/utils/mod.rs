@@ -4,21 +4,19 @@ pub use near_sdk::json_types::{Base64VecU8, U64};
 use near_sdk::AccountId;
 use near_sdk_sim::transaction::ExecutionStatus;
 use near_sdk_sim::{deploy, init_simulator, ContractAccount, ExecutionResult, UserAccount};
-use nearapps_counter::CounterContract;
-use nearapps_exec::ExecutorContract;
 
-pub mod _secp256k1;
+use nearapps_wallet::{AccountManagerContract, AllowedCalls, Defaults};
+
+pub const DEFAULT_GAS: u64 = 300_000_000_000_000;
 
 near_sdk_sim::lazy_static_include::lazy_static_include_bytes! {
-    EXEC_WASM_BYTES => "../res/nearapps_exec.wasm",
-    COUNTER_WASM_BYTES => "../res/nearapps_counter.wasm",
+    WALLET_WASM_BYTES => "../res/nearapps_wallet.wasm",
 }
-
-pub type Contract = ContractAccount<ExecutorContract>;
 
 pub const KILO: u64 = 1000;
 pub const MEGA: u64 = KILO * KILO;
 pub const TERA: u64 = MEGA * MEGA;
+pub const MEGA_TERA: u128 = MEGA as u128 * TERA as u128;
 pub const YOTTA: u128 = (TERA as u128) * (TERA as u128);
 
 pub trait AssertFailure {
@@ -47,29 +45,28 @@ impl AssertFailure for ExecutionResult {
     }
 }
 
-pub fn setup_exec(root: &UserAccount) -> Contract {
-    let contract = deploy!(
-        contract: ExecutorContract,
-        contract_id: "executor".to_string(),
-        bytes: &EXEC_WASM_BYTES,
-        signer_account: root,
-        deposit: 200 * YOTTA,
-        init_method: new(root.account_id())
-    );
-    contract
-}
-
-pub fn setup_counter(root: &UserAccount) -> ContractAccount<CounterContract> {
+#[allow(clippy::identity_op)]
+pub fn setup_wallet(root: &UserAccount) -> ContractAccount<AccountManagerContract> {
+    let allowed_call = &AllowedCalls {
+        allowance: Some(300 * TERA as u128).map(Into::into),
+        receiver_id: "counter".parse().unwrap(),
+        method_names: vec!["increment".to_string()],
+    };
+    let defaults = Defaults {
+        initial_amount: (1 * YOTTA / 100).into(), // 0.01 N
+        allowance: (1 * MEGA_TERA).into(),
+        allowed_calls: vec![allowed_call.clone()],
+    };
     deploy!(
-        contract: CounterContract,
-        contract_id: "counter".to_string(),
-        bytes: &COUNTER_WASM_BYTES,
+        contract: AccountManagerContract,
+        contract_id: "wallet".to_string(),
+        bytes: &WALLET_WASM_BYTES,
         signer_account: root,
         deposit: 200 * YOTTA,
-        // init_method: new()
+        init_method: new(root.account_id(), defaults)
     )
 }
 
-fn user(id: u32) -> AccountId {
+pub fn user(id: u32) -> AccountId {
     format!("user{}", id).parse().unwrap()
 }

@@ -5,7 +5,7 @@ use crate::utils::{setup_counter, setup_exec};
 use crypto::eddsa_ed25519 as ed;
 use near_sdk_sim::{call, init_simulator};
 use nearapps_exec::crypto;
-use nearapps_exec::exec::{CallContext, ContractCall};
+use nearapps_exec::exec::{CallContext, ContractCall, TagInfo};
 
 mod utils;
 
@@ -38,13 +38,16 @@ fn sign(ctx: &ContractCall) -> (near_sdk::PublicKey, crypto::Bs58EncodedSignatur
 }
 
 fn into_callctx(ctx: ContractCall) -> CallContext {
-    let (public_key, signature) = sign(&ctx);
+    // let (public_key, signature) = sign(&ctx);
     CallContext {
         contract_call: ctx,
-        app_id: None,
-        caller: None,
-        public_key,
-        signature,
+        tag_info: TagInfo {
+            app_id: "the_app_id".into(),
+            action_id: 0.into(),
+            user_id: "user.id".parse().unwrap(),
+        },
+        // public_key,
+        // signature,
     }
 }
 

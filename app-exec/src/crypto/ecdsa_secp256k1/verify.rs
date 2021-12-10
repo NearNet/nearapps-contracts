@@ -1,12 +1,12 @@
 use super::types;
-use crate::{hash, Contract};
+use crate::{hash, Executor};
 use near_sdk::near_bindgen;
 
 #[cfg(not(target_arch = "wasm32"))]
-use crate::ContractContract;
+use crate::ExecutorContract;
 
 #[near_bindgen]
-impl Contract {
+impl Executor {
     /// Returns `true` if `pubkey` authenticates the
     /// `sign` of the `msg_hash`.  
     /// Returns `false` otherwise.
@@ -58,7 +58,7 @@ impl Contract {
     }
 }
 
-impl Contract {
+impl Executor {
     /// Returns `true` if `pubkey` authenticates the
     /// `sign` of the `msg_hash`.  
     /// Returns `false` otherwise.
