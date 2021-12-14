@@ -29,6 +29,10 @@ pub enum Error {
     SeriesNotMintable,
     #[strum(serialize = "ERR_NFT_SERIES_NOT_ENOUGH_CAPACITY")]
     SeriesNotEnoughtCapacity,
+    #[strum(serialize = "ERR_NFT_SERIES_CLAIM_ALREADY_ALLOWED")]
+    AlreadyAllowedToClaim,
+    #[strum(serialize = "ERR_NFT_SERIES_CLAIM_NOT_ALLOWED")]
+    UserNotAllowedToClaim,
 }
 
 impl Error {

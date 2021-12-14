@@ -25,3 +25,7 @@ path = "../app-exec/"
 # version = "1.0.1"
 # default-features = false
 # features = ["u64_backend"]
+
+[features]
+default = []
+crypto = []

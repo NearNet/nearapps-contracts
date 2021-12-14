@@ -29,10 +29,9 @@ Has no returns.
 
 ###### Sample
 
-<!-- TODO: update -->
-
 ```json
 {
+  "owner_id": "the.owner"
 }
 ```
 
@@ -61,16 +60,19 @@ method: `execute`
 
 ###### Sample
 
-<!-- TODO: update -->
-
 ```json
 {
   "context": {
     "contract_call": {
         "contract_id": "nft.naps.testnet",
-        "method_name": "nft_transfer_from",
-        "args": "\"token_id\": \"1\", \"sender_id\": \"my-account.testnet\", \"receiver_id\": \"my-friend.testnet\", \"approval_id\": \"4711\""
+        "method_name": "nft_transfer",
+        "args": "\"token_id\": \"1\", \"receiver_id\": \"my-friend.testnet\", \"approval_id\": \"4711\""
     },
+    "tag_info": {
+      "app_id": "app",
+      "action_id": "3",
+      "user_id": "the.user"
+    }
   }
 }
 ```
@@ -162,18 +164,13 @@ Has no returns.
 
 ###### Sample
 
-<!-- TODO: update -->
-
 ```json
 {
+  "owner_id": "the.owner"
 }
 ```
 
 #### Account Creation
-
-<!-- TODO: update -->
-
-note: not tested.
 
 method: `create_account`
 
@@ -198,10 +195,10 @@ method: `create_account`
 
 ###### Sample
 
-<!-- TODO: update -->
-
 ```json
 {
+  "new_account_id": "acc.testnet",
+  "new_public_key": "ed25519:AYWv9RAN1hpSQA4p1DLhCNnpnNXwxhfH9qeHN8B4nJ59"
 }
 ```
 
@@ -279,7 +276,7 @@ method: `new`
 
 - `owner_id`: string - the account_id of who will own the contract
 - `metadata`: object - the standard nft metadata
-  - `spec`: stirng - eg. "nft-1.0.0"
+  - `spec`: string - eg. "nft-1.0.0"
   - `name`: string - eg. "Mosaics"
   - `symbol`: string - eg. "MOSIAC"
   - `icon`: optional string - data URL
@@ -293,10 +290,18 @@ Has no returns.
 
 ###### Sample
 
-<!-- TODO: update -->
-
 ```json
 {
+  "owner_id": "the.owner",
+  "metadata": {
+    "spec": "nft-1.0.0",
+    "name": "Mosaics",
+    "symbol": "MOSIAC",
+    "icon": "data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%3E%3Crect%20width%3D'50'%20height%3D'50'%20%2F%3E%3C%2Fsvg%3E",
+    "base_uri": null,
+    "reference": null,
+    "reference_hash": null
+  }
 }
 ```
 
@@ -330,10 +335,9 @@ Has no returns.
 
 ###### Sample
 
-<!-- TODO: update -->
-
 ```json
 {
+  "owner_id": "the.owner"
 }
 ```
 
@@ -363,12 +367,12 @@ method: `nft_mint`
 - `token_id`: string - the name of the token. Cannot contain the series delimiter (`:`).
 - `token_owner_id`: string - the account_id of who will receive the token.
 - `token_metadata`: object - the standard nft token metadata.
-    - `title`: optional string - the title of the token, eg. "Arch Nemesis: Mail Carrier" or "Parcel #5055".
-    - `description`: optional string - free-form description.
+    - `title`: optional string - the title of the token, eg. `"Arch Nemesis: Mail Carrier"`, `"Parcel #5055"`. In case of series tokens, this defaults to the name of the series.
+    - `description`: optional string - free-form description. In case of series tokens, this defaults to `"Token #{token index on the series} from series {series name}"`.
     - `media`: optional string - URL to associated media, preferably to decentralized, content-addressed storage.
-    - `media_hash`: optional stirng - Base64-encoded sha256 hash of content referenced by the `media` field. Required if `media` is included.
-    - `copies`: optional string - number of copies of this set of metadata in existence when token was minted.
-    - `issued_at`: optional string - ISO 8601 datetime when token was issued or minted.
+    - `media_hash`: optional string - Base64-encoded sha256 hash of content referenced by the `media` field. Required if `media` is included.
+    - `copies`: optional string - number of copies of this set of metadata in existence when token was minted. In case of series tokens, this defaults to the capacity of the series.
+    - `issued_at`: optional string - ISO 8601 datetime when token was issued or minted. In case of series tokens, this defaults to `env::block_timestamp()`.
     - `expires_at`: optional string - ISO 8601 datetime when token expires.
     - `starts_at`: optional string - ISO 8601 datetime when token starts being valid.
     -`updated_at`: optional string - ISO 8601 datetime when token was last updated.
@@ -382,10 +386,24 @@ method: `nft_mint`
 
 ###### Sample
 
-<!-- TODO: update -->
-
 ```json
 {
+  "token_id": "my-new-token",
+  "token_owner_id": "my.friend",
+  "token_metadata": {
+    "title": "My Token",
+    "description": "My Decription for my token",
+    "media": null,
+    "media_hash": null,
+    "copies": null,
+    "issued_at": null,
+    "expires_at": null,
+    "starts_at": null,
+    "updated_at": null,
+    "extra": "{\"my-extra\": \"free-form-information\"}",
+    "reference": null,
+    "reference_hash": null
+  }
 }
 ```
 
@@ -441,7 +459,9 @@ method: `nft_transfer`
 ```json
 {
   "token_id": "1",
-  "receiver_id": "my-friend.testnet"
+  "receiver_id": "my-friend.testnet",
+  "approval_id": null,
+  "memo": null
 }
 ```
 
@@ -520,7 +540,8 @@ method: `nft_approve`
 ```json
 {
   "token_id": "1",
-  "account_id": "my-friend.testnet"
+  "account_id": "my-friend.testnet",
+  "msg": null
 }
 ```
 
@@ -562,6 +583,9 @@ method: `nft_is_approved`
 
 ```json
 {
+  "token_id": "my-token",
+  "approved_account_id": "approved.acc",
+  "approval_id": null
 }
 ```
 
@@ -629,7 +653,7 @@ method: `nft_revoke`
 
 ```json
 {
-  "token_id": "1",
+  "token_id": "my-token",
 }
 ```
 ###### Returns
@@ -674,10 +698,11 @@ method: `nft_series_create`
 
 ###### Sample
 
-<!-- TODO: update -->
-
 ```json
 {
+  "name": "my-token-series",
+  "capacity": "10",
+  "creator": "some.user"
 }
 ```
 
@@ -714,10 +739,11 @@ method: `nft_series_mint`
 
 ###### Sample
 
-<!-- TODO: update -->
-
 ```json
 {
+  "series_id": "0",
+  "token_owner_id": "some.friend",
+  "token_metadata": null
 }
 ```
 
@@ -758,10 +784,9 @@ method: `nft_series_get`
 
 ###### Sample
 
-<!-- TODO: update -->
-
 ```json
 {
+  "series_id": "0"
 }
 ```
 
@@ -796,10 +821,9 @@ method: `nft_series_get_minted_tokens_vec`
 
 ###### Sample
 
-<!-- TODO: update -->
-
 ```json
 {
+  "series_id": "0"
 }
 ```
 
@@ -835,10 +859,10 @@ Has no returns.
 
 ###### Sample
 
-<!-- TODO: update -->
-
 ```json
 {
+  "series_id": "0",
+  "is_mintable": true
 }
 ```
 
@@ -874,10 +898,10 @@ Has no returns.
 
 ###### Sample
 
-<!-- TODO: update -->
-
 ```json
 {
+  "series_id": "0",
+  "capacity": "11",
 }
 ```
 

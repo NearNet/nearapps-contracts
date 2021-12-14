@@ -7,6 +7,7 @@ use near_sdk_sim::{deploy, init_simulator, ContractAccount, ExecutionResult, Use
 use nearapps_counter::CounterContract;
 use nearapps_exec::ExecutorContract;
 
+#[cfg(feature = "crypto")]
 pub mod _secp256k1;
 
 near_sdk_sim::lazy_static_include::lazy_static_include_bytes! {

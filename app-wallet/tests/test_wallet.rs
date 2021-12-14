@@ -66,6 +66,7 @@ fn test_wallet_account() {
     assert!(res.total_gas_burnt().0 < 26 * TERA);
 }
 
+#[cfg(feature = "crypto")]
 fn pubkey() -> near_sdk::PublicKey {
     use std::convert::TryInto;
 

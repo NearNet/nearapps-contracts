@@ -14,7 +14,8 @@ pub trait ExtSelf {
     /// Executes an external contract's function, logging on the callback
     /// and forwarding the calls result back.
     ///
-    /// Only forwards the first result.
+    /// Only forwards the first result, which is already serialized
+    /// as a byte array.
     fn check_promise(tag_info: TagInfo) -> Vec<u8>;
 }
 
@@ -81,6 +82,11 @@ impl Executor {
     /// forwarding the first promise result as the value result.
     ///
     /// Logs on successful promise.
+    ///
+    /// Note: This method must not have any explicit return because
+    /// it forwards the received result as-is, and it's already serialized
+    /// as a byte array. Any return type on the method will make it
+    /// serialize something else, which is unwanted.
     #[private]
     pub fn check_promise(tag_info: TagInfo) {
         let ret = match env::promise_result(0) {
@@ -88,6 +94,14 @@ impl Executor {
             _ => env::panic_str("Promise with index 0 failed"),
         };
         env::log_str(&serde_json::to_string(&tag_info).unwrap());
+
+        // `ret` is already serialized as a byte array,
+        // so instead of "normally return" it,
+        // we use `env::value_return()`.
+        //
+        // otherwise, if it's "normally returned",
+        // the `Vec` itself would still get serialized, which must not
+        // happen.
         env::value_return(&ret);
     }
 }

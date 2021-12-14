@@ -71,6 +71,10 @@ default-features = false
 # features = ["std", "recovery", "serde", "lowmemory"]
 features = ["alloc", "recovery", "serde"]
 
+[features]
+default = []
+crypto = []
+
 # [profile.release]
 # codegen-units = 1
 # # Tell `rustc` to optimize for small code size.
