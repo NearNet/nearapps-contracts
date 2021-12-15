@@ -3,12 +3,13 @@
 
 pub use near_sdk::json_types::{Base64VecU8, U64};
 use near_sdk_sim::{call, deploy, init_simulator, view, ContractAccount, UserAccount};
+use nearapps_near_ext::{ExecutionExt, TERA, YOTTA};
 
 pub const DEFAULT_GAS: u64 = 300_000_000_000_000;
 
 pub mod utils;
 
-use crate::utils::{user, ExecutionExt, MEGA_TERA, TERA, YOTTA};
+use crate::utils::user;
 use nearapps_wallet::AccountConfig;
 
 // #[ignore]
@@ -42,28 +43,24 @@ use nearapps_wallet::AccountConfig;
 // }
 
 // ignored because the gas usage differs from the simulation to the testnet
-#[ignore]
 #[test]
 fn test_wallet_account() {
     let root = init_simulator(None);
+    let _testnet = utils::setup_testnet(&root);
     let wallet = utils::setup_wallet(&root);
 
-    // let created_01: &near_sdk::AccountId =
-    //     &"0123456789012345678901234567890123456789012345678.root"
-    //         .parse()
-    //         .unwrap();
-
-    let created_01: &near_sdk::AccountId = &"created-01.root".parse().unwrap();
+    let user0: &near_sdk::AccountId = &"user0.testnet".parse().unwrap();
 
     let res = root.function_call(
-        //
-        wallet.contract.create_account(created_01.clone(), None),
-        26 * TERA,
-        1 * YOTTA / 100, // 0.01 N
+        // total: 0.0085 N
+        wallet.contract.create_account(user0.clone(), None),
+        65 * TERA,        // 0.0065 N
+        2 * YOTTA / 1000, // 0.002 N
     );
+    res.pretty_debug();
+    assert!(res.total_gas_burnt().0 < 45 * TERA);
     let success: bool = res.unwrap_json();
     assert!(success);
-    assert!(res.total_gas_burnt().0 < 26 * TERA);
 }
 
 #[cfg(feature = "crypto")]

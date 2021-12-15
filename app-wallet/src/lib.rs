@@ -1,15 +1,16 @@
 #![allow(clippy::let_and_return)]
 
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
-use near_sdk::collections::{UnorderedMap, UnorderedSet};
+use near_sdk::collections::UnorderedSet;
 use near_sdk::json_types::U128;
 use near_sdk::{
     env, near_bindgen, AccountId, BorshStorageKey, Gas, PanicOnDefault, Promise, PublicKey,
 };
+use nearapps_near_ext::ensure;
 
 pub mod error;
 
-pub use error::{ensure, Error};
+use error::Error;
 
 pub const KILO: u64 = 1000;
 pub const MEGA: u64 = KILO * KILO;
@@ -138,9 +139,14 @@ impl AccountManager {
         // const GAS_CALLBACK: Gas = Gas(500_000 * MEGA);
 
         // testnet
-        const GAS_CURRENT: Gas = Gas(13 * TERA);
-        const GAS_CREATE_ACC_CALL: Gas = Gas(11 * TERA);
-        const GAS_CALLBACK: Gas = Gas(8 * TERA);
+        // const GAS_CURRENT: Gas = Gas(13 * TERA);
+        // const GAS_CREATE_ACC_CALL: Gas = Gas(11 * TERA);
+        // const GAS_CALLBACK: Gas = Gas(8 * TERA);
+
+        // local testnet
+        const _GAS_CURRENT: Gas = Gas(21 * TERA);
+        const GAS_CREATE_ACC_CALL: Gas = Gas(36 * TERA);
+        const GAS_CALLBACK: Gas = Gas(8 * TERA); // 2
 
         ensure(
             self.owner_id == env::predecessor_account_id(),
@@ -175,7 +181,7 @@ impl AccountManager {
     }
 
     #[private]
-    pub fn on_account_created(&mut self, user_account_id: AccountId) -> bool {
+    pub fn on_account_created(&mut self, new_account_id: AccountId) -> bool {
         ensure(env::promise_results_count() == 1, Error::BadCallbackResults);
 
         let success: Option<bool> = match env::promise_result(0) {
@@ -195,24 +201,24 @@ impl AccountManager {
         // not sure if it can be removed from the queue here
         match success {
             Some(true) => {
-                let did_exist = self.accounts_queue.remove(&user_account_id);
+                let did_exist = self.accounts_queue.remove(&new_account_id);
                 // sanity check
                 assert!(did_exist);
 
-                let did_exist = !self.accounts.insert(&user_account_id);
+                let did_exist = !self.accounts.insert(&new_account_id);
                 // sanity check
                 assert!(!did_exist);
 
-                env::log_str(&format!("account {} created.", user_account_id));
+                env::log_str(&format!("account {} created.", new_account_id));
             }
             Some(false) => {
-                let did_exist = self.accounts_queue.remove(&user_account_id);
+                let did_exist = self.accounts_queue.remove(&new_account_id);
                 // sanity check
                 assert!(did_exist);
             }
             None => {
                 // some error occurred
-                let did_exist = self.accounts_queue.remove(&user_account_id);
+                let did_exist = self.accounts_queue.remove(&new_account_id);
                 // sanity check
                 assert!(did_exist);
             }

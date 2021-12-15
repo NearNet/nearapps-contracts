@@ -1,10 +1,13 @@
 [workspace]
+resolver = "2"
+
 # include a member for each contract
 members = [
+  "lib-near-ext",
   "app-exec",
   "app-wallet",
   "app-counter",
-  "app-nft"
+  "app-nft",
 ]
 
 [profile.release]

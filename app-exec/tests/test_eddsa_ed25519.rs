@@ -1,12 +1,12 @@
 #![allow(clippy::ref_in_deref)]
+#![cfg(feature = "crypto")]
 
-use crate::utils::{setup_exec, TERA};
+use crate::utils::setup_exec;
 use near_sdk_sim::{call, init_simulator};
+use nearapps_near_ext::TERA;
 
 mod utils;
 
-#[cfg(feature = "crypto")]
-#[allow(clippy::zero_prefixed_literal)]
 #[test]
 fn test_eddsa_ed25519() {
     use nearapps_exec::{crypto::eddsa_ed25519 as ed, hash};
@@ -164,7 +164,6 @@ fn test_eddsa_ed25519() {
 
 // test based on data from:
 // https://github.com/near/near-api-js/blob/7ea21f330af1a00543b1ae655761a98820f6a368/test/key_pair.test.js#L5
-#[cfg(feature = "crypto")]
 #[allow(unused_variables)]
 #[test]
 fn test_near_verification() {

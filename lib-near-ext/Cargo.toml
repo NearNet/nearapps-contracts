@@ -1,0 +1,14 @@
+[package]
+name = "nearapps-near-ext"
+version = "0.1.0"
+authors = ["Near Inc <hello@near.org>"]
+edition = "2018"
+resolver = "2"
+
+[dependencies]
+near-sdk = {version = "4.0.0-pre.4", features = ["unstable"]}
+near-sdk-sim = {version = "4.0.0-pre.4", optional = true}
+
+[features]
+default = []
+sim = ["near-sdk-sim"]

@@ -1,14 +1,14 @@
 #![allow(clippy::ref_in_deref)]
+#![cfg(feature = "crypto")]
 
-use crate::utils::{setup_exec, TERA};
+use crate::utils::setup_exec;
 use near_sdk_sim::{call, init_simulator};
+use nearapps_near_ext::TERA;
 
-#[cfg(feature = "crypto")]
 use utils::_secp256k1;
 
 mod utils;
 
-#[cfg(feature = "crypto")]
 #[test]
 fn test_ecdsa_secp256k1() {
     use nearapps_exec::{crypto::ecdsa_secp256k1 as ec, hash};

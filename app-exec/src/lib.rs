@@ -1,5 +1,6 @@
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::{env, near_bindgen, AccountId, PanicOnDefault};
+use nearapps_near_ext::ensure;
 
 #[cfg(feature = "crypto")]
 pub mod crypto;
@@ -9,7 +10,7 @@ pub mod hash;
 pub mod error;
 pub mod exec;
 
-use error::{ensure, Error};
+use error::Error;
 
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize, PanicOnDefault)]

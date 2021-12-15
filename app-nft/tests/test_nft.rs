@@ -2,18 +2,36 @@
 
 use near_contract_standards::non_fungible_token as nft;
 pub use near_sdk::json_types::{Base64VecU8, U64};
+use near_sdk::serde_json::json;
 use near_sdk_sim::{call, init_simulator};
+use nearapps_near_ext::{ExecutionExt, MEGA, TERA, YOTTA};
 use nearapps_nft::error::Error;
 use nearapps_nft::series::{SeriesId, SeriesTokenIndex};
+use workspaces::prelude::DevAccountDeployer;
+
+const MEGA_TERA: u128 = (MEGA as u128) * (TERA as u128);
+
+macro_rules! json_str {
+    // Hide distracting implementation details from the generated rustdoc.
+    ($($json:tt)+) => {
+        json!($($json)+)
+        .to_string()
+        .into_bytes()
+    };
+}
 
 pub mod utils;
 
-use crate::utils::{token_ids, user, AssertFailure, MEGA_TERA, YOTTA};
+use crate::utils::{token_ids, user};
+
+const NFT_WASM: &str = "../res/nearapps_nft.wasm";
 
 #[test]
 fn test_nft() {
     let root = init_simulator(None);
     let nft = utils::setup_nft(&root);
+
+    const DEPOSIT_MINT: u128 = 6410 * MEGA_TERA;
 
     let users: Vec<_> = (0..10)
         .into_iter()
@@ -62,7 +80,7 @@ fn test_nft() {
     let res = call!(
         &root,
         nft.nft_series_mint(series_01_id, user(0), None),
-        deposit = 6330 * MEGA_TERA
+        deposit = DEPOSIT_MINT
     );
     let series_01_token_0: nft::Token = res.unwrap_json();
 
@@ -88,7 +106,7 @@ fn test_nft() {
     let res = call!(
         &root,
         nft.nft_series_mint(series_01_id, user(2), None),
-        deposit = 6330 * MEGA_TERA
+        deposit = DEPOSIT_MINT
     );
     let _series_01_token_1: nft::Token = res.unwrap_json();
 
@@ -107,7 +125,37 @@ fn test_nft() {
     let res = call!(
         &root,
         nft.nft_series_mint(series_01_id, user(2), None),
-        deposit = 6330 * MEGA_TERA
+        deposit = DEPOSIT_MINT
     );
     res.assert_failure(0, Error::SeriesNotMintable);
 }
+
+/*
+#[tokio::test]
+async fn test_nft2() -> anyhow::Result<()> {
+    let worker = workspaces::sandbox();
+
+    let owner = worker.dev_create().await?;
+    let owner_id = &owner.id().to_string();
+
+    let nft = std::fs::read(NFT_WASM)?;
+    let nft = worker.dev_deploy(nft).await?;
+
+    worker
+        .call(
+            &nft,
+            "new_default_meta".into(),
+            json_str!({ "owner_id": owner_id.clone() }),
+            None,
+        )
+        .await?;
+
+    let mut users = vec![];
+    for _ in 0..10 {
+        let user = worker.dev_create().await?;
+        users.push(user);
+    }
+
+    Ok(())
+}
+*/

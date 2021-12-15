@@ -3,17 +3,20 @@ name = "nearapps-wallet"
 version = "0.1.0"
 authors = ["Near Inc <hello@near.org>"]
 edition = "2018"
+resolver = "2"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 near-sdk = {version = "4.0.0-pre.4", features = ["unstable"]}
+nearapps-near-ext = {path = "../lib-near-ext/", features = []}
 strum = "0.23"
 strum_macros = "0.23"
 
 [dev-dependencies]
 near-sdk-sim = "4.0.0-pre.4"
+nearapps-near-ext = {path = "../lib-near-ext/", features = ["sim"]}
 
 [dev-dependencies.ed25519-dalek]
 version = "1.0.1"

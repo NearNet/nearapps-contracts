@@ -3,12 +3,14 @@ name = "nearapps-exec"
 version = "0.1.0"
 authors = ["Sebastian Gerske <13647606+H34D@users.noreply.github.com>"]
 edition = "2018"
+resolver = "2"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 near-sdk = {version = "4.0.0-pre.4", features = ["unstable"]}
+nearapps-near-ext = {path = "../lib-near-ext/", default-features = false, features = []}
 sha2 = "0.9.0"
 digest = "0.9.0"
 strum = "0.23"
@@ -55,6 +57,7 @@ features = ["const-generics"]
 
 [dev-dependencies]
 near-sdk-sim = "4.0.0-pre.4"
+nearapps-near-ext = {path = "../lib-near-ext/", features = ["sim"]}
 nearapps-counter = { path = "../app-counter" }
 
 # hash: sha256
