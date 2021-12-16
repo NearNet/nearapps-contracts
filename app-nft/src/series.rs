@@ -26,8 +26,8 @@ pub struct Series {
     pub creator: AccountId,
     /// How many tokens were minted under this series.
     ///
-    /// Initially and at minimum, values zero.
-    /// At maximum, values the same as `capacity`.
+    /// Initially and at minimum, equals zero.
+    /// At maximum, equals `capacity`.
     pub len: SeriesTokenIndex,
     /// The maximum number of token units that this series can have minted.
     ///
@@ -51,7 +51,7 @@ pub struct SeriesId(
 
 pub type SeriesName = String;
 
-/// The index of a token inside a series.
+/// Can represent the index of a token inside a series.
 /// eg. `0`, `1`, `2`.  
 /// The maximum value for a token's index will be
 /// `capacity - 1`.
@@ -82,7 +82,7 @@ pub struct SeriesTokenIndex(
 /// A token name produced from a series.
 ///
 /// The tokens are named `{SeriesName}{Delimiter}{token-index}`,  
-/// eg. `"my-series:0"`.
+/// eg. `"my-series:0"`, `"my-series:1"`.
 ///
 /// See [`TokenSeriesId::new()`] for more info.
 pub struct TokenSeriesId(pub String);

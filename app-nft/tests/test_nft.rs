@@ -4,21 +4,60 @@ use near_contract_standards::non_fungible_token as nft;
 pub use near_sdk::json_types::{Base64VecU8, U64};
 use near_sdk::serde_json::json;
 use near_sdk_sim::{call, init_simulator};
-use nearapps_near_ext::{ExecutionExt, MEGA, TERA, YOTTA};
+use nearapps_near_ext::{workspaces, Call, ExecutionExt, MEGA, TERA, YOTTA};
 use nearapps_nft::error::Error;
 use nearapps_nft::series::{SeriesId, SeriesTokenIndex};
-use workspaces::prelude::DevAccountDeployer;
+// use workspaces::prelude::DevAccountDeployer;
+
+use nearapps_near_ext::workspaces::network::DevAccountDeployer;
+
+// use crate::utils::Call;
 
 const MEGA_TERA: u128 = (MEGA as u128) * (TERA as u128);
 
-macro_rules! json_str {
-    // Hide distracting implementation details from the generated rustdoc.
-    ($($json:tt)+) => {
-        json!($($json)+)
-        .to_string()
-        .into_bytes()
-    };
+use near_primitives::views::FinalExecutionStatus;
+
+pub trait FinalExecutionStatusExt {
+    fn assert_success(&self) -> bool;
+    fn unwrap_json<'de, T>(&'de self) -> Result<Option<T>, near_sdk::serde_json::Error>
+    where
+        T: near_sdk::serde::Deserialize<'de>;
 }
+
+impl FinalExecutionStatusExt for FinalExecutionStatus {
+    fn assert_success(&self) -> bool {
+        use FinalExecutionStatus as Fes;
+        match self {
+            Fes::SuccessValue(_v) => true,
+            _other => false,
+        }
+    }
+
+    fn unwrap_json<'de, T>(&'de self) -> Result<Option<T>, near_sdk::serde_json::Error>
+    where
+        T: near_sdk::serde::Deserialize<'de>,
+    {
+        use FinalExecutionStatus as Fes;
+        let v = match self {
+            Fes::SuccessValue(v) => v,
+            other => {
+                panic!(
+                    "Expected FinalExecutionStatus::SuccessValue, got {:?}",
+                    &other
+                )
+            }
+        };
+
+        // empty string "" is not valid json
+        if v.is_empty() {
+            return Ok(None);
+        }
+
+        Ok(Some(near_sdk::serde_json::from_str(v)?))
+    }
+}
+
+type Empty = Option<()>;
 
 pub mod utils;
 
@@ -130,7 +169,6 @@ fn test_nft() {
     res.assert_failure(0, Error::SeriesNotMintable);
 }
 
-/*
 #[tokio::test]
 async fn test_nft2() -> anyhow::Result<()> {
     let worker = workspaces::sandbox();
@@ -141,21 +179,45 @@ async fn test_nft2() -> anyhow::Result<()> {
     let nft = std::fs::read(NFT_WASM)?;
     let nft = worker.dev_deploy(nft).await?;
 
-    worker
-        .call(
-            &nft,
-            "new_default_meta".into(),
-            json_str!({ "owner_id": owner_id.clone() }),
-            None,
+    worker.client();
+    owner.signer();
+
+    // ok: owner initializes the nft contract
+    let res = worker
+        .call_with_json(
+            owner.signer(),
+            nft.id(),
+            "new_default_meta",
+            json!( { "owner_id": owner_id.clone() }),
+            0,
+            9 * TERA,
         )
         .await?;
+    assert!(res.total_gas_burnt < 9 * TERA);
+    let res: Empty = res.status.unwrap_json()?;
+    assert!(res.is_none());
 
     let mut users = vec![];
-    for _ in 0..10 {
+    for _ in 0..2 {
         let user = worker.dev_create().await?;
         users.push(user);
     }
 
+    // ok: owner mints a token for user0
+    let token_id_01 = &"token-01".to_string();
+    let res = worker.call_with_json(
+        owner.signer(),
+        nft.id(),
+        "nft_mint",
+        json!( {
+            "token_id": token_id_01.clone(),
+            "token_owner_id": users[0].id(),
+            "token_metadata": near_sdk::serde_json::to_string(&utils::token_metadata()).unwrap(),
+        }),
+        5630 * MEGA_TERA,
+        300 * TERA,
+    ).await?;
+    res.status.assert_success();
+
     Ok(())
 }
-*/

@@ -25,13 +25,9 @@ features = [ "macros" ]
 [dev-dependencies]
 near-sdk-sim = "4.0.0-pre.4"
 nearapps-near-ext = {path = "../lib-near-ext/", features = ["sim"]}
+near-primitives = "0.5"
 tokio = "1.14.0"
 anyhow = "1.0.0"
-
-[dev-dependencies.workspaces]
-git = "https://github.com/near/workspaces-rs"
-rev = "098b2c3" 
-
 
 # [profile.release]
 # codegen-units = 1

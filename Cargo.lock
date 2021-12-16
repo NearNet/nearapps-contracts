@@ -2629,8 +2629,13 @@ dependencies = [
 name = "nearapps-near-ext"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
+ "async-trait",
+ "futures",
  "near-sdk",
  "near-sdk-sim",
+ "tokio",
+ "workspaces",
 ]
 
 [[package]]
@@ -2640,6 +2645,7 @@ dependencies = [
  "anyhow",
  "digest 0.9.0",
  "near-contract-standards",
+ "near-primitives 0.5.0",
  "near-sdk",
  "near-sdk-sim",
  "nearapps-near-ext",
@@ -2648,7 +2654,6 @@ dependencies = [
  "strum 0.23.0",
  "strum_macros 0.23.1",
  "tokio",
- "workspaces",
 ]
 
 [[package]]
@@ -4748,7 +4753,7 @@ dependencies = [
 [[package]]
 name = "workspaces"
 version = "0.1.0"
-source = "git+https://github.com/near/workspaces-rs?rev=098b2c3#098b2c33a275f03fe755b1e9873b50d816b076cb"
+source = "git+https://github.com/nearcomponents/workspaces-rs?rev=afaba3c#afaba3c616bfacd8dc3e92ff255a4ced318edc9e"
 dependencies = [
  "anyhow",
  "async-trait",

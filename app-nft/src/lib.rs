@@ -294,5 +294,5 @@ impl Owner for Nft {
     }
 }
 
-/// Identical to the standard example.
+/// Similar to the standard example (just a box image).
 const DATA_IMAGE_SVG_NEAR_ICON: &str = "data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%3E%3Crect%20width%3D'50'%20height%3D'50'%20%2F%3E%3C%2Fsvg%3E";
