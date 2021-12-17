@@ -1,7 +1,7 @@
 #![allow(clippy::let_and_return)]
 
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
-use near_sdk::collections::{UnorderedMap, UnorderedSet};
+use near_sdk::collections::UnorderedSet;
 use near_sdk::json_types::U128;
 use near_sdk::{
     env, near_bindgen, AccountId, BorshStorageKey, Gas, PanicOnDefault, Promise, PublicKey,
@@ -138,7 +138,7 @@ impl AccountManager {
         // const GAS_CALLBACK: Gas = Gas(500_000 * MEGA);
 
         // testnet
-        const GAS_CURRENT: Gas = Gas(13 * TERA);
+        const _GAS_CURRENT: Gas = Gas(13 * TERA);
         const GAS_CREATE_ACC_CALL: Gas = Gas(11 * TERA);
         const GAS_CALLBACK: Gas = Gas(8 * TERA);
 

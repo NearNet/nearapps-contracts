@@ -12,6 +12,8 @@ use crate::utils::{token_ids, user, AssertFailure, MEGA_TERA, YOTTA};
 
 #[test]
 fn test_nft() {
+    const COMMON_ATTACHMENT: u128 = 6450 * MEGA_TERA;
+
     let root = init_simulator(None);
     let nft = utils::setup_nft(&root);
 
@@ -62,7 +64,7 @@ fn test_nft() {
     let res = call!(
         &root,
         nft.nft_series_mint(series_01_id, user(0), None),
-        deposit = 6330 * MEGA_TERA
+        deposit = COMMON_ATTACHMENT
     );
     let series_01_token_0: nft::Token = res.unwrap_json();
 
@@ -82,13 +84,13 @@ fn test_nft() {
     );
     let tokens: Vec<nft::Token> = res.unwrap_json();
     let tokens = token_ids(&tokens);
-    assert_eq!(tokens, vec!["series-01:0", "token-01"]);
+    assert_eq!(tokens, vec!["series-01:0:0", "token-01"]);
 
     // ok: root mints the series for user2
     let res = call!(
         &root,
         nft.nft_series_mint(series_01_id, user(2), None),
-        deposit = 6330 * MEGA_TERA
+        deposit = COMMON_ATTACHMENT
     );
     let _series_01_token_1: nft::Token = res.unwrap_json();
 
@@ -100,14 +102,14 @@ fn test_nft() {
     );
     let tokens: Vec<nft::Token> = res.unwrap_json();
     let tokens = token_ids(&tokens);
-    assert_eq!(tokens, vec!["series-01:1"]);
+    assert_eq!(tokens, vec!["series-01:0:1"]);
 
     // fail: root tries to mint on the same series again
     // (no more capacity)
     let res = call!(
         &root,
         nft.nft_series_mint(series_01_id, user(2), None),
-        deposit = 6330 * MEGA_TERA
+        deposit = COMMON_ATTACHMENT
     );
     res.assert_failure(0, Error::SeriesNotMintable);
 }

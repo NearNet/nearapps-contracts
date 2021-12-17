@@ -12,6 +12,20 @@ pub const SERIES_DELIMETER: char = ':';
 #[cfg(not(target_arch = "wasm32"))]
 use crate::NftContract;
 
+#[derive(BorshDeserialize, BorshSerialize, Serialize, Deserialize)]
+#[serde(crate = "near_sdk::serde")]
+pub struct Series {
+    pub id: SeriesId,
+    pub name: String,
+    pub creator: AccountId,
+    pub len: SeriesTokenIndex,
+    /// The maximum number of token units that this series can have minted.
+    ///
+    /// eg. `0` means that it will never mint any token.
+    pub capacity: SeriesTokenIndex,
+    pub is_mintable: bool,
+}
+
 #[serde_as]
 #[derive(Serialize, Deserialize, BorshSerialize, BorshDeserialize, Clone, Copy)]
 #[serde(transparent)]
@@ -42,7 +56,7 @@ pub type SeriesName = String;
 /// which will have the index of `0`.
 #[serde_as]
 #[derive(
-Serialize, Deserialize, BorshSerialize, BorshDeserialize, PartialEq, PartialOrd, Clone, Copy,
+    Serialize, Deserialize, BorshSerialize, BorshDeserialize, PartialEq, PartialOrd, Clone, Copy,
 )]
 #[serde(transparent)]
 #[serde(crate = "near_sdk::serde")]
@@ -58,25 +72,19 @@ pub struct SeriesTokenIndex(
 pub struct TokenSeriesId(pub String);
 
 impl TokenSeriesId {
-    /// Creates a new [`nft::TokenId`] based on the series names,
-    /// [`SERIES_DELIMETER`], and some `index`.
-    pub fn new(name: SeriesName, index: SeriesTokenIndex) -> Self {
-        Self(format!("{}{}{}", name, SERIES_DELIMETER, index.0))
+    /// Creates a new [`nft::TokenId`] based on the series' name, the
+    /// series' id, [`SERIES_DELIMETER`], and some `index`.
+    pub fn new(name: SeriesName, series_id: SeriesId, token_index: SeriesTokenIndex) -> Self {
+        Self(format!(
+            "{}{}{}{}{}",
+            //
+            name,
+            SERIES_DELIMETER,
+            series_id.0,
+            SERIES_DELIMETER,
+            token_index.0
+        ))
     }
-}
-
-#[derive(BorshDeserialize, BorshSerialize, Serialize, Deserialize)]
-#[serde(crate = "near_sdk::serde")]
-pub struct Series {
-    pub id: SeriesId,
-    pub name: String,
-    pub creator: AccountId,
-    pub len: SeriesTokenIndex,
-    /// The maximum number of token units that this series can have minted.
-    ///
-    /// eg. `0` means that it will never mint any token.
-    pub capacity: SeriesTokenIndex,
-    pub is_mintable: bool,
 }
 
 impl Series {
@@ -84,7 +92,7 @@ impl Series {
         ensure(self.is_mintable, Error::SeriesNotMintable);
         ensure(self.len < self.capacity, Error::SeriesMaxCapacity);
 
-        let token = TokenSeriesId::new(self.name.clone(), self.len);
+        let token = TokenSeriesId::new(self.name.clone(), self.id, self.len);
         self.len.0 += 1;
 
         if self.len == self.capacity {

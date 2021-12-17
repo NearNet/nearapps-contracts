@@ -51,7 +51,7 @@ impl AssertFailure for ExecutionResult {
 pub fn setup_nft(root: &UserAccount) -> ContractAccount<NftContract> {
     deploy!(
         contract: NftContract,
-        contract_id: "counter".to_string(),
+        contract_id: "nft".to_string(),
         bytes: &NFT_WASM_BYTES,
         signer_account: root,
         deposit: 200 * YOTTA,
