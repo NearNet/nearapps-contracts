@@ -40,10 +40,9 @@ pub type SeriesName = String;
 /// eg. `0` won't be able to have any tokens.  
 /// eg. `1` will be able to have a single token,
 /// which will have the index of `0`.
-
 #[serde_as]
 #[derive(
-    Serialize, Deserialize, BorshSerialize, BorshDeserialize, PartialEq, PartialOrd, Clone, Copy,
+Serialize, Deserialize, BorshSerialize, BorshDeserialize, PartialEq, PartialOrd, Clone, Copy,
 )]
 #[serde(transparent)]
 #[serde(crate = "near_sdk::serde")]
@@ -106,6 +105,10 @@ impl Series {
 
 #[near_bindgen]
 impl Nft {
+    pub fn nft_series_supply(&self) -> String {
+        self.series.len().to_string()
+    }
+
     pub fn nft_series_get(&self, series_id: SeriesId) -> Series {
         self.series
             .get(&series_id)
