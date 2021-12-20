@@ -3,9 +3,9 @@
 pub use near_sdk::json_types::{Base64VecU8, U64};
 use near_sdk::AccountId;
 use near_sdk_sim::{deploy, ContractAccount, UserAccount};
+use near_units::parse_near;
 use nearapps_counter::CounterContract;
 use nearapps_exec::ExecutorContract;
-use nearapps_near_ext::YOTTA;
 
 #[cfg(feature = "crypto")]
 pub mod _secp256k1;
@@ -23,7 +23,7 @@ pub fn setup_exec(root: &UserAccount) -> Contract {
         contract_id: "executor".to_string(),
         bytes: &EXEC_WASM_BYTES,
         signer_account: root,
-        deposit: 200 * YOTTA,
+        deposit: parse_near!("200 N"),
         init_method: new(root.account_id())
     );
     contract
@@ -35,7 +35,7 @@ pub fn setup_counter(root: &UserAccount) -> ContractAccount<CounterContract> {
         contract_id: "counter".to_string(),
         bytes: &COUNTER_WASM_BYTES,
         signer_account: root,
-        deposit: 200 * YOTTA,
+        deposit: parse_near!("200 N"),
         // init_method: new()
     )
 }

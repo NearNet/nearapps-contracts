@@ -8,8 +8,8 @@ pub trait Call {
         contract_id: &workspaces::AccountId,
         method_name: MethodName,
         args: Args,
-        deposit: u128,
         gas: u64,
+        deposit: u128,
     ) -> Result<workspaces::network::CallExecutionDetails, anyhow::Error>
     where
         Args: near_sdk::serde::Serialize;
@@ -26,8 +26,8 @@ where
         contract_id: &workspaces::AccountId,
         method_name: MethodName,
         args: Args,
-        deposit: u128,
         gas: u64,
+        deposit: u128,
     ) -> Result<workspaces::network::CallExecutionDetails, anyhow::Error>
     where
         Args: near_sdk::serde::Serialize,
@@ -55,8 +55,8 @@ where
                 contract_id,
                 method_name,
                 args.into_bytes(),
-                Some(gas),
-                Some(deposit),
+                gas,
+                deposit,
             )
             .await
             .map(CallExecutionDetails::from)

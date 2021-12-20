@@ -3,8 +3,6 @@ use near_sdk::Gas;
 use near_sdk_sim::transaction::ExecutionStatus;
 use near_sdk_sim::ExecutionResult;
 
-use crate::TERA;
-
 /// Extensions that can be added on ExecutionResult.
 pub trait ExecutionExt {
     fn assert_failure<E: ToString>(&self, action: u32, err: E);
@@ -86,6 +84,7 @@ impl ExecutionExt for ExecutionResult {
 }
 
 fn pretty_gas(gas: Gas) -> String {
+    const TERA: u64 = 1_000_000_000_000;
     let tgas = gas.0 / TERA;
     let rem = gas.0 % TERA;
     if rem == 0 {

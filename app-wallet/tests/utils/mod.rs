@@ -1,14 +1,11 @@
 #![allow(dead_code)]
 
 pub use near_sdk::json_types::{Base64VecU8, U64};
-use near_sdk::{AccountId, Gas};
-use near_sdk_sim::transaction::ExecutionStatus;
-use near_sdk_sim::{deploy, init_simulator, ContractAccount, ExecutionResult, UserAccount};
+use near_sdk::AccountId;
+use near_sdk_sim::{deploy, ContractAccount, UserAccount};
+use near_units::parse_near;
 
-use nearapps_near_ext::YOTTA;
-use nearapps_wallet::{AccountManagerContract, AllowedCalls, Defaults};
-
-pub const DEFAULT_GAS: u64 = 300_000_000_000_000;
+use nearapps_wallet::AccountManagerContract;
 
 near_sdk_sim::lazy_static_include::lazy_static_include_bytes! {
     WALLET_WASM_BYTES => "../res/nearapps_wallet.wasm",
@@ -18,7 +15,7 @@ near_sdk_sim::lazy_static_include::lazy_static_include_bytes! {
 #[allow(clippy::identity_op)]
 pub fn setup_testnet(root: &UserAccount) -> AccountId {
     let testnet: AccountId = "testnet".parse().unwrap();
-    root.deploy(&TESTNET_WASM_BYTES, testnet.clone(), 100 * YOTTA);
+    root.deploy(&TESTNET_WASM_BYTES, testnet.clone(), parse_near!("100 N"));
     testnet
 }
 
@@ -29,7 +26,7 @@ pub fn setup_wallet(root: &UserAccount) -> ContractAccount<AccountManagerContrac
         contract_id: "wallet".to_string(),
         bytes: &WALLET_WASM_BYTES,
         signer_account: root,
-        deposit: 200 * YOTTA,
+        deposit: parse_near!("200 N"),
         init_method: new(root.account_id())
     )
 }

@@ -96,6 +96,15 @@ checksum = "a4c527152e37cf757a3f78aae5a06fbeefdb07ccc535c980a3208ee3060dd544"
 
 [[package]]
 name = "arrayvec"
+version = "0.4.12"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cd9fd44efafa8690358b7408d253adf110036b88f55672a933f01d616ad9b1b9"
+dependencies = [
+ "nodrop",
+]
+
+[[package]]
+name = "arrayvec"
 version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "23b62fc65de8e4e7f52534fb52b0f3ed04746ae267519eef2a83941e8085068b"
@@ -2444,7 +2453,8 @@ dependencies = [
 [[package]]
 name = "near-sandbox-utils"
 version = "0.1.0"
-source = "git+https://github.com/near/sandbox#b45dc4bbdc6eefc6a94e3d8429e8dfd7e2b1f029"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9baaf175c86346efdef75e4fcb758a357a94bb85a5cea2be5b4b3587391a9816"
 dependencies = [
  "anyhow",
  "binary-install",
@@ -2530,6 +2540,38 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f6a7aa3f46fac44416d8a93d14f30a562c4d730a1c6bf14bffafab5f475c244a"
 
 [[package]]
+name = "near-units"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "09aeac50f110cc7ea174d804391c8a593dfc5a87106b3ff61bb6457732a057f6"
+dependencies = [
+ "near-units-core",
+ "near-units-macro",
+]
+
+[[package]]
+name = "near-units-core"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c8f6d07fba3b5dd57428e0c75f1872c9f2d0173c02eb7b040cb91210058034a1"
+dependencies = [
+ "num-format",
+ "regex",
+]
+
+[[package]]
+name = "near-units-macro"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3b4b755d9f10fc74aaeae01a3ba177daaa6150b5a61d2d81f7f07183ef3c27ae"
+dependencies = [
+ "near-units-core",
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "near-vm-errors"
 version = "3.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2602,6 +2644,7 @@ version = "0.1.0"
 dependencies = [
  "near-sdk",
  "near-sdk-sim",
+ "near-units",
  "nearapps-near-ext",
 ]
 
@@ -2616,6 +2659,7 @@ dependencies = [
  "k256",
  "near-sdk",
  "near-sdk-sim",
+ "near-units",
  "nearapps-counter",
  "nearapps-near-ext",
  "secp256k1",
@@ -2634,6 +2678,7 @@ dependencies = [
  "futures",
  "near-sdk",
  "near-sdk-sim",
+ "near-units",
  "tokio",
  "workspaces",
 ]
@@ -2648,6 +2693,7 @@ dependencies = [
  "near-primitives 0.5.0",
  "near-sdk",
  "near-sdk-sim",
+ "near-units",
  "nearapps-near-ext",
  "serde_with",
  "sha2",
@@ -2663,6 +2709,7 @@ dependencies = [
  "ed25519-dalek",
  "near-sdk",
  "near-sdk-sim",
+ "near-units",
  "nearapps-exec",
  "nearapps-near-ext",
  "strum 0.23.0",
@@ -2681,6 +2728,12 @@ dependencies = [
  "libc",
  "void",
 ]
+
+[[package]]
+name = "nodrop"
+version = "0.1.14"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "72ef4a56884ca558e5ddb05a1d1e7e1bfd9a68d9ed024c21704cc98872dae1bb"
 
 [[package]]
 name = "nom"
@@ -2711,6 +2764,16 @@ dependencies = [
  "autocfg",
  "num-integer",
  "num-traits",
+]
+
+[[package]]
+name = "num-format"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bafe4179722c2894288ee77a9f044f02811c86af699344c498b0840c698a2465"
+dependencies = [
+ "arrayvec 0.4.12",
+ "itoa 0.4.8",
 ]
 
 [[package]]
@@ -3799,9 +3862,9 @@ checksum = "6bdef32e8150c2a081110b42772ffe7d7c9032b606bc226c8260fd97e0976601"
 
 [[package]]
 name = "syn"
-version = "1.0.82"
+version = "1.0.78"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8daf5dd0bb60cbd4137b1b587d2fc0ae729bc07cf01cd70b36a1ed5ade3b9d59"
+checksum = "a4eac2e6c19f5c3abc0c229bea31ff0b9b091c7b14990e8924b92902a303a0c0"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4753,11 +4816,12 @@ dependencies = [
 [[package]]
 name = "workspaces"
 version = "0.1.0"
-source = "git+https://github.com/nearcomponents/workspaces-rs?rev=afaba3c#afaba3c616bfacd8dc3e92ff255a4ced318edc9e"
+source = "git+https://github.com/nearcomponents/workspaces-rs?rev=a09a94b#a09a94b57d0ea0070ba422f552abd2fc006a24ed"
 dependencies = [
  "anyhow",
  "async-trait",
  "base64 0.13.0",
+ "borsh 0.9.1",
  "chrono",
  "dirs 3.0.2",
  "hex 0.4.3",

@@ -11,6 +11,7 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 near-sdk = {version = "4.0.0-pre.4", features = ["unstable"]}
 nearapps-near-ext = {path = "../lib-near-ext/", default-features = false, features = []}
+near-units = "0.1.0"
 sha2 = "0.9.0"
 digest = "0.9.0"
 strum = "0.23"

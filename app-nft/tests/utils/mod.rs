@@ -4,30 +4,23 @@ use near_contract_standards::non_fungible_token as nft;
 pub use near_sdk::json_types::{Base64VecU8, U64};
 use near_sdk::AccountId;
 use near_sdk_sim::{deploy, ContractAccount, UserAccount};
+use near_units::parse_near;
 use nft::metadata::TokenMetadata;
 
 use nearapps_nft::NftContract;
-
-pub const DEFAULT_GAS: u64 = 300_000_000_000_000;
 
 near_sdk_sim::lazy_static_include::lazy_static_include_bytes! {
     EXEC_WASM_BYTES => "../res/nearapps_exec.wasm",
     NFT_WASM_BYTES => "../res/nearapps_nft.wasm",
 }
 
-pub const KILO: u64 = 1000;
-pub const MEGA: u64 = KILO * KILO;
-pub const TERA: u64 = MEGA * MEGA;
-pub const MEGA_TERA: u128 = MEGA as u128 * TERA as u128;
-pub const YOTTA: u128 = (TERA as u128) * (TERA as u128);
-
 pub fn setup_nft(root: &UserAccount) -> ContractAccount<NftContract> {
     deploy!(
         contract: NftContract,
-        contract_id: "counter".to_string(),
+        contract_id: "nft".to_string(),
         bytes: &NFT_WASM_BYTES,
         signer_account: root,
-        deposit: 200 * YOTTA,
+        deposit: parse_near!("200 N"),
         init_method: new_default_meta(root.account_id())
     )
 }

@@ -2,15 +2,13 @@
 #![allow(clippy::identity_op)]
 
 pub use near_sdk::json_types::{Base64VecU8, U64};
-use near_sdk_sim::{call, deploy, init_simulator, view, ContractAccount, UserAccount};
-use nearapps_near_ext::{ExecutionExt, TERA, YOTTA};
+use near_sdk_sim::init_simulator;
+use near_units::{parse_gas, parse_near};
+use nearapps_near_ext::ExecutionExt;
 
 pub const DEFAULT_GAS: u64 = 300_000_000_000_000;
 
 pub mod utils;
-
-use crate::utils::user;
-use nearapps_wallet::AccountConfig;
 
 // #[ignore]
 // #[test]
@@ -54,11 +52,11 @@ fn test_wallet_account() {
     let res = root.function_call(
         // total: 0.0085 N
         wallet.contract.create_account(user0.clone(), None),
-        65 * TERA,        // 0.0065 N
-        2 * YOTTA / 1000, // 0.002 N
+        parse_gas!("65 Tgas") as u64, // 0.0065 N
+        parse_near!("2 mN"),
     );
     res.pretty_debug();
-    assert!(res.total_gas_burnt().0 < 45 * TERA);
+    assert!(res.total_gas_burnt().0 < parse_gas!("45 Tgas") as u64);
     let success: bool = res.unwrap_json();
     assert!(success);
 }

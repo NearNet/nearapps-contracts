@@ -18,8 +18,3 @@ pub use sim::ExecutionExt;
 
 #[cfg(feature = "sim")]
 pub use workspace::Call;
-
-pub const KILO: u64 = 1000;
-pub const MEGA: u64 = KILO * KILO;
-pub const TERA: u64 = MEGA * MEGA;
-pub const YOTTA: u128 = (TERA as u128) * (TERA as u128);

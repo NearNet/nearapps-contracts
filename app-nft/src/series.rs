@@ -88,10 +88,18 @@ pub struct SeriesTokenIndex(
 pub struct TokenSeriesId(pub String);
 
 impl TokenSeriesId {
-    /// Creates a new [`nft::TokenId`] based on the series names,
-    /// [`SERIES_DELIMETER`], and some `index`.
-    pub fn new(name: SeriesName, index: SeriesTokenIndex) -> Self {
-        Self(format!("{}{}{}", name, SERIES_DELIMETER, index.0))
+    /// Creates a new [`nft::TokenId`] based on the series' name, the
+    /// series' id, [`SERIES_DELIMETER`], and some `index`.
+    pub fn new(name: SeriesName, series_id: SeriesId, token_index: SeriesTokenIndex) -> Self {
+        Self(format!(
+            "{}{}{}{}{}",
+            //
+            name,
+            SERIES_DELIMETER,
+            series_id.0,
+            SERIES_DELIMETER,
+            token_index.0
+        ))
     }
 }
 
@@ -109,7 +117,7 @@ impl Series {
         ensure(self.is_mintable, Error::SeriesNotMintable);
         ensure(self.len < self.capacity, Error::SeriesMaxCapacity);
 
-        let token = TokenSeriesId::new(self.name.clone(), self.len);
+        let token = TokenSeriesId::new(self.name.clone(), self.id, self.len);
         self.len.0 += 1;
 
         if self.len == self.capacity {
@@ -131,6 +139,10 @@ impl Series {
 
 #[near_bindgen]
 impl Nft {
+    pub fn nft_series_supply(&self) -> U64 {
+        self.series.len().into()
+    }
+
     /// Gets information of a series.
     pub fn nft_series_get(&self, series_id: SeriesId) -> Series {
         self.series
