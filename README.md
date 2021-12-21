@@ -11,8 +11,12 @@ methods:
 
 - `new`
 - `execute`
+- `add_owner`
+- `remove_owner`
+- `is_owner`
 - `verify_msg`
 - `verify_hashed_msg`
+
 
 #### Initialization
 
@@ -70,6 +74,77 @@ method: `execute`
       "args": "\"token_id\": \"1\", \"sender_id\": \"my-account.testnet\", \"receiver_id\": \"my-friend.testnet\", \"approval_id\": \"4711\""
     }
   }
+}
+```
+
+#### Owners Management
+
+methods:
+
+- `add_owner`
+- `remove_owner`
+- `is_owner`
+
+##### Add Owner
+
+method: `add_owner`
+
+###### Parameters
+
+- `owner_id`: string - the account_id of who will also own the contract
+
+###### Returns
+
+- `added`: boolean - whether the account was newly added as an owner.
+
+###### Sample
+
+<!-- TODO: update -->
+
+```json
+{
+}
+```
+
+##### Remove Owner
+
+method: `remove_owner`
+
+###### Parameters
+
+- `owner_id`: string - the account_id of who will stop owning the contract
+
+###### Returns
+
+- `removed`: boolean - whether the account was just removed as an owner.
+
+###### Sample
+
+<!-- TODO: update -->
+
+```json
+{
+}
+```
+
+##### Check Owner
+
+method: `is_owner`
+
+###### Parameters
+
+- `owner_id`: string - the account_id which the owning status is being checked
+
+###### Returns
+
+- `is_owner`: boolean - whether the account is an owner.
+
+###### Sample
+
+<!-- TODO: update -->
+
+```json
+{
 }
 ```
 

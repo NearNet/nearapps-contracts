@@ -53,7 +53,6 @@ impl Executor {
     /// Only forwards the first result.
     #[payable]
     pub fn execute(&mut self, context: CallContext) -> Promise {
-        use crate::Owner;
         self.assert_owner();
 
         // makes sure it won't call an internal private function
