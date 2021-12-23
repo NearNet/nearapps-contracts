@@ -11,6 +11,7 @@ pub mod series;
 pub mod utils;
 
 use error::{ensure, Error};
+use nearapps_log::NearAppsTags;
 pub use series::SERIES_DELIMETER;
 
 #[near_bindgen]
@@ -76,11 +77,12 @@ impl Nft {
 
     /// Adapted from the standard example.
     #[payable]
-    pub fn nft_mint(
+    pub fn nft_mint_logged(
         &mut self,
         token_id: nft::TokenId,
         token_owner_id: AccountId,
         token_metadata: TokenMetadata,
+        nearapps_tags: NearAppsTags,
     ) -> nft::Token {
         self.assert_owner();
 
@@ -91,17 +93,22 @@ impl Nft {
         );
 
         // standard minting
-        self.tokens
-            .internal_mint(token_id, token_owner_id, Some(token_metadata))
+        let token = self
+            .tokens
+            .internal_mint(token_id, token_owner_id, Some(token_metadata));
+
+        nearapps_tags.log_str();
+        token
     }
 
     /// Adapted from the standard example.
     #[payable]
-    pub fn nft_series_mint(
+    pub fn nft_series_mint_logged(
         &mut self,
         series_id: series::SeriesId,
         token_owner_id: AccountId,
         token_metadata: Option<TokenMetadata>,
+        nearapps_tags: NearAppsTags,
     ) -> nft::Token {
         self.assert_owner();
 
@@ -137,23 +144,170 @@ impl Nft {
         });
 
         // standard minting
-        self.tokens
-            .internal_mint(token.0, token_owner_id, Some(token_metadata))
+        let token = self
+            .tokens
+            .internal_mint(token.0, token_owner_id, Some(token_metadata));
+
+        nearapps_tags.log_str();
+        token
     }
 }
 
 pub mod std_impls {
-    use super::nft::{Token, TokenId};
-    use super::Nft;
-    use near_contract_standards as ncs;
+    use super::nft::{self, Token, TokenId};
+    use super::{NearAppsTags, Nft};
     use near_sdk::{near_bindgen, AccountId, Promise, PromiseOrValue};
+
+    #[allow(unused_imports)]
+    use near_contract_standards as ncs;
 
     #[cfg(not(target_arch = "wasm32"))]
     use crate::NftContract;
 
-    ncs::impl_non_fungible_token_core!(Nft, tokens);
-    ncs::impl_non_fungible_token_approval!(Nft, tokens);
-    ncs::impl_non_fungible_token_enumeration!(Nft, tokens);
+    // ncs::impl_non_fungible_token_core!(Nft, tokens);
+    //
+    use nft::core::NonFungibleTokenCore;
+    use nft::core::NonFungibleTokenResolver;
+    use std::collections::HashMap;
+    #[near_bindgen]
+    impl Nft {
+        #[payable]
+        pub fn nft_transfer_logged(
+            &mut self,
+            receiver_id: AccountId,
+            token_id: TokenId,
+            approval_id: Option<u64>,
+            memo: Option<String>,
+            nearapps_tags: NearAppsTags,
+        ) {
+            self.tokens
+                .nft_transfer(receiver_id, token_id, approval_id, memo);
+            nearapps_tags.log_str();
+        }
+
+        #[payable]
+        pub fn nft_transfer_call_logged(
+            &mut self,
+            receiver_id: AccountId,
+            token_id: TokenId,
+            approval_id: Option<u64>,
+            memo: Option<String>,
+            msg: String,
+            nearapps_tags: NearAppsTags,
+        ) -> PromiseOrValue<bool> {
+            let res = self
+                .tokens
+                .nft_transfer_call(receiver_id, token_id, approval_id, memo, msg);
+
+            nearapps_tags.log_str();
+            res
+        }
+
+        pub fn nft_token(
+            //
+            &self,
+            token_id: TokenId,
+        ) -> Option<Token> {
+            self.tokens.nft_token(token_id)
+        }
+    }
+    #[near_bindgen]
+    impl NonFungibleTokenResolver for Nft {
+        #[private]
+        fn nft_resolve_transfer(
+            &mut self,
+            previous_owner_id: AccountId,
+            receiver_id: AccountId,
+            token_id: TokenId,
+            approved_account_ids: Option<HashMap<AccountId, u64>>,
+        ) -> bool {
+            self.tokens.nft_resolve_transfer(
+                previous_owner_id,
+                receiver_id,
+                token_id,
+                approved_account_ids,
+            )
+        }
+    }
+
+    // ncs::impl_non_fungible_token_approval!(Nft, tokens);
+    //
+    use nft::approval::NonFungibleTokenApproval;
+    #[near_bindgen]
+    impl Nft {
+        #[payable]
+        pub fn nft_approve_logged(
+            &mut self,
+            token_id: TokenId,
+            account_id: AccountId,
+            msg: Option<String>,
+            nearapps_tags: NearAppsTags,
+        ) -> Option<Promise> {
+            let res = self.tokens.nft_approve(token_id, account_id, msg);
+
+            nearapps_tags.log_str();
+            res
+        }
+
+        #[payable]
+        pub fn nft_revoke_logged(
+            //
+            &mut self,
+            token_id: TokenId,
+            account_id: AccountId,
+            nearapps_tags: NearAppsTags,
+        ) {
+            self.tokens.nft_revoke(token_id, account_id);
+            nearapps_tags.log_str();
+        }
+
+        #[payable]
+        pub fn nft_revoke_all_logged(
+            //
+            &mut self,
+            token_id: TokenId,
+            nearapps_tags: NearAppsTags,
+        ) {
+            self.tokens.nft_revoke_all(token_id);
+            nearapps_tags.log_str();
+        }
+
+        pub fn nft_is_approved(
+            &self,
+            token_id: TokenId,
+            approved_account_id: AccountId,
+            approval_id: Option<u64>,
+        ) -> bool {
+            self.tokens
+                .nft_is_approved(token_id, approved_account_id, approval_id)
+        }
+    }
+
+    // ncs::impl_non_fungible_token_enumeration!(Nft, tokens);
+    //
+    use near_sdk::json_types::U128;
+    use nft::enumeration::NonFungibleTokenEnumeration;
+    #[near_bindgen]
+    impl NonFungibleTokenEnumeration for Nft {
+        fn nft_total_supply(&self) -> U128 {
+            self.tokens.nft_total_supply()
+        }
+        fn nft_tokens(&self, from_index: Option<U128>, limit: Option<u64>) -> Vec<Token> {
+            self.tokens.nft_tokens(from_index, limit)
+        }
+        fn nft_supply_for_owner(&self, account_id: AccountId) -> U128 {
+            self.tokens.nft_supply_for_owner(account_id)
+        }
+        fn nft_tokens_for_owner(
+            &self,
+            account_id: AccountId,
+            from_index: Option<U128>,
+            limit: Option<u64>,
+        ) -> Vec<Token> {
+            self.tokens
+                .nft_tokens_for_owner(account_id, from_index, limit)
+        }
+    }
 }
 
 /// standard implementation.

@@ -1834,6 +1834,7 @@ version = "0.1.0"
 dependencies = [
  "near-sdk",
  "near-sdk-sim",
+ "nearapps-log",
 ]
 
 [[package]]
@@ -1848,11 +1849,20 @@ dependencies = [
  "near-sdk",
  "near-sdk-sim",
  "nearapps-counter",
+ "nearapps-log",
  "secp256k1",
  "serde-big-array",
  "sha2",
  "strum 0.23.0",
  "strum_macros 0.23.1",
+]
+
+[[package]]
+name = "nearapps-log"
+version = "0.1.0"
+dependencies = [
+ "near-sdk",
+ "near-sdk-sim",
 ]
 
 [[package]]
@@ -1863,6 +1873,7 @@ dependencies = [
  "near-contract-standards",
  "near-sdk",
  "near-sdk-sim",
+ "nearapps-log",
  "serde_with",
  "sha2",
  "strum 0.23.0",
@@ -1877,6 +1888,7 @@ dependencies = [
  "near-sdk",
  "near-sdk-sim",
  "nearapps-exec",
+ "nearapps-log",
  "strum 0.23.0",
  "strum_macros 0.23.1",
 ]

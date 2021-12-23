@@ -1,5 +1,5 @@
 use crate::error::{ensure, Error, OrPanicStr};
-use crate::{Nft, Owner, StorageKey};
+use crate::{NearAppsTags, Nft, Owner, StorageKey};
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::UnorderedSet;
 use near_sdk::json_types::U64;
@@ -138,11 +138,12 @@ impl Nft {
             .collect()
     }
 
-    pub fn nft_series_create(
+    pub fn nft_series_create_logged(
         &mut self,
         name: SeriesName,
         capacity: SeriesTokenIndex,
         creator: AccountId,
+        nearapps_tags: NearAppsTags,
     ) -> SeriesId {
         self.assert_owner();
 
@@ -164,19 +165,34 @@ impl Nft {
         );
 
         self.series.insert(&id, &series);
+
+        nearapps_tags.log_str();
         id
     }
 
-    pub fn nft_series_set_mintable(&mut self, series_id: SeriesId, is_mintable: bool) {
+    pub fn nft_series_set_mintable(
+        //
+        &mut self,
+        series_id: SeriesId,
+        is_mintable: bool,
+        nearapps_tags: NearAppsTags,
+    ) {
         self.assert_owner();
         let mut series = self.nft_series_get(series_id);
         if series.is_mintable != is_mintable {
             series.is_mintable = is_mintable;
             self.series.insert(&series_id, &series);
         }
+        nearapps_tags.log_str();
     }
 
-    pub fn nft_series_set_capacity(&mut self, series_id: SeriesId, capacity: SeriesTokenIndex) {
+    pub fn nft_series_set_capacity(
+        //
+        &mut self,
+        series_id: SeriesId,
+        capacity: SeriesTokenIndex,
+        nearapps_tags: NearAppsTags,
+    ) {
         self.assert_owner();
 
         let mut series = self.nft_series_get(series_id);
@@ -189,5 +205,6 @@ impl Nft {
         }
 
         self.series.insert(&series_id, &series);
+        nearapps_tags.log_str();
     }
 }

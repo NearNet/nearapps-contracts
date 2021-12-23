@@ -9,6 +9,7 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 near-sdk = {version = "4.0.0-pre.4", features = ["unstable"]}
+nearapps-log = {path = "../lib-log"}
 sha2 = "0.9.0"
 digest = "0.9.0"
 strum = "0.23"

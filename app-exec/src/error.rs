@@ -28,6 +28,10 @@ pub enum Error {
     /// added instead.
     #[strum(serialize = "ERR_EXEC_CALL_CURRENT")]
     CallCurrentAccount,
+    /// Tried to make a call that should contain nearapps tags,
+    /// but it was missing or failed to get deserialized.
+    #[strum(serialize = "ERR_EXEC_CALL_BAD_TAGS")]
+    CallBadNearAppsTags,
 }
 
 impl Error {
