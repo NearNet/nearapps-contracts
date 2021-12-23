@@ -2,7 +2,6 @@
 
 use crate::error::{ensure, Error};
 use crate::Executor;
-use near_sdk::serde::{Deserialize, Serialize};
 use near_sdk::{env, ext_contract, near_bindgen, serde_json, AccountId, Promise, PromiseResult};
 use nearapps_log::{NearAppsTags, NearAppsTagsContained};
 
@@ -41,7 +40,6 @@ impl Executor {
         method_name: String,
         args: String,
     ) -> Promise {
-        use crate::Owner;
         self.assert_owner();
 
         ensure(
@@ -75,7 +73,6 @@ impl Executor {
         args: String,
         nearapps_tags: NearAppsTags,
     ) -> Promise {
-        use crate::Owner;
         self.assert_owner();
 
         // makes sure it won't call an internal private function

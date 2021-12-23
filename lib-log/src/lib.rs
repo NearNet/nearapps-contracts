@@ -1,5 +1,3 @@
-use std::convert::TryInto;
-
 /// Tag information required by NearApps.
 #[derive(near_sdk::serde::Serialize, near_sdk::serde::Deserialize, Clone, Debug)]
 #[serde(crate = "near_sdk::serde")]
