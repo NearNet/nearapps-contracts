@@ -53,6 +53,11 @@ pub trait Owners {
     ///
     /// Returns `true` if it is, and `false` otherwise.
     fn is_owner(&self, owner_id: AccountId) -> bool;
+
+    /// Show owners.
+    ///
+    /// Returns a list of `AccountId`'s.
+    fn get_owners(&self) -> Vec<AccountId>;
 }
 
 #[near_bindgen]
@@ -80,5 +85,12 @@ impl Owners for Executor {
     /// Returns `true` if it is, and `false` otherwise.
     fn is_owner(&self, owner_id: AccountId) -> bool {
         self.owner_ids.contains(&owner_id)
+    }
+
+    /// Show owners.
+    ///
+    /// Returns a list of `AccountId`'s.
+    fn get_owners(&self) -> Vec<AccountId> {
+        self.owner_ids.iter().collect()
     }
 }

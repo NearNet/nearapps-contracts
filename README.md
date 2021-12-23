@@ -14,6 +14,7 @@ methods:
 - `add_owner`
 - `remove_owner`
 - `is_owner`
+- `get_owners`
 - `verify_msg`
 - `verify_hashed_msg`
 
@@ -84,6 +85,7 @@ methods:
 - `add_owner`
 - `remove_owner`
 - `is_owner`
+- `get_owners`
 
 ##### Add Owner
 
@@ -138,6 +140,27 @@ method: `is_owner`
 ###### Returns
 
 - `is_owner`: boolean - whether the account is an owner.
+
+###### Sample
+
+<!-- TODO: update -->
+
+```json
+{
+}
+```
+
+##### Get Owners
+
+method: `get_owner`
+
+###### Parameters
+
+No parameters required.
+
+###### Returns
+
+- `owners`: string[] - list of account_ids of the owners.
 
 ###### Sample
 
