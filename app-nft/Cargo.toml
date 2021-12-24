@@ -23,6 +23,7 @@ features = [ "macros" ]
 
 [dev-dependencies]
 near-sdk-sim = "4.0.0-pre.4"
+nearapps-exec = { path = "../app-exec" }
 
 # [profile.release]
 # codegen-units = 1

@@ -2,6 +2,7 @@ use near_contract_standards::non_fungible_token as nft;
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::{LazyOption, UnorderedMap, UnorderedSet};
 use near_sdk::{env, near_bindgen, require, AccountId, BorshStorageKey, PanicOnDefault};
+use nearapps_log::{NearAppsAccount, NearAppsTags};
 use nft::metadata::{
     NFTContractMetadata, NonFungibleTokenMetadataProvider, TokenMetadata, NFT_METADATA_SPEC,
 };
@@ -11,7 +12,6 @@ pub mod series;
 pub mod utils;
 
 use error::{ensure, Error};
-use nearapps_log::NearAppsTags;
 pub use series::SERIES_DELIMETER;
 
 #[near_bindgen]
@@ -22,6 +22,7 @@ pub struct Nft {
     series: UnorderedMap<series::SeriesId, series::Series>,
     next_series_id: series::SeriesId,
     series_minted_tokens: UnorderedMap<series::SeriesId, UnorderedSet<series::SeriesTokenIndex>>,
+    nearapps_logger: AccountId,
 }
 
 #[derive(BorshSerialize, BorshStorageKey)]
@@ -40,7 +41,11 @@ enum StorageKey {
 impl Nft {
     /// Adapted from the standard example.
     #[init]
-    pub fn new(owner_id: AccountId, metadata: NFTContractMetadata) -> Self {
+    pub fn new(
+        owner_id: AccountId,
+        metadata: NFTContractMetadata,
+        nearapps_logger: AccountId,
+    ) -> Self {
         require!(!env::state_exists(), "Already initialized");
         metadata.assert_valid();
         Self {
@@ -55,12 +60,13 @@ impl Nft {
             series: UnorderedMap::new(StorageKey::Series),
             next_series_id: series::SeriesId(0),
             series_minted_tokens: UnorderedMap::new(StorageKey::TokensBySeries),
+            nearapps_logger,
         }
     }
 
     /// Identical to the standard example.
     #[init]
-    pub fn new_default_meta(owner_id: AccountId) -> Self {
+    pub fn new_default_meta(owner_id: AccountId, nearapps_logger: AccountId) -> Self {
         Self::new(
             owner_id,
             NFTContractMetadata {
@@ -72,6 +78,7 @@ impl Nft {
                 reference: None,
                 reference_hash: None,
             },
+            nearapps_logger,
         )
     }
 
@@ -97,7 +104,9 @@ impl Nft {
             .tokens
             .internal_mint(token_id, token_owner_id, Some(token_metadata));
 
-        nearapps_tags.log_str();
+        // best-effort call for nearapps log
+        let _ = self.log(nearapps_tags);
+
         token
     }
 
@@ -148,15 +157,18 @@ impl Nft {
             .tokens
             .internal_mint(token.0, token_owner_id, Some(token_metadata));
 
-        nearapps_tags.log_str();
+        // best-effort call for nearapps log
+        let _ = self.log(nearapps_tags);
+
         token
     }
 }
 
 pub mod std_impls {
     use super::nft::{self, Token, TokenId};
-    use super::{NearAppsTags, Nft};
+    use super::Nft;
     use near_sdk::{near_bindgen, AccountId, Promise, PromiseOrValue};
+    use nearapps_log::{NearAppsAccount, NearAppsTags};
 
     #[allow(unused_imports)]
     use near_contract_standards as ncs;
@@ -166,6 +178,9 @@ pub mod std_impls {
 
     // ncs::impl_non_fungible_token_core!(Nft, tokens);
     //
+    /// All functions are just the expanded macros from the standard,
+    /// except that a logging procedure is inserted at the end
+    /// of the state-changing  functions.
     use nft::core::NonFungibleTokenCore;
     use nft::core::NonFungibleTokenResolver;
     use std::collections::HashMap;
@@ -182,7 +197,9 @@ pub mod std_impls {
         ) {
             self.tokens
                 .nft_transfer(receiver_id, token_id, approval_id, memo);
-            nearapps_tags.log_str();
+
+            // best-effort call for nearapps log
+            let _ = self.log(nearapps_tags);
         }
 
         #[payable]
@@ -199,7 +216,9 @@ pub mod std_impls {
                 .tokens
                 .nft_transfer_call(receiver_id, token_id, approval_id, memo, msg);
 
-            nearapps_tags.log_str();
+            // best-effort call for nearapps log
+            let _ = self.log(nearapps_tags);
+
             res
         }
 
@@ -211,6 +230,10 @@ pub mod std_impls {
             self.tokens.nft_token(token_id)
         }
     }
+
+    /// All functions are just the expanded macros from the standard,
+    /// except that a logging procedure is inserted at the end
+    /// of the state-changing  functions.
     #[near_bindgen]
     impl NonFungibleTokenResolver for Nft {
         #[private]
@@ -232,6 +255,9 @@ pub mod std_impls {
 
     // ncs::impl_non_fungible_token_approval!(Nft, tokens);
     //
+    /// All functions are just the expanded macros from the standard,
+    /// except that a logging procedure is inserted at the end
+    /// of the state-changing  functions.
     use nft::approval::NonFungibleTokenApproval;
     #[near_bindgen]
     impl Nft {
@@ -245,7 +271,9 @@ pub mod std_impls {
         ) -> Option<Promise> {
             let res = self.tokens.nft_approve(token_id, account_id, msg);
 
-            nearapps_tags.log_str();
+            // best-effort call for nearapps log
+            let _ = self.log(nearapps_tags);
+
             res
         }
 
@@ -258,7 +286,9 @@ pub mod std_impls {
             nearapps_tags: NearAppsTags,
         ) {
             self.tokens.nft_revoke(token_id, account_id);
-            nearapps_tags.log_str();
+
+            // best-effort call for nearapps log
+            let _ = self.log(nearapps_tags);
         }
 
         #[payable]
@@ -269,7 +299,9 @@ pub mod std_impls {
             nearapps_tags: NearAppsTags,
         ) {
             self.tokens.nft_revoke_all(token_id);
-            nearapps_tags.log_str();
+
+            // best-effort call for nearapps log
+            let _ = self.log(nearapps_tags);
         }
 
         pub fn nft_is_approved(
@@ -285,6 +317,9 @@ pub mod std_impls {
 
     // ncs::impl_non_fungible_token_enumeration!(Nft, tokens);
     //
+    /// All functions are just the expanded macros from the standard,
+    /// except that a logging procedure is inserted at the end
+    /// of the state-changing  functions.
     use near_sdk::json_types::U128;
     use nft::enumeration::NonFungibleTokenEnumeration;
     #[near_bindgen]
@@ -328,6 +363,12 @@ impl Owner for Nft {
             env::predecessor_account_id() == self.tokens.owner_id,
             Error::NotOwner,
         )
+    }
+}
+
+impl nearapps_log::NearAppsAccount for Nft {
+    fn nearapps_account(&self) -> near_sdk::AccountId {
+        self.nearapps_logger.clone()
     }
 }
 

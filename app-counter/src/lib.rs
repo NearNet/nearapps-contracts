@@ -1,10 +1,18 @@
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
-use near_sdk::{env, near_bindgen, Gas, Promise, PromiseOrValue};
+use near_sdk::{env, near_bindgen, AccountId, Gas, PanicOnDefault, Promise, PromiseOrValue};
+use nearapps_log::{NearAppsAccount, NearAppsTags};
 
 #[near_bindgen]
-#[derive(Default, BorshDeserialize, BorshSerialize)]
+#[derive(BorshDeserialize, BorshSerialize, PanicOnDefault)]
 pub struct Counter {
     val: u8,
+    nearapps_logger: AccountId,
+}
+
+impl nearapps_log::NearAppsAccount for Counter {
+    fn nearapps_account(&self) -> near_sdk::AccountId {
+        self.nearapps_logger.clone()
+    }
 }
 
 pub const KILO: u64 = 1000;
@@ -20,26 +28,57 @@ pub trait ExtSelf {
 
 #[near_bindgen]
 impl Counter {
+    #[init]
+    pub fn new(nearapps_logger: AccountId) -> Self {
+        Self {
+            val: 0,
+            nearapps_logger,
+        }
+    }
+
     pub fn get(&self) -> u8 {
         self.val
     }
 
-    pub fn increment(&mut self) -> u8 {
+    pub fn increment(&mut self, nearapps_tags: NearAppsTags) -> u8 {
         self.val += 1;
+
+        // best-effort call for nearapps log
+        let _ = self.log(nearapps_tags);
+
         self.val
     }
 
-    pub fn decrement(&mut self) -> u8 {
+    pub fn increment_non_logging(&mut self) -> u8 {
+        self.val += 1;
+
+        // // best-effort call for nearapps log
+        // let _ = self.log(nearapps_tags);
+
+        self.val
+    }
+
+    pub fn decrement(&mut self, nearapps_tags: NearAppsTags) -> u8 {
         self.val -= 1;
+
+        // best-effort call for nearapps log
+        let _ = self.log(nearapps_tags);
+
         self.val
     }
 
-    pub fn reset(&mut self) {
+    pub fn reset(&mut self, nearapps_tags: NearAppsTags) {
         self.val = 0;
+
+        // best-effort call for nearapps log
+        let _ = self.log(nearapps_tags);
     }
 
-    pub fn set(&mut self, val: u8) {
+    pub fn set(&mut self, val: u8, nearapps_tags: NearAppsTags) {
         self.val = val;
+
+        // best-effort call for nearapps log
+        let _ = self.log(nearapps_tags);
     }
 
     // return multiple values
@@ -65,30 +104,33 @@ impl Counter {
         call
     }
 
-    pub fn log(&self) -> u8 {
-        env::log_str(&self.val.to_string());
-        self.val
-    }
-
     #[payable]
-    pub fn deposit(&mut self, increment: bool) -> u8 {
+    pub fn deposit(&mut self, increment: bool, nearapps_tags: NearAppsTags) -> u8 {
         if increment {
             let attached = env::attached_deposit();
             assert!(attached <= u8::MAX as u128);
             self.val += attached as u8;
         }
+
+        // best-effort call for nearapps log
+        let _ = self.log(nearapps_tags);
+
         self.val
     }
 
     #[payable]
     #[allow(clippy::let_and_return)]
-    pub fn withdraw(&mut self, qty: u8, decrement: bool) -> Promise {
+    pub fn withdraw(&mut self, qty: u8, decrement: bool, nearapps_tags: NearAppsTags) -> Promise {
         if decrement {
             self.val -= qty as u8;
         }
         let transfer = Promise::new(env::predecessor_account_id())
             //
             .transfer(qty as u128);
+
+        // best-effort call for nearapps log
+        let _ = self.log(nearapps_tags);
+
         transfer
     }
 

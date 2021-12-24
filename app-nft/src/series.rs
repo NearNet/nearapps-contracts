@@ -1,10 +1,11 @@
 use crate::error::{ensure, Error, OrPanicStr};
-use crate::{NearAppsTags, Nft, Owner, StorageKey};
+use crate::{Nft, Owner, StorageKey};
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::UnorderedSet;
 use near_sdk::json_types::U64;
 use near_sdk::serde::{Deserialize, Serialize};
 use near_sdk::{near_bindgen, AccountId};
+use nearapps_log::{NearAppsAccount, NearAppsTags};
 use serde_with::{serde_as, FromInto};
 
 pub const SERIES_DELIMETER: char = ':';
@@ -166,7 +167,9 @@ impl Nft {
 
         self.series.insert(&id, &series);
 
-        nearapps_tags.log_str();
+        // best-effort call for nearapps log
+        let _ = self.log(nearapps_tags);
+
         id
     }
 
@@ -183,7 +186,9 @@ impl Nft {
             series.is_mintable = is_mintable;
             self.series.insert(&series_id, &series);
         }
-        nearapps_tags.log_str();
+
+        // best-effort call for nearapps log
+        let _ = self.log(nearapps_tags);
     }
 
     pub fn nft_series_set_capacity(
@@ -205,6 +210,8 @@ impl Nft {
         }
 
         self.series.insert(&series_id, &series);
-        nearapps_tags.log_str();
+
+        // best-effort call for nearapps log
+        let _ = self.log(nearapps_tags);
     }
 }

@@ -1834,6 +1834,7 @@ version = "0.1.0"
 dependencies = [
  "near-sdk",
  "near-sdk-sim",
+ "nearapps-exec",
  "nearapps-log",
 ]
 
@@ -1873,6 +1874,7 @@ dependencies = [
  "near-contract-standards",
  "near-sdk",
  "near-sdk-sim",
+ "nearapps-exec",
  "nearapps-log",
  "serde_with",
  "sha2",

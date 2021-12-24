@@ -8,13 +8,15 @@ use nearapps_log::{NearAppsTags, NearAppsTagsContained};
 #[cfg(not(target_arch = "wasm32"))]
 use crate::ExecutorContract;
 
-#[ext_contract(ext_self)]
-pub trait ExtSelf {
-    /// Executes an external contract's function, logging on the callback
-    /// and forwarding the calls result back.
+#[ext_contract(ext_log)]
+pub trait ExtLog {
+    /// Logs nearapps tags and forwards the first call result.
     ///
-    /// Only forwards the first result.
-    fn on_execute_then_log(nearapps_tags: NearAppsTags) -> Vec<u8>;
+    /// Should be used as a callback.
+    fn on_log_result(nearapps_tags: NearAppsTags) -> Vec<u8>;
+
+    /// Emits a nearapps log.
+    fn log(nearapps_tags: NearAppsTags);
 }
 
 // #[derive(Serialize, Deserialize)]
@@ -88,7 +90,7 @@ impl Executor {
                 env::attached_deposit(),
                 env::prepaid_gas() / 3,
             )
-            .then(ext_self::on_execute_then_log(
+            .then(ext_log::on_log_result(
                 nearapps_tags,
                 env::current_account_id(),
                 0,
@@ -100,13 +102,17 @@ impl Executor {
     /// forwarding the first promise result as the value result.
     ///
     /// Logs on successful promise.
-    #[private]
-    pub fn on_execute_then_log(nearapps_tags: NearAppsTags) {
+    pub fn on_log_result(nearapps_tags: NearAppsTags) {
         let ret = match env::promise_result(0) {
             PromiseResult::Successful(val) => val,
             _ => env::panic_str("Promise with index 0 failed"),
         };
         env::log_str(&serde_json::to_string(&nearapps_tags).unwrap());
         env::value_return(&ret);
+    }
+
+    /// Emits a nearapps log.
+    pub fn log(nearapps_tags: NearAppsTags) {
+        env::log_str(&serde_json::to_string(&nearapps_tags).unwrap());
     }
 }

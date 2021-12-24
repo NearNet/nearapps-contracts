@@ -3,22 +3,22 @@
 pub use near_sdk::json_types::{Base64VecU8, U64};
 use near_sdk::AccountId;
 use near_sdk_sim::transaction::ExecutionStatus;
-use near_sdk_sim::{deploy, init_simulator, ContractAccount, ExecutionResult, UserAccount};
+use near_sdk_sim::ExecutionResult;
+use near_sdk_sim::{deploy, ContractAccount, UserAccount};
 use nearapps_counter::CounterContract;
 use nearapps_exec::ExecutorContract;
 
-pub mod _secp256k1;
+pub const DEFAULT_GAS: u64 = 300_000_000_000_000;
 
 near_sdk_sim::lazy_static_include::lazy_static_include_bytes! {
     EXEC_WASM_BYTES => "../res/nearapps_exec.wasm",
     COUNTER_WASM_BYTES => "../res/nearapps_counter.wasm",
 }
 
-pub type Contract = ContractAccount<ExecutorContract>;
-
 pub const KILO: u64 = 1000;
 pub const MEGA: u64 = KILO * KILO;
 pub const TERA: u64 = MEGA * MEGA;
+pub const MEGA_TERA: u128 = MEGA as u128 * TERA as u128;
 pub const YOTTA: u128 = (TERA as u128) * (TERA as u128);
 
 pub trait AssertFailure {
@@ -55,7 +55,7 @@ impl AssertFailure for ExecutionResult {
     }
 }
 
-pub fn setup_exec(root: &UserAccount) -> Contract {
+pub fn setup_exec(root: &UserAccount) -> ContractAccount<ExecutorContract> {
     let contract = deploy!(
         contract: ExecutorContract,
         contract_id: "executor".to_string(),
@@ -82,6 +82,6 @@ pub fn setup_counter(
     counter
 }
 
-fn user(id: u32) -> AccountId {
+pub fn user(id: u32) -> AccountId {
     format!("user{}", id).parse().unwrap()
 }

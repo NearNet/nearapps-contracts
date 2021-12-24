@@ -5,6 +5,7 @@ pub use near_sdk::json_types::{Base64VecU8, U64};
 use near_sdk::AccountId;
 use near_sdk_sim::transaction::ExecutionStatus;
 use near_sdk_sim::{deploy, init_simulator, ContractAccount, ExecutionResult, UserAccount};
+use nearapps_exec::ExecutorContract;
 use nft::metadata::TokenMetadata;
 
 use nearapps_nft::NftContract;
@@ -24,6 +25,7 @@ pub const YOTTA: u128 = (TERA as u128) * (TERA as u128);
 
 pub trait AssertFailure {
     fn assert_failure<E: ToString>(&self, action: u32, err: E);
+    fn all_logs(&self) -> Vec<String>;
 }
 
 impl AssertFailure for ExecutionResult {
@@ -46,16 +48,35 @@ impl AssertFailure for ExecutionResult {
             }
         }
     }
+    fn all_logs(&self) -> Vec<String> {
+        let mut logs = vec![];
+        for res in self.promise_results().into_iter().flatten() {
+            logs.extend(res.logs().clone());
+        }
+        logs
+    }
 }
 
-pub fn setup_nft(root: &UserAccount) -> ContractAccount<NftContract> {
+pub fn setup_exec(root: &UserAccount) -> ContractAccount<ExecutorContract> {
+    let contract = deploy!(
+        contract: ExecutorContract,
+        contract_id: "executor".to_string(),
+        bytes: &EXEC_WASM_BYTES,
+        signer_account: root,
+        deposit: 200 * YOTTA,
+        init_method: new(root.account_id())
+    );
+    contract
+}
+
+pub fn setup_nft(root: &UserAccount, nearapps_acc: AccountId) -> ContractAccount<NftContract> {
     deploy!(
         contract: NftContract,
         contract_id: "nft".to_string(),
         bytes: &NFT_WASM_BYTES,
         signer_account: root,
         deposit: 200 * YOTTA,
-        init_method: new_default_meta(root.account_id())
+        init_method: new_default_meta(root.account_id(), nearapps_acc)
     )
 }
 

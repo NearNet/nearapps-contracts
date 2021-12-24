@@ -9,6 +9,8 @@ use nearapps_log::{print_vec, NearAppsTags};
 
 mod utils;
 
+use crate::utils::AssertFailure;
+
 // fn sign(ctx: &ContractCall) -> (near_sdk::PublicKey, crypto::Bs58EncodedSignature) {
 //     use std::convert::TryInto;
 
@@ -55,26 +57,29 @@ mod utils;
 fn test_exec_basic() {
     let root = init_simulator(None);
     let exec = setup_exec(&root);
-    let counter = setup_counter(&root);
+    let counter = setup_counter(&root, exec.account_id());
 
     // ok: calls counter directly
-    let res = call!(&root, counter.increment());
+    let tags = NearAppsTags::new("counter", 0, "root");
+    let res = call!(&root, counter.increment(tags.clone()));
+    print_vec(&res.all_logs());
+    assert!(res.all_logs().contains(&tags.to_string()));
     let val: u8 = res.unwrap_json();
     assert_eq!(val, 1);
 
     // ok: calls counter through exec
-    let tags = NearAppsTags::new("counter", 0, "root");
+    let tags = NearAppsTags::new("counter", 1, "root");
     let res = call!(
         &root,
         exec.execute_then_log(
             counter.account_id(),
-            "increment".into(),
+            "increment_non_logging".into(),
             "".into(),
             tags.clone()
         )
     );
-    assert_eq!(res.logs()[0], tags.to_string());
-    print_vec(res.logs());
+    print_vec(&res.all_logs());
+    assert!(res.all_logs().contains(&tags.to_string()));
     let val: u8 = res.unwrap_json();
     assert_eq!(val, 2);
 }

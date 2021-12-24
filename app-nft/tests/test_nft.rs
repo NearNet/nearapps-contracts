@@ -16,7 +16,8 @@ fn test_nft() {
     const COMMON_ATTACHMENT: u128 = 6450 * MEGA_TERA;
 
     let root = init_simulator(None);
-    let nft = utils::setup_nft(&root);
+    let exec = utils::setup_exec(&root);
+    let nft = utils::setup_nft(&root, exec.account_id());
 
     let users: Vec<_> = (0..10)
         .into_iter()
@@ -36,8 +37,8 @@ fn test_nft() {
         ),
         deposit = 5630 * MEGA_TERA
     );
-    print_vec(res.logs());
-    assert_eq!(res.logs()[0], tags.to_string());
+    print_vec(&res.all_logs());
+    assert!(res.all_logs().contains(&tags.to_string()));
     res.assert_success();
 
     // fail: similar, but not enought storage deposit
@@ -54,8 +55,8 @@ fn test_nft() {
         // not enought deposit
         deposit = 4_290 * MEGA_TERA - 1
     );
-    print_vec(res.logs());
-    assert!(res.logs().is_empty());
+    print_vec(&res.all_logs());
+    assert!(res.all_logs().is_empty());
     res.assert_failure(
         0,
         "Must attach 4290000000000000000000 yoctoNEAR to cover storage",
@@ -68,8 +69,8 @@ fn test_nft() {
         nft.nft_transfer_logged(user(1), token_id_01.clone(), None, None, tags.clone()),
         deposit = 1
     );
-    print_vec(res.logs());
-    assert_eq!(res.logs()[1], tags.to_string());
+    print_vec(&res.all_logs());
+    assert!(res.all_logs().contains(&tags.to_string()));
     res.assert_success();
 
     // ok: root creates a series
@@ -84,8 +85,8 @@ fn test_nft() {
             tags.clone()
         )
     );
-    print_vec(res.logs());
-    assert_eq!(res.logs()[0], tags.to_string());
+    print_vec(&res.all_logs());
+    assert!(res.all_logs().contains(&tags.to_string()));
     let series_01_id: SeriesId = res.unwrap_json();
 
     // ok: root mints the series for user0
@@ -95,8 +96,8 @@ fn test_nft() {
         nft.nft_series_mint_logged(series_01_id, user(0), None, tags.clone()),
         deposit = COMMON_ATTACHMENT
     );
-    print_vec(res.logs());
-    assert_eq!(res.logs()[0], tags.to_string());
+    print_vec(&res.all_logs());
+    assert!(res.all_logs().contains(&tags.to_string()));
     let series_01_token_0: nft::Token = res.unwrap_json();
 
     // ok: user0 transfers it to user1
@@ -112,8 +113,8 @@ fn test_nft() {
         ),
         deposit = 1
     );
-    print_vec(res.logs());
-    assert_eq!(res.logs()[1], tags.to_string());
+    print_vec(&res.all_logs());
+    assert!(res.all_logs().contains(&tags.to_string()));
     res.assert_success();
 
     // ok: get user1 tokens
@@ -133,8 +134,8 @@ fn test_nft() {
         nft.nft_series_mint_logged(series_01_id, user(2), None, tags.clone()),
         deposit = COMMON_ATTACHMENT
     );
-    print_vec(res.logs());
-    assert_eq!(res.logs()[0], tags.to_string());
+    print_vec(&res.all_logs());
+    assert!(res.all_logs().contains(&tags.to_string()));
     let _series_01_token_1: nft::Token = res.unwrap_json();
 
     // ok: get user2 tokens
@@ -155,7 +156,7 @@ fn test_nft() {
         nft.nft_series_mint_logged(series_01_id, user(2), None, tags.clone()),
         deposit = COMMON_ATTACHMENT
     );
-    print_vec(res.logs());
-    assert!(res.logs().is_empty());
+    print_vec(&res.all_logs());
+    assert!(res.all_logs().is_empty());
     res.assert_failure(0, Error::SeriesNotMintable);
 }

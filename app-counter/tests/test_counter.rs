@@ -1,35 +1,27 @@
 #![allow(clippy::ref_in_deref)]
 
 pub use near_sdk::json_types::{Base64VecU8, U64};
-use near_sdk_sim::{call, deploy, init_simulator, view, ContractAccount, UserAccount};
-use nearapps_counter::CounterContract;
+use near_sdk_sim::{self as sim, call, view};
+use nearapps_log::{print_vec, NearAppsTags};
 
-near_sdk_sim::lazy_static_include::lazy_static_include_bytes! {
-    COUNTER_WASM_BYTES => "../res/nearapps_counter.wasm",
-}
+pub mod utils;
 
-pub const DEFAULT_GAS: u64 = 300_000_000_000_000;
-
-fn init(root: &UserAccount) -> ContractAccount<CounterContract> {
-    let counter: ContractAccount<CounterContract> = deploy!(
-        contract: CounterContract,
-        contract_id: "counter".to_string(),
-        bytes: &COUNTER_WASM_BYTES,
-        signer_account: root
-    );
-
-    counter
-}
+use crate::utils::AssertFailure;
 
 #[test]
 fn simulate_increment() {
-    let root = init_simulator(None);
-    let counter = init(&root);
+    let root = sim::init_simulator(None);
+    let exec = utils::setup_exec(&root);
+    let counter = utils::setup_counter(&root, exec.account_id());
 
     let mut current_num: i8 = view!(counter.get()).unwrap_json();
     assert_eq!(&current_num, &0);
 
-    call!(root, counter.increment()).assert_success();
+    let tags = NearAppsTags::new("counter", 0, "root");
+    let res = call!(root, counter.increment(tags.clone()));
+    print_vec(&res.all_logs());
+    assert!(res.all_logs().contains(&tags.to_string()));
+    res.assert_success();
 
     current_num = view!(counter.get()).unwrap_json();
     assert_eq!(&current_num, &1);

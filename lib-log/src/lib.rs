@@ -62,6 +62,48 @@ where {
     }
 }
 
+#[near_sdk::ext_contract(ext_log)]
+pub trait ExtLog {
+    /// Logs nearapps tags and forwards the first call result.
+    ///
+    /// Should be used as a callback.
+    fn on_log_result(nearapps_tags: NearAppsTags);
+
+    /// Emits a nearapps log.
+    fn log(nearapps_tags: NearAppsTags);
+}
+
+pub trait NearAppsAccount {
+    fn nearapps_account(&self) -> near_sdk::AccountId;
+
+    // TODO: stress and check maximum gas requirement.
+    //
+    /// Makes a new call to the nearapps account for logging.
+    fn log(&self, nearapps_tags: NearAppsTags) -> near_sdk::Promise {
+        ext_log::log(
+            nearapps_tags,
+            self.nearapps_account(),
+            0,
+            near_sdk::Gas(15_000_000_000_000),
+        )
+    }
+
+    // TODO: stress and check maximum gas requirement.
+    //
+    /// Makes a new call to the nearapps account for logging,
+    /// which will forward the first result as the return type.
+    ///
+    /// Should be used as a callback for returning a value.
+    fn on_log_result(&self, nearapps_tags: NearAppsTags) -> near_sdk::Promise {
+        ext_log::on_log_result(
+            nearapps_tags,
+            self.nearapps_account(),
+            0,
+            near_sdk::Gas(35_000_000_000_000),
+        )
+    }
+}
+
 pub fn vec_to_string(strings: &[String]) -> String {
     String::from("[") + &strings.join(", ") + "]"
 }
