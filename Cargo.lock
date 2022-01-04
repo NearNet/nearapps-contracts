@@ -2646,7 +2646,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "nearapps-exec"
+name = "nearapps-crypto"
 version = "0.1.0"
 dependencies = [
  "bitcoin_hashes",
@@ -2657,14 +2657,46 @@ dependencies = [
  "near-sdk",
  "near-sdk-sim",
  "near-units",
- "nearapps-counter",
+ "nearapps-lib-crypto",
  "nearapps-log",
  "nearapps-near-ext",
  "secp256k1",
  "serde-big-array",
  "sha2",
+]
+
+[[package]]
+name = "nearapps-exec"
+version = "0.1.0"
+dependencies = [
+ "near-sdk",
+ "near-sdk-sim",
+ "near-units",
+ "nearapps-counter",
+ "nearapps-log",
+ "nearapps-near-ext",
+ "serde-big-array",
  "strum 0.23.0",
  "strum_macros 0.23.1",
+]
+
+[[package]]
+name = "nearapps-lib-crypto"
+version = "0.1.0"
+dependencies = [
+ "bitcoin_hashes",
+ "digest 0.9.0",
+ "ecdsa",
+ "ed25519-dalek",
+ "k256",
+ "near-sdk",
+ "near-sdk-sim",
+ "near-units",
+ "nearapps-log",
+ "nearapps-near-ext",
+ "secp256k1",
+ "serde-big-array",
+ "sha2",
 ]
 
 [[package]]
@@ -2716,6 +2748,7 @@ dependencies = [
  "near-sdk-sim",
  "near-units",
  "nearapps-exec",
+ "nearapps-lib-crypto",
  "nearapps-log",
  "nearapps-near-ext",
  "strum 0.23.0",

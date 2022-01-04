@@ -1,0 +1,85 @@
+[package]
+name = "nearapps-crypto"
+version = "0.1.0"
+authors = ["Sebastian Gerske <13647606+H34D@users.noreply.github.com>"]
+edition = "2018"
+resolver = "2"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+near-sdk = {version = "4.0.0-pre.4", features = ["unstable"]}
+near-units = "0.1.0"
+nearapps-near-ext = {path = "../lib-near-ext/", default-features = false, features = []}
+nearapps-log = {path = "../lib-log"}
+nearapps-lib-crypto = {path = "../lib-crypto"}
+sha2 = "0.9.0"
+digest = "0.9.0"
+
+[dependencies.k256]
+# version = "0.10.0-pre.1"
+version = "0.9.6"
+default-features = false
+features = ["arithmetic", "ecdsa"]
+# features = ["arithmetic", "ecdsa", "pkcs8", "sha256"]
+git = "https://github.com/nearcomponents/elliptic-curves"
+rev = "c8cae83"
+# branch = "0.9.6-no-rand"
+
+[dependencies.ecdsa]
+version = "0.12.1"
+default-features = false
+# features = ["der"]
+git = "https://github.com/nearcomponents/signatures"
+rev = "e054a2c"
+# branch = "0.12.1-no-rand"
+
+# [dependencies.elliptic-curve]
+# version = "0.10.5"
+# default-features = false
+# features = ["hazmat"]
+# git = "https://github.com/nearcomponents/traits"
+# rev = "f6c1d86"
+# # branch = "0.10.5-no-rand"
+
+# crypto: eddsa on ed25519
+[dependencies.ed25519-dalek]
+version = "1.0.1"
+default-features = false
+features = ["u64_backend"]
+
+
+# to de/serialize [u8; u64] arrays
+[dependencies.serde-big-array]
+version = "0.3.2"
+default-features = false
+features = ["const-generics"]
+
+[dev-dependencies]
+near-sdk-sim = "4.0.0-pre.4"
+nearapps-near-ext = {path = "../lib-near-ext/", features = ["sim"]}
+
+# hash: sha256
+[dev-dependencies.bitcoin_hashes]
+version = "0.10.0"
+default-features = false
+features = ["std", "serde-std"]
+
+# crypto: ecdsa on secp256k1
+[dev-dependencies.secp256k1]
+version = "0.20.3"
+# path = "../rust-secp256k1/"
+default-features = false
+# features = ["std", "recovery", "serde", "lowmemory"]
+features = ["alloc", "recovery", "serde"]
+
+# [profile.release]
+# codegen-units = 1
+# # Tell `rustc` to optimize for small code size.
+# opt-level = "z"
+# lto = true
+# debug = false
+# panic = "abort"
+# # Opt into extra safety checks on arithmetic operations https://stackoverflow.com/a/64136471/249801
+# overflow-checks = true

@@ -1,9 +1,3 @@
-use crate::Executor;
-use near_sdk::near_bindgen;
-
-#[cfg(not(target_arch = "wasm32"))]
-use crate::ExecutorContract;
-
 pub mod ecdsa_secp256k1;
 pub mod eddsa_ed25519;
 
@@ -13,18 +7,17 @@ pub use ecdsa_secp256k1::types::SignRecoverable as EcdsaSecp256k1Signature;
 pub use eddsa_ed25519::types::PubKey as EddsaEd25519PublicKey;
 pub use eddsa_ed25519::types::Sign as EddsaEd25519Signature;
 
-#[near_bindgen]
-impl Executor {
+impl Bs58EncodedSignature {
     // TODO: write comments
     //
     // signature verification that is compatible to Near
     pub fn verify_hashed_msg(
-        sign: Bs58EncodedSignature,
+        self,
         pubkey: NearEncodedPubkey,
         msg_hash: crate::hash::Sha256,
     ) -> bool {
         let pubkey = pubkey.parse();
-        Self::verify_inner(sign, pubkey, msg_hash)
+        Self::verify_inner(self, pubkey, msg_hash)
     }
 
     /// Verifies if `pubkey` matches `sign` with the `sha256` hash of
@@ -33,7 +26,7 @@ impl Executor {
     /// Note: Internally the hashed msg is hashed again by the
     /// signature verification algorithm. This is compatible with
     /// Near's behavior.
-    pub fn verify_msg(sign: Bs58EncodedSignature, pubkey: NearEncodedPubkey, msg: String) -> bool {
+    pub fn verify_msg(self, pubkey: NearEncodedPubkey, msg: String) -> bool {
         let msg_hash = {
             use digest::Digest;
             let mut sha2_hash = sha2::Sha256::new();
@@ -45,21 +38,15 @@ impl Executor {
             crate::hash::Sha256(arr)
         };
         let pubkey = pubkey.parse();
-        Self::verify_inner(sign, pubkey, msg_hash)
+        Self::verify_inner(self, pubkey, msg_hash)
     }
-}
 
-impl Executor {
     /// Note: Internally the hashed msg is hashed again by the
     /// signature verification algorithm. This is compatible with
     /// Near's behavior.
-    pub fn verify_inner(
-        sign: Bs58EncodedSignature,
-        pubkey: near_sdk::PublicKey,
-        msg_hash: crate::hash::Sha256,
-    ) -> bool {
+    pub fn verify_inner(self, pubkey: near_sdk::PublicKey, msg_hash: crate::hash::Sha256) -> bool {
         use near_sdk::CurveType;
-        let sign = sign.decode();
+        let sign = self.decode();
         match (pubkey.curve_type(), sign.len()) {
             (CurveType::ED25519, 64) => {
                 let mut sign_raw = [0; 64];
@@ -70,7 +57,7 @@ impl Executor {
 
                 // note: msg_hash will be hashed again internally, this is
                 // compatible with Near's behavior.
-                Executor::eddsa_ed25519_verify(pubkey, sign, &msg_hash.0)
+                sign.verify(pubkey, &msg_hash.0)
             }
             (CurveType::SECP256K1, 65) => {
                 let mut sign_raw = [0; 65];
@@ -83,7 +70,7 @@ impl Executor {
 
                 // note: msg_hash will be hashed again internally, this is
                 // compatible with Near's behavior.
-                Executor::ecdsa_secp256k1_verify_uncompressed_msg_bytes(pubkey, sign, &msg_hash.0)
+                sign.verify_uncompressed_msg_bytes(pubkey, &msg_hash.0)
             }
             (curve_type, sign_len) => panic!(
                 "Wrong sign length of {} for the curve type {:?}",

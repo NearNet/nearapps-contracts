@@ -1,8 +1,4 @@
-use crate::Executor;
-use near_sdk::{env, near_bindgen};
-
-#[cfg(not(target_arch = "wasm32"))]
-use crate::ExecutorContract;
+use near_sdk::env;
 
 /// Sha256 value.
 ///
@@ -123,14 +119,13 @@ impl digest::FixedOutputDirty for Sha512 {
     }
 }
 
-#[near_bindgen]
-impl Executor {
+impl Sha256 {
     /// Generates a `sha256` hash of the given bytes.
     ///
     /// The returned hash has a total size of 32-bytes.
     ///
     /// See also: [`Self::hash_sha256_msg`]
-    pub fn hash_sha256(msg_bytes: Vec<u8>) -> Sha256 {
+    pub fn hash(msg_bytes: Vec<u8>) -> Self {
         let hash = env::sha256(&msg_bytes);
         let hash = hash.as_slice();
         assert_eq!(hash.len(), 32);
@@ -145,7 +140,7 @@ impl Executor {
     /// The returned hash has a total size of 32-bytes.
     ///
     /// See also: [`Self::hash_sha256`]
-    pub fn hash_sha256_msg(msg: String) -> Sha256 {
+    pub fn hash_msg(msg: String) -> Self {
         let hash = env::sha256(msg.as_bytes());
         let hash = hash.as_slice();
         assert_eq!(hash.len(), 32);
@@ -153,13 +148,15 @@ impl Executor {
         res.copy_from_slice(hash);
         Sha256(res)
     }
+}
 
+impl Sha512 {
     /// Generates a `sha512` hash of the given bytes.
     ///
     /// The returned hash has a total size of 64-bytes.
     ///
     /// See also: [`Self::hash_sha512_msg`]
-    pub fn hash_sha512(msg_bytes: Vec<u8>) -> Sha512 {
+    pub fn hash(msg_bytes: Vec<u8>) -> Self {
         Sha512::hash_bytes(&msg_bytes)
     }
 
@@ -169,7 +166,7 @@ impl Executor {
     /// The returned hash has a total size of 64-bytes.
     ///
     /// See also: [`Self::hash_sha512`]
-    pub fn hash_sha512_msg(msg: String) -> Sha512 {
+    pub fn hash_msg(msg: String) -> Self {
         Sha512::hash_bytes(msg.as_bytes())
     }
 }

@@ -1,12 +1,6 @@
 use super::types;
-use crate::Executor;
-use near_sdk::near_bindgen;
 
-#[cfg(not(target_arch = "wasm32"))]
-use crate::ExecutorContract;
-
-#[near_bindgen]
-impl Executor {
+impl types::SecKey {
     // TODO: hide behing a feature as this will not
     // be needed as a near app.
     //
@@ -25,8 +19,8 @@ impl Executor {
     ///
     /// Returns the signature in serialized compact form.
     /// Has a total size of 64-bytes.
-    pub fn ecdsa_secp256k1_sign(seckey: types::SecKey, msg: String) -> types::SignCompact {
-        let seckey = k256::SecretKey::from_bytes(&seckey.0).unwrap();
+    pub fn sign(&self, msg: String) -> types::SignCompact {
+        let seckey = k256::SecretKey::from_bytes(&self.0).unwrap();
         let signing_key = k256::ecdsa::SigningKey::from(seckey);
         let mut sign: k256::ecdsa::Signature = {
             use k256::ecdsa::signature::DigestSigner;
@@ -60,11 +54,8 @@ impl Executor {
     /// TODO: re-check this:
     /// Returns the signature in serialized compact form.
     /// Has a total size of 64-bytes.
-    pub fn ecdsa_secp256k1_sign_recoverable(
-        seckey: types::SecKey,
-        msg: String,
-    ) -> types::SignRecoverable {
-        let seckey = k256::SecretKey::from_bytes(&seckey.0).unwrap();
+    pub fn sign_recoverable(&self, msg: String) -> types::SignRecoverable {
+        let seckey = k256::SecretKey::from_bytes(&self.0).unwrap();
         let signing_key = k256::ecdsa::SigningKey::from(seckey);
         let sign: k256::ecdsa::recoverable::Signature = {
             use k256::ecdsa::signature::DigestSigner;

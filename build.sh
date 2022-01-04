@@ -7,6 +7,7 @@ RELEASE_DIR="./target/wasm32-unknown-unknown/release"
 DEST_DIR="./res"
 
 cp "$RELEASE_DIR/nearapps_counter.wasm" "$DEST_DIR/"
+cp "$RELEASE_DIR/nearapps_crypto.wasm" "$DEST_DIR/"
 cp "$RELEASE_DIR/nearapps_exec.wasm" "$DEST_DIR/"
 cp "$RELEASE_DIR/nearapps_nft.wasm" "$DEST_DIR/"
 cp "$RELEASE_DIR/nearapps_wallet.wasm" "$DEST_DIR/"

@@ -1,5 +1,7 @@
 #![allow(clippy::ref_in_deref)]
 #![allow(clippy::identity_op)]
+#![allow(unused_imports)]
+#![allow(dead_code)]
 
 pub use near_sdk::json_types::{Base64VecU8, U64};
 use near_sdk_sim::{call, deploy, init_simulator, view, ContractAccount, UserAccount};
@@ -78,7 +80,7 @@ fn pubkey() -> near_sdk::PublicKey {
     let secret: SecretKey = SecretKey::from_bytes(&seckey_bytes).unwrap();
     let public: PublicKey = PublicKey::from(&secret);
 
-    use nearapps_exec::crypto::eddsa_ed25519::types::PubKey;
+    use nearapps_lib_crypto::crypto::eddsa_ed25519::types::PubKey;
     let public: PubKey = public.into();
 
     let public = public.try_into().unwrap();

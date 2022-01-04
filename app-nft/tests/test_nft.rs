@@ -3,7 +3,7 @@
 use near_contract_standards::non_fungible_token as nft;
 pub use near_sdk::json_types::{Base64VecU8, U64};
 use near_sdk_sim::{call, init_simulator};
-use near_units::{parse_gas, parse_near};
+use near_units::parse_near;
 use nearapps_log::{print_vec, NearAppsTags};
 use nearapps_near_ext::ExecutionExt;
 use nearapps_nft::error::Error;

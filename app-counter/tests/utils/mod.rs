@@ -1,4 +1,5 @@
 #![allow(dead_code)]
+#![allow(unused_imports)]
 
 pub use near_sdk::json_types::{Base64VecU8, U64};
 use near_sdk::AccountId;

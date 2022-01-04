@@ -3,9 +3,7 @@
 #![allow(unused_imports)]
 
 use crate::utils::{setup_counter, setup_exec};
-use crypto::eddsa_ed25519 as ed;
 use near_sdk_sim::{call, init_simulator};
-use nearapps_exec::crypto;
 use nearapps_log::{print_vec, NearAppsTags};
 use nearapps_near_ext::ExecutionExt;
 

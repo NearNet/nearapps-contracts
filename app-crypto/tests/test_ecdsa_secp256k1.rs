@@ -1,6 +1,6 @@
 #![allow(clippy::ref_in_deref)]
 
-use crate::utils::{_secp256k1, setup_exec};
+use crate::utils::{_secp256k1, setup_crypto};
 use near_sdk_sim::{call, init_simulator};
 use near_units::parse_gas;
 
@@ -8,10 +8,10 @@ mod utils;
 
 #[test]
 fn test_ecdsa_secp256k1() {
-    use nearapps_exec::{crypto::ecdsa_secp256k1 as ec, hash};
+    use nearapps_crypto::{crypto::ecdsa_secp256k1 as ec, hash};
 
     let root = init_simulator(None);
-    let contract = setup_exec(&root);
+    let contract = setup_crypto(&root);
 
     let seckey = [
         59, 148, 11, 85, 134, 130, 61, 253, 2, 174, 59, 70, 27, 180, 51, 107, 94, 203, 174, 253,
@@ -215,7 +215,7 @@ fn test_ecdsa_secp256k1() {
     // (this is linked to the same library that bitcoin uses)
     {
         use _secp256k1 as s;
-        use nearapps_exec::hash::Sha256;
+        use nearapps_crypto::hash::Sha256;
 
         // ok: pubkeys match
         let pubkey2 = s::gen_pubkey(seckey.clone());

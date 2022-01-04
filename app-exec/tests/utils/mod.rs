@@ -8,16 +8,13 @@ use near_units::parse_near;
 use nearapps_counter::CounterContract;
 use nearapps_exec::ExecutorContract;
 
-pub mod _secp256k1;
 
 near_sdk_sim::lazy_static_include::lazy_static_include_bytes! {
     EXEC_WASM_BYTES => "../res/nearapps_exec.wasm",
     COUNTER_WASM_BYTES => "../res/nearapps_counter.wasm",
 }
 
-pub type Contract = ContractAccount<ExecutorContract>;
-
-pub fn setup_exec(root: &UserAccount) -> Contract {
+pub fn setup_exec(root: &UserAccount) -> ContractAccount<ExecutorContract> {
     let contract = deploy!(
         contract: ExecutorContract,
         contract_id: "executor".to_string(),

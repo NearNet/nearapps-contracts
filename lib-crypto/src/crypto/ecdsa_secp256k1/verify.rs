@@ -1,32 +1,19 @@
 use super::types;
-use crate::{hash, Executor};
-use near_sdk::near_bindgen;
+use crate::hash;
 
-#[cfg(not(target_arch = "wasm32"))]
-use crate::ExecutorContract;
-
-#[near_bindgen]
-impl Executor {
+impl types::SignCompact {
     /// Returns `true` if `pubkey` authenticates the
     /// `sign` of the `msg_hash`.  
     /// Returns `false` otherwise.
     ///
     /// The `msg` is hashed using `sha256` and that is used
     /// to verify the signature's authenticity.
-    pub fn ecdsa_secp256k1_verify_compressed_msg(
-        pubkey: types::PubKeyCompressed,
-        sign: types::SignCompact,
-        msg: String,
-    ) -> bool {
-        Self::ecdsa_secp256k1_verify(&pubkey.0, sign, msg.as_bytes())
+    pub fn verify_compressed_msg(&self, pubkey: types::PubKeyCompressed, msg: String) -> bool {
+        Self::verify(self, &pubkey.0, msg.as_bytes())
     }
 
-    pub fn ecdsa_secp256k1_verify_uncompressed_msg(
-        pubkey: types::PubKeyUncompressed,
-        sign: types::SignCompact,
-        msg: String,
-    ) -> bool {
-        Self::ecdsa_secp256k1_verify(&pubkey.0, sign, msg.as_bytes())
+    pub fn verify_uncompressed_msg(&self, pubkey: types::PubKeyUncompressed, msg: String) -> bool {
+        Self::verify(self, &pubkey.0, msg.as_bytes())
     }
 
     /// Returns `true` if `pubkey` authenticates the
@@ -35,12 +22,12 @@ impl Executor {
     ///
     /// The `msg_hash` must be the result of a `sha256` of the msg,
     /// and must have a total size of 32-bytes.
-    pub fn ecdsa_secp256k1_verify_prehashed_compressed(
+    pub fn verify_prehashed_compressed(
+        &self,
         pubkey: types::PubKeyCompressed,
-        sign: types::SignCompact,
         hashed_msg: hash::Sha256,
     ) -> bool {
-        Self::ecdsa_secp256k1_verify_prehashed(&pubkey.0, sign, hashed_msg)
+        Self::verify_prehashed(self, &pubkey.0, hashed_msg)
     }
 
     /// Returns `true` if `pubkey` authenticates the
@@ -49,27 +36,23 @@ impl Executor {
     ///
     /// The `msg_hash` must be the result of a `sha256` of the msg,
     /// and must have a total size of 32-bytes.
-    pub fn ecdsa_secp256k1_verify_prehashed_uncompressed(
+    pub fn verify_prehashed_uncompressed(
+        &self,
         pubkey: types::PubKeyUncompressed,
-        sign: types::SignCompact,
         hashed_msg: hash::Sha256,
     ) -> bool {
-        Self::ecdsa_secp256k1_verify_prehashed(&pubkey.0, sign, hashed_msg)
+        Self::verify_prehashed(self, &pubkey.0, hashed_msg)
     }
 }
 
-impl Executor {
+impl types::SignCompact {
     /// Returns `true` if `pubkey` authenticates the
     /// `sign` of the `msg_hash`.  
     /// Returns `false` otherwise.
     ///
     /// The `msg` is hashed using `sha256` and that is used
     /// to verify the signature's authenticity.
-    pub fn ecdsa_secp256k1_verify(
-        pubkey: &[u8],
-        sign: types::SignCompact,
-        msg_bytes: &[u8],
-    ) -> bool {
+    pub fn verify(&self, pubkey: &[u8], msg_bytes: &[u8]) -> bool {
         // this is able to read both compressed and uncompressed pubkeys
         let pubkey = k256::PublicKey::from_sec1_bytes(pubkey).unwrap();
 
@@ -81,7 +64,7 @@ impl Executor {
 
         let sign = {
             use k256::ecdsa::signature::Signature;
-            k256::ecdsa::Signature::from_bytes(&sign.0).unwrap()
+            k256::ecdsa::Signature::from_bytes(&self.0).unwrap()
         };
 
         {
@@ -93,20 +76,20 @@ impl Executor {
         }
     }
 
-    pub fn ecdsa_secp256k1_verify_compressed_msg_bytes(
+    pub fn verify_compressed_msg_bytes(
+        &self,
         pubkey: types::PubKeyCompressed,
-        sign: types::SignCompact,
         msg_bytes: &[u8],
     ) -> bool {
-        Self::ecdsa_secp256k1_verify(&pubkey.0, sign, msg_bytes)
+        Self::verify(self, &pubkey.0, msg_bytes)
     }
 
-    pub fn ecdsa_secp256k1_verify_uncompressed_msg_bytes(
+    pub fn verify_uncompressed_msg_bytes(
+        &self,
         pubkey: types::PubKeyUncompressed,
-        sign: types::SignCompact,
         msg_bytes: &[u8],
     ) -> bool {
-        Self::ecdsa_secp256k1_verify(&pubkey.0, sign, msg_bytes)
+        Self::verify(self, &pubkey.0, msg_bytes)
     }
 
     /// Returns `true` if `pubkey` authenticates the
@@ -115,11 +98,7 @@ impl Executor {
     ///
     /// The `msg_hash` must be the result of a `sha256` of the msg,
     /// and must have a total size of 32-bytes.
-    pub fn ecdsa_secp256k1_verify_prehashed(
-        pubkey: &[u8],
-        sign: types::SignCompact,
-        hashed_msg: hash::Sha256,
-    ) -> bool {
+    pub fn verify_prehashed(&self, pubkey: &[u8], hashed_msg: hash::Sha256) -> bool {
         let pubkey = k256::PublicKey::from_sec1_bytes(pubkey).unwrap();
 
         let hashed_msg = {
@@ -129,7 +108,7 @@ impl Executor {
 
         let sign = {
             use k256::ecdsa::signature::Signature;
-            k256::ecdsa::Signature::from_bytes(&sign.0).unwrap()
+            k256::ecdsa::Signature::from_bytes(&self.0).unwrap()
         };
 
         {

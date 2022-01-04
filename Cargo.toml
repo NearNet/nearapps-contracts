@@ -3,11 +3,14 @@ resolver = "2"
 
 # include a member for each contract
 members = [
-  "app-exec",
-  "app-wallet",
   "app-counter",
+  "app-crypto",
+  "app-exec",
   "app-nft",
-  "lib-log"
+  "app-wallet",
+  "lib-crypto",
+  "lib-log",
+  "lib-near-ext"
 ]
 
 [profile.release]

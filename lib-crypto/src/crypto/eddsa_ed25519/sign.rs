@@ -1,17 +1,12 @@
 use super::types;
-use crate::{hash, Executor};
-use near_sdk::near_bindgen;
+use crate::hash;
 
-#[cfg(not(target_arch = "wasm32"))]
-use crate::ExecutorContract;
-
-#[near_bindgen]
-impl Executor {
+impl types::SecKey {
     // TODO: hide behing a feature as this will not
     // be needed as a near app.
     //
-    pub fn eddsa_ed25519_sign(seckey: types::SecKey, msg: String) -> types::Sign {
-        let seckey = ed25519_dalek::SecretKey::from_bytes(&seckey.0).unwrap();
+    pub fn sign(&self, msg: String) -> types::Sign {
+        let seckey = ed25519_dalek::SecretKey::from_bytes(&self.0).unwrap();
         let pubkey: ed25519_dalek::PublicKey = (&seckey).into();
         let keypair = ed25519_dalek::Keypair {
             secret: seckey,
@@ -26,12 +21,12 @@ impl Executor {
 
     // TODO: hide behing a feature as this will not
     // be needed as a near app.
-    pub fn eddsa_ed25519_sign_prehashed(
-        seckey: types::SecKey,
+    pub fn sign_prehashed(
+        &self,
         msg_hash: hash::Sha512,
         context: Option<String>,
     ) -> types::SignPrehashed {
-        let seckey = ed25519_dalek::SecretKey::from_bytes(&seckey.0).unwrap();
+        let seckey = ed25519_dalek::SecretKey::from_bytes(&self.0).unwrap();
         let pubkey: ed25519_dalek::PublicKey = (&seckey).into();
         let keypair = ed25519_dalek::Keypair {
             secret: seckey,
