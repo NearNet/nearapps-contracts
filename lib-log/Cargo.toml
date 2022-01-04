@@ -3,6 +3,7 @@ name = "nearapps-log"
 version = "0.1.0"
 authors = ["Sebastian Gerske <13647606+H34D@users.noreply.github.com>"]
 edition = "2018"
+resolver = "2"
 
 [dependencies]
 near-sdk = {version = "4.0.0-pre.4", features = ["unstable"]}

@@ -1,4 +1,4 @@
-use crate::error::{ensure, Error, OrPanicStr};
+use crate::error::Error;
 use crate::{Nft, Owner, StorageKey};
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::UnorderedSet;
@@ -6,6 +6,7 @@ use near_sdk::json_types::U64;
 use near_sdk::serde::{Deserialize, Serialize};
 use near_sdk::{near_bindgen, AccountId};
 use nearapps_log::{NearAppsAccount, NearAppsTags};
+use nearapps_near_ext::{ensure, OrPanicStr};
 use serde_with::{serde_as, FromInto};
 
 pub const SERIES_DELIMETER: char = ':';

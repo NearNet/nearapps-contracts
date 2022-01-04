@@ -3,17 +3,19 @@
 use near_contract_standards::non_fungible_token as nft;
 pub use near_sdk::json_types::{Base64VecU8, U64};
 use near_sdk_sim::{call, init_simulator};
+use near_units::{parse_gas, parse_near};
 use nearapps_log::{print_vec, NearAppsTags};
+use nearapps_near_ext::ExecutionExt;
 use nearapps_nft::error::Error;
 use nearapps_nft::series::{SeriesId, SeriesTokenIndex};
 
 pub mod utils;
 
-use crate::utils::{token_ids, user, AssertFailure, MEGA_TERA, YOTTA};
+use crate::utils::{token_ids, user};
 
 #[test]
 fn test_nft() {
-    const COMMON_ATTACHMENT: u128 = 6450 * MEGA_TERA;
+    const COMMON_ATTACHMENT: u128 = parse_near!("6450 microN");
 
     let root = init_simulator(None);
     let exec = utils::setup_exec(&root);
@@ -21,7 +23,7 @@ fn test_nft() {
 
     let users: Vec<_> = (0..10)
         .into_iter()
-        .map(|i| root.create_user(user(i), 100 * YOTTA))
+        .map(|i| root.create_user(user(i), parse_near!("100 N")))
         .collect();
 
     // ok: root mints a token for user0
@@ -35,7 +37,7 @@ fn test_nft() {
             utils::token_metadata(),
             tags.clone()
         ),
-        deposit = 5630 * MEGA_TERA
+        deposit = parse_near!("5630 microN")
     );
     print_vec(&res.all_logs());
     assert!(res.all_logs().contains(&tags.to_string()));
@@ -53,7 +55,7 @@ fn test_nft() {
             tags.clone()
         ),
         // not enought deposit
-        deposit = 4_290 * MEGA_TERA - 1
+        deposit = parse_near!("4290 microN") - 1
     );
     print_vec(&res.all_logs());
     assert!(res.all_logs().is_empty());

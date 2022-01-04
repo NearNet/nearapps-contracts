@@ -1,9 +1,10 @@
 #![allow(clippy::let_and_return)]
 
-use crate::error::{ensure, Error};
+use crate::error::Error;
 use crate::Executor;
 use near_sdk::{env, ext_contract, near_bindgen, serde_json, AccountId, Promise, PromiseResult};
 use nearapps_log::{NearAppsTags, NearAppsTagsContained};
+use nearapps_near_ext::ensure;
 
 #[cfg(not(target_arch = "wasm32"))]
 use crate::ExecutorContract;

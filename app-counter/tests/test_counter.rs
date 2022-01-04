@@ -3,10 +3,9 @@
 pub use near_sdk::json_types::{Base64VecU8, U64};
 use near_sdk_sim::{self as sim, call, view};
 use nearapps_log::{print_vec, NearAppsTags};
+use nearapps_near_ext::ExecutionExt;
 
 pub mod utils;
-
-use crate::utils::AssertFailure;
 
 #[test]
 fn simulate_increment() {

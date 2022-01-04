@@ -1,4 +1,6 @@
 [workspace]
+resolver = "2"
+
 # include a member for each contract
 members = [
   "app-exec",

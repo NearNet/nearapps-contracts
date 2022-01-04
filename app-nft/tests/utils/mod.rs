@@ -5,56 +5,15 @@ pub use near_sdk::json_types::{Base64VecU8, U64};
 use near_sdk::AccountId;
 use near_sdk_sim::transaction::ExecutionStatus;
 use near_sdk_sim::{deploy, init_simulator, ContractAccount, ExecutionResult, UserAccount};
+use near_units::parse_near;
 use nearapps_exec::ExecutorContract;
 use nft::metadata::TokenMetadata;
 
 use nearapps_nft::NftContract;
 
-pub const DEFAULT_GAS: u64 = 300_000_000_000_000;
-
 near_sdk_sim::lazy_static_include::lazy_static_include_bytes! {
     EXEC_WASM_BYTES => "../res/nearapps_exec.wasm",
     NFT_WASM_BYTES => "../res/nearapps_nft.wasm",
-}
-
-pub const KILO: u64 = 1000;
-pub const MEGA: u64 = KILO * KILO;
-pub const TERA: u64 = MEGA * MEGA;
-pub const MEGA_TERA: u128 = MEGA as u128 * TERA as u128;
-pub const YOTTA: u128 = (TERA as u128) * (TERA as u128);
-
-pub trait AssertFailure {
-    fn assert_failure<E: ToString>(&self, action: u32, err: E);
-    fn all_logs(&self) -> Vec<String>;
-}
-
-impl AssertFailure for ExecutionResult {
-    fn assert_failure<E: ToString>(&self, action: u32, err: E) {
-        let err = format!(
-            "Action #{}: Smart contract panicked: {}",
-            action,
-            err.to_string()
-        );
-        match self.status() {
-            ExecutionStatus::Failure(txerr_) => {
-                assert_eq!(txerr_.to_string(), err)
-            }
-            ExecutionStatus::Unknown => panic!("Got Unknown. Should have failed with {}", err),
-            ExecutionStatus::SuccessValue(_v) => {
-                panic!("Got SuccessValue. Should have failed with {}", err)
-            }
-            ExecutionStatus::SuccessReceiptId(_id) => {
-                panic!("Got SuccessReceiptId. Should have failed with {}", err)
-            }
-        }
-    }
-    fn all_logs(&self) -> Vec<String> {
-        let mut logs = vec![];
-        for res in self.promise_results().into_iter().flatten() {
-            logs.extend(res.logs().clone());
-        }
-        logs
-    }
 }
 
 pub fn setup_exec(root: &UserAccount) -> ContractAccount<ExecutorContract> {
@@ -63,7 +22,7 @@ pub fn setup_exec(root: &UserAccount) -> ContractAccount<ExecutorContract> {
         contract_id: "executor".to_string(),
         bytes: &EXEC_WASM_BYTES,
         signer_account: root,
-        deposit: 200 * YOTTA,
+        deposit: parse_near!("200 N"),
         init_method: new(root.account_id())
     );
     contract
@@ -75,7 +34,7 @@ pub fn setup_nft(root: &UserAccount, nearapps_acc: AccountId) -> ContractAccount
         contract_id: "nft".to_string(),
         bytes: &NFT_WASM_BYTES,
         signer_account: root,
-        deposit: 200 * YOTTA,
+        deposit: parse_near!("200 N"),
         init_method: new_default_meta(root.account_id(), nearapps_acc)
     )
 }

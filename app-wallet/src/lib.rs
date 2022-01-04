@@ -6,15 +6,12 @@ use near_sdk::json_types::U128;
 use near_sdk::{
     env, near_bindgen, AccountId, BorshStorageKey, Gas, PanicOnDefault, Promise, PublicKey,
 };
+use near_units::parse_gas;
+use nearapps_near_ext::ensure;
 
 pub mod error;
 
-pub use error::{ensure, Error};
-
-pub const KILO: u64 = 1000;
-pub const MEGA: u64 = KILO * KILO;
-pub const TERA: u64 = MEGA * MEGA;
-pub const YOTTA: u128 = (TERA as u128) * (TERA as u128);
+pub use error::Error;
 
 #[near_sdk::ext_contract(ext_self)]
 pub trait ExtSelf {
@@ -138,9 +135,9 @@ impl AccountManager {
         // const GAS_CALLBACK: Gas = Gas(500_000 * MEGA);
 
         // testnet
-        const _GAS_CURRENT: Gas = Gas(13 * TERA);
-        const GAS_CREATE_ACC_CALL: Gas = Gas(11 * TERA);
-        const GAS_CALLBACK: Gas = Gas(8 * TERA);
+        const _GAS_CURRENT: Gas = Gas(parse_gas!("13 Tgas") as u64);
+        const GAS_CREATE_ACC_CALL: Gas = Gas(parse_gas!("11 Tgas") as u64);
+        const GAS_CALLBACK: Gas = Gas(parse_gas!("8 Tgas") as u64);
 
         ensure(
             self.owner_id == env::predecessor_account_id(),

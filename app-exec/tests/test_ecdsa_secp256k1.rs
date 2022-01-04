@@ -1,7 +1,8 @@
 #![allow(clippy::ref_in_deref)]
 
-use crate::utils::{_secp256k1, setup_exec, TERA};
+use crate::utils::{_secp256k1, setup_exec};
 use near_sdk_sim::{call, init_simulator};
+use near_units::parse_gas;
 
 mod utils;
 
@@ -22,7 +23,7 @@ fn test_ecdsa_secp256k1() {
     // generates the pubkey on the contract
     let pubkey_compressed: ec::types::PubKeyCompressed = {
         let res = call!(&root, contract.secp256k1_pubkey_compressed(seckey.clone()));
-        assert!(res.gas_burnt().0 < 33 * TERA);
+        assert!(res.gas_burnt().0 < parse_gas!("33 Tgas") as u64);
         res.unwrap_json()
     };
     let pubkey_compressed = &pubkey_compressed;
@@ -37,7 +38,7 @@ fn test_ecdsa_secp256k1() {
             &root,
             contract.secp256k1_pubkey_uncompressed(seckey.clone())
         );
-        assert!(res.gas_burnt().0 < 33 * TERA);
+        assert!(res.gas_burnt().0 < parse_gas!("33 Tgas") as u64);
         res.unwrap_json()
     };
     let pubkey_uncompressed = &pubkey_uncompressed;
@@ -50,7 +51,7 @@ fn test_ecdsa_secp256k1() {
             &root,
             contract.ecdsa_secp256k1_sign(seckey.clone(), msg.to_string())
         );
-        assert!(res.gas_burnt().0 < 45 * TERA);
+        assert!(res.gas_burnt().0 < parse_gas!("45 Tgas") as u64);
         res.unwrap_json()
     };
     let sign = &sign;
@@ -75,7 +76,7 @@ fn test_ecdsa_secp256k1() {
                 msg.to_string()
             )
         );
-        assert!(res.gas_burnt().0 < 65 * TERA);
+        assert!(res.gas_burnt().0 < parse_gas!("65 Tgas") as u64);
         res.unwrap_json()
     };
     assert!(verify1);
@@ -90,7 +91,7 @@ fn test_ecdsa_secp256k1() {
                 msg.to_string()
             )
         );
-        assert!(res.gas_burnt().0 < 65 * TERA);
+        assert!(res.gas_burnt().0 < parse_gas!("65 Tgas") as u64);
         res.unwrap_json()
     };
     assert!(!bad_verify1);
@@ -100,7 +101,7 @@ fn test_ecdsa_secp256k1() {
         // ok: get the hash.
         // could be generated locally, without using the contract
         let res = call!(&root, contract.hash_sha256(msg.as_bytes().to_vec()));
-        assert!(res.gas_burnt().0 < 3 * TERA);
+        assert!(res.gas_burnt().0 < parse_gas!("3 Tgas") as u64);
         let msg_hash: hash::Sha256 = res.unwrap_json();
 
         let res = call!(
@@ -111,7 +112,7 @@ fn test_ecdsa_secp256k1() {
                 msg_hash
             )
         );
-        assert!(res.gas_burnt().0 < 65 * TERA);
+        assert!(res.gas_burnt().0 < parse_gas!("65 Tgas") as u64);
         res.unwrap_json()
     };
     assert!(verify2);
@@ -121,7 +122,7 @@ fn test_ecdsa_secp256k1() {
         // ok: get the hash.
         // could be generated locally, without using the contract
         let res = call!(&root, contract.hash_sha256(msg.as_bytes().to_vec()));
-        assert!(res.gas_burnt().0 < 3 * TERA);
+        assert!(res.gas_burnt().0 < parse_gas!("3 Tgas") as u64);
         let msg_hash: hash::Sha256 = res.unwrap_json();
 
         let res = call!(
@@ -132,7 +133,7 @@ fn test_ecdsa_secp256k1() {
                 msg_hash
             )
         );
-        assert!(res.gas_burnt().0 < 65 * TERA);
+        assert!(res.gas_burnt().0 < parse_gas!("65 Tgas") as u64);
         res.unwrap_json()
     };
     assert!(!bad_verify2);
@@ -147,7 +148,7 @@ fn test_ecdsa_secp256k1() {
                 msg.to_string()
             )
         );
-        assert!(res.gas_burnt().0 < 65 * TERA);
+        assert!(res.gas_burnt().0 < parse_gas!("65 Tgas") as u64);
         res.unwrap_json()
     };
     assert!(verify3);
@@ -162,7 +163,7 @@ fn test_ecdsa_secp256k1() {
                 msg.to_string()
             )
         );
-        assert!(res.gas_burnt().0 < 65 * TERA);
+        assert!(res.gas_burnt().0 < parse_gas!("65 Tgas") as u64);
         res.unwrap_json()
     };
     assert!(!bad_verify3);
@@ -173,7 +174,7 @@ fn test_ecdsa_secp256k1() {
         // ok: get the hash.
         // could be generated locally, without using the contract
         let res = call!(&root, contract.hash_sha256(msg.as_bytes().to_vec()));
-        assert!(res.gas_burnt().0 < 3 * TERA);
+        assert!(res.gas_burnt().0 < parse_gas!("3 Tgas") as u64);
         let msg_hash: hash::Sha256 = res.unwrap_json();
 
         let res = call!(
@@ -184,7 +185,7 @@ fn test_ecdsa_secp256k1() {
                 msg_hash
             )
         );
-        assert!(res.gas_burnt().0 < 65 * TERA);
+        assert!(res.gas_burnt().0 < parse_gas!("65 Tgas") as u64);
         res.unwrap_json()
     };
     assert!(verify4);
@@ -194,7 +195,7 @@ fn test_ecdsa_secp256k1() {
         // ok: get the hash.
         // could be generated locally, without using the contract
         let res = call!(&root, contract.hash_sha256(msg.as_bytes().to_vec()));
-        assert!(res.gas_burnt().0 < 3 * TERA);
+        assert!(res.gas_burnt().0 < parse_gas!("3 Tgas") as u64);
         let msg_hash: hash::Sha256 = res.unwrap_json();
 
         let res = call!(
@@ -205,7 +206,7 @@ fn test_ecdsa_secp256k1() {
                 msg_hash
             )
         );
-        assert!(res.gas_burnt().0 < 65 * TERA);
+        assert!(res.gas_burnt().0 < parse_gas!("65 Tgas") as u64);
         res.unwrap_json()
     };
     assert!(!bad_verify4);

@@ -3,12 +3,12 @@
 
 pub use near_sdk::json_types::{Base64VecU8, U64};
 use near_sdk_sim::{call, deploy, init_simulator, view, ContractAccount, UserAccount};
-
-pub const DEFAULT_GAS: u64 = 300_000_000_000_000;
+use near_units::{parse_gas, parse_near};
+use nearapps_near_ext::ExecutionExt;
 
 pub mod utils;
 
-use crate::utils::{user, ExecutionExt, MEGA_TERA, TERA, YOTTA};
+use crate::utils::user;
 use nearapps_wallet::AccountConfig;
 
 // #[ignore]
@@ -58,12 +58,12 @@ fn test_wallet_account() {
     let res = root.function_call(
         //
         wallet.contract.create_account(created_01.clone(), None),
-        26 * TERA,
-        1 * YOTTA / 100, // 0.01 N
+        parse_gas!("26 Tgas") as u64,
+        parse_near!("0.01 N"),
     );
     let success: bool = res.unwrap_json();
     assert!(success);
-    assert!(res.total_gas_burnt().0 < 26 * TERA);
+    assert!(res.total_gas_burnt().0 < parse_gas!("26 Tgas") as u64);
 }
 
 fn pubkey() -> near_sdk::PublicKey {

@@ -1,15 +1,15 @@
 #![allow(clippy::ref_in_deref)]
 #![allow(clippy::needless_borrow)]
+#![allow(unused_imports)]
 
 use crate::utils::{setup_counter, setup_exec};
 use crypto::eddsa_ed25519 as ed;
 use near_sdk_sim::{call, init_simulator};
 use nearapps_exec::crypto;
 use nearapps_log::{print_vec, NearAppsTags};
+use nearapps_near_ext::ExecutionExt;
 
 mod utils;
-
-use crate::utils::AssertFailure;
 
 // fn sign(ctx: &ContractCall) -> (near_sdk::PublicKey, crypto::Bs58EncodedSignature) {
 //     use std::convert::TryInto;

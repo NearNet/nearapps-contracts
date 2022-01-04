@@ -3,6 +3,7 @@ use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::{LazyOption, UnorderedMap, UnorderedSet};
 use near_sdk::{env, near_bindgen, require, AccountId, BorshStorageKey, PanicOnDefault};
 use nearapps_log::{NearAppsAccount, NearAppsTags};
+use nearapps_near_ext::ensure;
 use nft::metadata::{
     NFTContractMetadata, NonFungibleTokenMetadataProvider, TokenMetadata, NFT_METADATA_SPEC,
 };
@@ -11,7 +12,7 @@ pub mod error;
 pub mod series;
 pub mod utils;
 
-use error::{ensure, Error};
+use error::Error;
 pub use series::SERIES_DELIMETER;
 
 #[near_bindgen]

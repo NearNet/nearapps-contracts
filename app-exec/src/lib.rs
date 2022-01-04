@@ -1,13 +1,14 @@
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::UnorderedSet;
 use near_sdk::{env, near_bindgen, AccountId, BorshStorageKey, PanicOnDefault};
+use nearapps_near_ext::ensure;
 
 pub mod crypto;
 pub mod error;
 pub mod exec;
 pub mod hash;
 
-use error::{ensure, Error};
+use error::Error;
 
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize, PanicOnDefault)]
