@@ -14,9 +14,32 @@ use error::Error;
 
 const GAS_ON_SEND: Gas = Gas(parse_gas!("30 Tgas") as u64);
 
+/// # Manage Owner and Logger
+/// - (as usual)
+///
+/// # Manage Registered nft contracts
+/// - add nft contract (account, protocol)
+///   - protocols may differ, such as: do they log themselves?
+///     or should "we" log?
+/// - remove nft contract (account, protocol)
+/// - change nft contract (different account)
+///
+///
+/// # Receive funds
+/// - implement nft_on_transfer (may need multiple implementations)
+///   - check if the predecessor (the nft contract) is registered
+///   - add users funds
+/// - needs to store owner's funds information
+///   - TODO
+///
+/// # Send funds
+/// - may need multiple functions as there are multiple protocols
+///
+///
+
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize, PanicOnDefault)]
-pub struct SendNear {
+pub struct SendNft {
     owner: AccountId,
     deposits: LookupMap<AccountId, Balance>,
     nearapps_logger: AccountId,
@@ -35,7 +58,7 @@ trait OnSend {
 // TODO: have the attached deposit cover for the account storage, in case
 // it's needed.
 #[near_bindgen]
-impl SendNear {
+impl SendNft {
     #[init]
     pub fn new(owner: AccountId, nearapps_logger: AccountId) -> Self {
         Self {
@@ -199,13 +222,13 @@ pub trait Owner {
     fn assert_owner(&self);
 }
 
-impl Owner for SendNear {
+impl Owner for SendNft {
     fn assert_owner(&self) {
         ensure(env::predecessor_account_id() == self.owner, Error::NotOwner)
     }
 }
 
-impl nearapps_log::NearAppsAccount for SendNear {
+impl nearapps_log::NearAppsAccount for SendNft {
     fn nearapps_account(&self) -> near_sdk::AccountId {
         self.nearapps_logger.clone()
     }

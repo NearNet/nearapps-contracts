@@ -1,8 +1,8 @@
 # Nearapps Contracts
 
-- [Executor](./app-exec/README.md) / [API](./app-exec/API.md)
-- [Wallet Creation](./app-wallet/README.md) / [API](./app-wallet/API.md)
-- [Series NFT](./app-nft/README.md) / [API](./app-nft/API.md)
-- Send NEAR / API
+- Executor / [API](./app-exec/API.md)
+- Wallet Creation / [API](./app-wallet/API.md)
+- Series NFT / [API](./app-nft/API.md)
+- Send NEAR / [API](./app-send-near/API.md)
 - Send NFT / API
 - Escrow / API

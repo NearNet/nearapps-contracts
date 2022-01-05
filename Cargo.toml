@@ -8,6 +8,7 @@ members = [
   "app-exec",
   "app-nft",
   "app-send-near",
+  "app-send-nft",
   "app-wallet",
   "lib-crypto",
   "lib-log",

@@ -2,6 +2,8 @@
 
 pub mod error;
 
+pub mod types;
+
 #[cfg(feature = "sim")]
 pub mod sim;
 
