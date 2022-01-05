@@ -1,0 +1,37 @@
+[package]
+name = "nearapps-send-near"
+version = "0.1.0"
+authors = ["Sebastian Gerske <13647606+H34D@users.noreply.github.com>"]
+edition = "2018"
+resolver = "2"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+near-sdk = {version = "4.0.0-pre.4", features = ["unstable"]}
+near-units = "0.1.0"
+nearapps-near-ext = {path = "../lib-near-ext/", default-features = false, features = []}
+nearapps-log = {path = "../lib-log"}
+strum = "0.23"
+strum_macros = "0.23"
+
+[dependencies.serde_with]
+version = "1.11.0"
+default-features = false
+features = [ "macros" ]
+
+[dev-dependencies]
+near-sdk-sim = "4.0.0-pre.4"
+nearapps-near-ext = {path = "../lib-near-ext/", features = ["sim"]}
+nearapps-exec = { path = "../app-exec" }
+
+# [profile.release]
+# codegen-units = 1
+# # Tell `rustc` to optimize for small code size.
+# opt-level = "z"
+# lto = true
+# debug = false
+# panic = "abort"
+# # Opt into extra safety checks on arithmetic operations https://stackoverflow.com/a/64136471/249801
+# overflow-checks = true

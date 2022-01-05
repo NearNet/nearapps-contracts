@@ -83,6 +83,15 @@ impl Nft {
         )
     }
 
+    pub fn get_owner(&mut self) -> AccountId {
+        self.tokens.owner_id.clone()
+    }
+
+    pub fn change_owner(&mut self, new_owner: AccountId) {
+        self.assert_owner();
+        self.tokens.owner_id = new_owner;
+    }
+
     /// Adapted from the standard example.
     #[payable]
     pub fn nft_mint_logged(
