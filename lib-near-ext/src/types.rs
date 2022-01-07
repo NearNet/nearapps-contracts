@@ -11,3 +11,15 @@ pub struct JBalance(
     //
     pub u128,
 );
+
+impl From<u128> for JBalance {
+    fn from(balance: u128) -> Self {
+        JBalance(balance)
+    }
+}
+
+impl From<near_sdk::json_types::U128> for JBalance {
+    fn from(balance: near_sdk::json_types::U128) -> Self {
+        JBalance(balance.0)
+    }
+}

@@ -19,7 +19,8 @@ methods:
 
 #### Initialization
 
-method: `new`
+method: `new`  
+description: Initializes the contract.
 
 ###### Parameters
 
@@ -34,7 +35,8 @@ Has no returns.
 
 ##### Get Owner
 
-method: `get_owner`
+method: `get_owner`  
+description: Get the contract's owner.
 
 ###### Parameters
 
@@ -46,7 +48,8 @@ Has no parameters.
 
 ##### Change Owner
 
-method: `change_owner`
+method: `change_owner`  
+description: Changes the contract's owner.
 
 ###### Parameters
 
@@ -61,7 +64,11 @@ Has no returns.
 
 ##### Send Attached
 
-method: `send_attached_logged`
+method: `send_attached_logged`  
+description: Sends NEAR tokens to the `receiver` account.  
+The sender is the call's predecessor account, and the amount is exactly the call's attached amount.  
+Returns `true` on success, and a log is made.  
+Returns `false` on failure, and the contract adds the amount that didn't get sent to the sender. Ie. the contract tracks that as that sender's balance.
 
 ###### Parameters
 
@@ -77,7 +84,11 @@ method: `send_attached_logged`
 
 ##### Send
 
-method: `send_logged`
+method: `send_logged`  
+description: Sends `amount` NEAR tokens to the `receiver` account.  
+The sender is the call's predecessor account, and any attached amount is considered for the sending operation, as well as any balance that the sender already had (as tracked by the contract).  
+Returns `true` on success, and a log is made.  
+Returns `false` on failure, and the contract adds the amount that didn't get sent to the sender. Ie. the contract tracks that as that sender's balance.
 
 ###### Parameters
 
@@ -92,9 +103,26 @@ method: `send_logged`
 
 - `got_sent`: boolean - whether the near tokens were sent successfully
 
+###### Sample
+
+description: Person _X_ wants to send 1 NEAR token to user _Y,_ calling the `send_near` contract directly. 
+
+```json
+{
+    "receiver": "my.friend",
+    "amount": "1000000000000000000000000",
+    "nearapps_tags": {
+        "app_id": "my nice app",
+        "action_id": "2",
+        "user_id": "my-account.testnet"
+    }
+}
+```
+
 ##### Get Balance
 
-method: `get_balance`
+method: `get_balance`  
+description: Gets the `user`'s balance, as tracked by this contract.
 
 ###### Parameters
 
@@ -106,7 +134,8 @@ method: `get_balance`
 
 ##### Withdraw
 
-method: `withdraw_logged`
+method: `withdraw_logged`  
+description: Withdraw all of the balance from the user into themselves, as tracked by this contract. The user is the call's predecessor account.
 
 ###### Parameters
 

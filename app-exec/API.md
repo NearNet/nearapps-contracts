@@ -1,5 +1,3 @@
-TODO: update.
-
 ## Execute Contract
 
 - `testnet`: [`naps.testnet`](https://explorer.testnet.near.org/accounts/naps.testnet)
@@ -20,7 +18,8 @@ methods:
 
 #### Initialization
 
-method: `new`
+method: `new`  
+description: Initializes the contract.
 
 ###### Parameters
 
@@ -41,7 +40,7 @@ Has no returns.
 
 #### Execution of a Proxied Contract Call
 
-method: `execute`
+method: `execute`  
 
 ###### Parameters
 
@@ -117,7 +116,7 @@ method: `remove_owner`
 
 ###### Returns
 
-- `removed`: boolean - whether the account was just removed as an owner.
+- `removed`: boolean - whether the account just removed was as an owner.
 
 ###### Sample
 

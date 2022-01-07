@@ -1,21 +1,21 @@
 pub use near_sdk::json_types::{Base64VecU8, U64};
 use near_sdk::Gas;
 use near_sdk_sim::transaction::ExecutionStatus;
-use near_sdk_sim::ExecutionResult;
+use near_sdk_sim::{ExecutionResult, ViewResult};
 
 /// Extensions that can be added on ExecutionResult.
 pub trait ExecutionExt {
-    fn assert_failure<E: ToString>(&self, action: u32, err: E);
+    fn assert_failure<E: ToString>(&self, action: impl Into<Option<u32>>, err: E);
     fn total_gas_burnt(&self) -> Gas;
     fn pretty_debug(&self);
     fn all_logs(&self) -> Vec<String>;
 }
 
 impl ExecutionExt for ExecutionResult {
-    fn assert_failure<E: ToString>(&self, action: u32, err: E) {
+    fn assert_failure<E: ToString>(&self, action: impl Into<Option<u32>>, err: E) {
         let err = format!(
             "Action #{}: Smart contract panicked: {}",
-            action,
+            action.into().expect("expecting action number"),
             err.to_string()
         );
         match self.status() {
@@ -32,15 +32,15 @@ impl ExecutionExt for ExecutionResult {
         }
     }
     fn total_gas_burnt(&self) -> Gas {
-        // self.gas_burnt()
-        //     +
-        self.get_receipt_results()
-            .into_iter()
-            .chain(self.promise_results())
+        let res = self
+            // .get_receipt_results()
+            // .into_iter()
+            .promise_results()
+            .iter()
             .flatten()
             .map(|o| o.gas_burnt().0)
-            .sum::<u64>()
-            .into()
+            .sum::<u64>();
+        res.into()
     }
     fn pretty_debug(&self) {
         use std::fmt::Write;
@@ -88,6 +88,26 @@ impl ExecutionExt for ExecutionResult {
             logs.extend(res.logs().clone());
         }
         logs
+    }
+}
+
+impl ExecutionExt for ViewResult {
+    fn assert_failure<E: ToString>(&self, _action: impl Into<Option<u32>>, err: E) {
+        let err = format!(
+            "wasm execution failed with error: FunctionCallError(HostError(GuestPanic {{ panic_msg: \"{}\" }}))",
+            err.to_string()
+        );
+        let view_err = self.unwrap_err();
+        assert_eq!(view_err.to_string(), err)
+    }
+    fn total_gas_burnt(&self) -> Gas {
+        panic!("View method doesn't burn any gas")
+    }
+    fn pretty_debug(&self) {
+        unimplemented!()
+    }
+    fn all_logs(&self) -> Vec<String> {
+        self.logs().clone()
     }
 }
 

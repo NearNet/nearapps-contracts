@@ -1,3 +1,8 @@
+// TODO: require user registration, which can be automatic, for
+// tracking it's funds. If the funds that failed to get send is too
+// little for registering the user (if it's not already registered),
+// then the fund should be absorbed by the contract.
+
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::LookupMap;
 use near_sdk::{
@@ -29,6 +34,10 @@ enum StorageKey {
 
 #[ext_contract(ext_self)]
 trait OnSend {
+    /// After a send operation,  
+    /// If successful, will log and return `true`.  
+    /// Otherwise if failed, will deposit `amount` back to the `sender`'s
+    /// balance.
     fn on_send(sender: AccountId, amount: JBalance, nearapps_tags: NearAppsTags);
 }
 
@@ -82,8 +91,8 @@ impl SendNear {
         send.then(on_send)
     }
 
-    /// Sends `amount` to `receiver`, based on the attached amount and any
-    /// previously deposited amount that the sender account has.  
+    /// Sends `amount` to `receiver`, based on the attached amount and the
+    /// sender's balance.  
     /// Remaining amounts are (re)deposited to the sender's account.
     ///
     /// On failure`*`, the amount that was sent to the `receiver`
@@ -102,6 +111,7 @@ impl SendNear {
         let attached = env::attached_deposit();
 
         // check if needs to withdraw from deposits
+        #[allow(clippy::comparison_chain)]
         if amount.0 > attached {
             let balance = self.deposits.get(&sender).unwrap_or_default();
 
@@ -122,6 +132,10 @@ impl SendNear {
                     self.deposits.insert(&sender, &n);
                 }
             }
+        } else if attached > amount.0 {
+            let balance = self.deposits.get(&sender).unwrap_or_default();
+            let deposit_back = balance + attached - amount.0;
+            self.deposits.insert(&sender, &deposit_back);
         };
 
         let send = Promise::new(receiver).transfer(amount.0);
@@ -138,10 +152,12 @@ impl SendNear {
         send.then(on_send)
     }
 
+    /// Gets the balance of a user.
     pub fn get_balance(&self, user: AccountId) -> JBalance {
         JBalance(self.deposits.get(&user).or_panic_str(Error::MissingUser))
     }
 
+    /// Withdraws everything that a user may have on their balance.
     pub fn withdraw_logged(&mut self, nearapps_tags: NearAppsTags) -> Promise {
         let user = env::predecessor_account_id();
         let amount = self
@@ -163,6 +179,10 @@ impl SendNear {
         send.then(on_send)
     }
 
+    /// After a send operation,  
+    /// If successful, will log and return `true`.  
+    /// Otherwise if failed, will deposit `amount` back to the `sender`'s
+    /// balance.
     #[private]
     pub fn on_send(
         &mut self,
@@ -172,6 +192,8 @@ impl SendNear {
     ) -> bool {
         use near_sdk::PromiseResult;
 
+        // unexpected results count will cause funds to be absorbed by
+        // this contract (it will not be deposited on the sender's balance)
         ensure(env::promise_results_count() == 1, Error::WrongResultCount);
 
         match env::promise_result(0) {

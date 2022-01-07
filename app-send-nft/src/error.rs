@@ -14,27 +14,29 @@ use strum_macros::Display;
 pub enum Error {
     /// A call that was supposed to be made by the owner was made
     /// by a different predecessor.
-    #[strum(serialize = "ERR_NOT_OWNER")]
+    #[strum(serialize = "ERR_SEND_NFT_NOT_OWNER")]
     NotOwner,
 
-    /// A [`env::promise_results_count()`] count != 1 was returned into
-    /// the callback.  
-    /// It should be exactly `1`.
-    ///
-    /// Since this is unexpected, to prevent the dangerous situation of
-    /// users withdrawing from others, this contract will simply absorb
-    /// the fund, even in the case it was failed to get sent, without
-    /// making a deposit into that user's account.
-    #[strum(serialize = "ERR_SEND_NEAR_WRONG_RESULT_COUNT")]
-    WrongResultCount,
+    /// When trying to add a new Nft (and it's protocol),
+    /// and the Nft was already included.
+    #[strum(serialize = "ERR_SEND_NFT_NFT_ALREADY_INCLUDED")]
+    NftProtocolAlreadyIncluded,
 
-    /// The operation has insufficient funds.
-    #[strum(serialize = "ERR_SEND_NEAR_INSUFFICIENT_FUNDS")]
-    InsufficientFunds,
+    /// When trying to manipulate/remove a Nft (and it's protocol),
+    /// and the Nft is missing.
+    #[strum(serialize = "ERR_SEND_NFT_NFT_NOT_INCLUDED")]
+    NftProtocolNotIncluded,
 
-    /// The user is inexistent.
-    #[strum(serialize = "ERR_SEND_NEAR_MISSING_USER")]
-    MissingUser,
+    /// The operation required the NearAppsTags, but this was missing.
+    #[strum(serialize = "ERR_SEND_NFT_MISSING_NEARAPPS_TAGS")]
+    NearAppsTagsMissing,
+
+    /// The Nft Token was already owned.
+    #[strum(serialize = "ERR_SEND_NFT_TOKEN_ALREADY_OWNED")]
+    NftTokenAlreadyOwned,
+
+    #[strum(serialize = "ERR_SEND_NFT_TOKEN_ALREADY_OWNED_BY_USER")]
+    UserAlreadyOwnedTheNftToken,
 }
 
 impl Error {
