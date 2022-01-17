@@ -2,6 +2,7 @@
 
 use near_contract_standards::non_fungible_token as nft;
 pub use near_sdk::json_types::{Base64VecU8, U64};
+use near_sdk::serde_json;
 use near_sdk_sim::{call, init_simulator};
 use nearapps_nft::error::Error;
 use nearapps_nft::series::{SeriesId, SeriesTokenIndex};
@@ -23,10 +24,15 @@ fn test_nft() {
         .collect();
 
     // ok: root mints a token for user0
+    let metadata = utils::token_metadata();
     let token_id_01 = &"token-01".to_string();
+    println!(
+        "metadata: {}",
+        serde_json::to_string_pretty(&metadata).unwrap()
+    );
     let res = call!(
         &root,
-        nft.nft_mint(token_id_01.clone(), user(0), utils::token_metadata()),
+        nft.nft_mint(token_id_01.clone(), user(0), metadata),
         deposit = 5630 * MEGA_TERA
     );
     res.assert_success();
