@@ -298,7 +298,7 @@ description: Creates a new NFT series.
 - `name`: string - the name of the token series
 - `capacity`: string - the maximum number of the of tokens that can be minted
 - `creator`: string - the account_id of the creator, used for informing
-- `nearapps_tags`: object - the tags information. Note that this is not contained inside of `args`.
+- `nearapps_tags`: object - the tags information. 
     - `app_id`: string - app tag.
     - `action_id`: string - action number.
     - `user_id`: string - user account_id tag.
@@ -330,7 +330,7 @@ description: Creates a new nft token from a created token series.
 - `series_id`: string - the series id number
 - `token_owner_id`: string - the account_id of who will receive the token.
 - `token_metadata`: optional object - the standard nft token metadata.
-- `nearapps_tags`: object - the tags information. Note that this is not contained inside of `args`.
+- `nearapps_tags`: object - the tags information. 
     - `app_id`: string - app tag.
     - `action_id`: string - action number.
     - `user_id`: string - user account_id tag.
@@ -372,7 +372,7 @@ description: Get minted tokens from a series.
 
 ###### Returns
 
-- `token_ids`: string[] - a list containing the token_id number that were minted under the series.
+- `token_ids`: `string[]` - a list containing the token_id number that were minted under the series.
 
 
 ##### NFT Series Set Mintable
@@ -384,7 +384,7 @@ description: Sets whether a series is mintable or not.
 
 - `series_id`: string - the series id number.
 - `is_mintable`: boolean - choose whether it will be mintable or not.
-- `nearapps_tags`: object - the tags information. Note that this is not contained inside of `args`.
+- `nearapps_tags`: object - the tags information. 
     - `app_id`: string - app tag.
     - `action_id`: string - action number.
     - `user_id`: string - user account_id tag.
@@ -402,7 +402,7 @@ description: Sets the token capacity (the token max length) of a series.
 
 - `series_id`: string - the series id number.
 - `capacity`: string - choose the number of what the capacity will be.
-- `nearapps_tags`: object - the tags information. Note that this is not contained inside of `args`.
+- `nearapps_tags`: object - the tags information. 
     - `app_id`: string - app tag.
     - `action_id`: string - action number.
     - `user_id`: string - user account_id tag.

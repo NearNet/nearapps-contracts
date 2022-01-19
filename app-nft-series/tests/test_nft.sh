@@ -26,9 +26,9 @@ near create-account \
     "$NFT_SERIES" \
     --masterAccount "$EXEC"
 # deploy & init - owner (predecessor) is EXEC
-WASM="../../res/nearapps_nft.wasm"
+WASM="../../res/nearapps_nft_series.wasm"
 METHOD="new_default_meta"
-ARGS='{"owner_id": "'"$EXEC"'"}'
+ARGS='{"owner_id": "'"$EXEC"'", "nearapps_logger": "'"$EXEC"'"}'
 near deploy \
   --wasmFile "$WASM" \
   --contractName "$NFT_SERIES" \
@@ -44,10 +44,20 @@ near create-account \
     --initialBalance "1"
 
 # exec creates a series for user0
-METHOD="nft_series_create"
-ARGS='{\"name\": \"my-series\", \"capacity\": \"5\", \"creator\": \"'"$USER0"'\"}'
-ARGS='{"context": {"contract_call": {"contract_id": "'"$NFT_SERIES"'", "method_name": "'"$METHOD"'", "args": "'"$ARGS"'"}, "tag_info": {"app_id": "some-app", "action_id": "0", "user_id": "'"$USER0"'"}}}'
+TAGS='{\"app_id\": \"nft_series\", \"action_id\": \"0\", \"user_id\": \"user0\"}'
+METHOD="nft_series_create_logged"
+ARGS='{\"name\": \"my-series\", \"capacity\": \"5\", \"creator\": \"'"$USER0"'\", \"nearapps_tags\": '"$TAGS"'}'
+ARGS='{"contract_id": "'"$NFT_SERIES"'", "method_name": "'"$METHOD"'", "args": "'"$ARGS"'"}'
 METHOD="execute"
+near call \
+    "$EXEC" \
+    "$METHOD" \
+    "$ARGS" \
+    --accountId "$EXEC" \
+    --gas 300000000000000 
+# {"contract_id": "nft-series.dev-1642588081954-96822413824209", "method_name": "nft_series_create_logged", "args": "{\"name\": \"my-series\", \"capacity\": \"5\", \"creator\": \"user-0.dev-1642588081954-96822413824209\", \"nearapps_tags\": {"app_id": "nft_series", "action_id": "0", "user_id": "user0"}}"}
+
+
 eval SERIES_ID=`near call \
     "$EXEC" \
     "$METHOD" \

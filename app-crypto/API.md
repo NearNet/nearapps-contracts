@@ -67,7 +67,7 @@ method: `verify_hashed_msg`
 - `sign`: string - the signature, in base58. Can be a `Ed25519` or a `Secp256k1` signature.
 - `pubkey`: string - the public key, in base58 with an optional `{header}:` as prefix. Can be a `Ed25519` or
   a `Secp256k1` public key. On a missing prefix, `ed25519:` is assumed.
-- `msg_hash`: number[] - the message hash, in a 32-sized array of bytes, resulted from a sha256 hash of them message.
+- `msg_hash`: `number[]` - the message hash, in a 32-sized array of bytes, resulted from a sha256 hash of them message.
 
 ###### Returns
 

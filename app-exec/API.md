@@ -214,7 +214,7 @@ description: Show owners.
 
 ###### Returns
 
-- `owners`: string[] - list of account_ids of the owners.
+- `owners`: `string[]` - list of account_ids of the owners.
 
 ###### Sample
 
