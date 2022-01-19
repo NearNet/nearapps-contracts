@@ -1,7 +1,7 @@
 [package]
-name = "nearapps-nft"
+name = "nearapps-nft-series"
 version = "0.1.0"
-authors = ["Sebastian Gerske <13647606+H34D@users.noreply.github.com>"]
+authors = ["Sebastian Gerske <13647606+H34D@users.noreply.github.com>", "Thiago Machado <thiago@chikai.io>"]
 edition = "2018"
 resolver = "2"
 

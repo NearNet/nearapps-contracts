@@ -1,5 +1,5 @@
 use crate::error::Error;
-use crate::{Nft, Owner, StorageKey};
+use crate::{NftSeries, Owner, StorageKey};
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::UnorderedSet;
 use near_sdk::json_types::U64;
@@ -12,7 +12,7 @@ use serde_with::{serde_as, FromInto};
 pub const SERIES_DELIMETER: char = ':';
 
 #[cfg(not(target_arch = "wasm32"))]
-use crate::NftContract;
+use crate::NftSeriesContract;
 
 #[derive(BorshDeserialize, BorshSerialize, Serialize, Deserialize)]
 #[serde(crate = "near_sdk::serde")]
@@ -114,17 +114,20 @@ impl Series {
 }
 
 #[near_bindgen]
-impl Nft {
-    pub fn nft_series_supply(&self) -> String {
-        self.series.len().to_string()
+impl NftSeries {
+    /// Shows how many series were created.
+    pub fn nft_series_supply(&self) -> U64 {
+        self.series.len().into()
     }
 
+    /// Gets information on a series.
     pub fn nft_series_get(&self, series_id: SeriesId) -> Series {
         self.series
             .get(&series_id)
             .or_panic_str(Error::MissingSeries)
     }
 
+    /// Get minted tokens from a series.
     pub(crate) fn nft_series_get_minted_tokens(
         &self,
         series_id: SeriesId,
@@ -134,12 +137,23 @@ impl Nft {
             .or_panic_str(Error::MissingSeries)
     }
 
-    pub fn nft_series_get_minted_tokens_vec(&self, series_id: SeriesId) -> Vec<SeriesTokenIndex> {
+    /// Get minted tokens from a series.
+    pub fn nft_series_get_minted_tokens_vec(
+        &self,
+        series_id: SeriesId,
+        from_index: Option<near_sdk::json_types::U128>,
+        limit: Option<u16>,
+    ) -> Vec<SeriesTokenIndex> {
+        let from_index = from_index.unwrap_or_else(|| 0.into()).0 as usize;
+        let limit = limit.unwrap_or(u16::MAX) as usize;
         self.nft_series_get_minted_tokens(series_id)
             .iter()
+            .skip(from_index)
+            .take(limit)
             .collect()
     }
 
+    /// Creates a new NFT series.
     pub fn nft_series_create_logged(
         &mut self,
         name: SeriesName,
@@ -161,6 +175,11 @@ impl Nft {
             is_mintable: true,
         };
 
+        ensure(
+            self.series_minted_tokens.get(&id).is_none(),
+            Error::SeriesAlreadyCreated,
+        );
+
         self.series_minted_tokens.insert(
             &id,
             &UnorderedSet::new(StorageKey::TokensBySeriesInner { series_id: id }),
@@ -174,7 +193,8 @@ impl Nft {
         id
     }
 
-    pub fn nft_series_set_mintable(
+    /// Sets whether a series is mintable or not.
+    pub fn nft_series_set_mintable_logged(
         //
         &mut self,
         series_id: SeriesId,
@@ -192,7 +212,9 @@ impl Nft {
         let _ = self.log(nearapps_tags);
     }
 
-    pub fn nft_series_set_capacity(
+    /// Sets the token capacity (the token max length) of a
+    /// series.
+    pub fn nft_series_set_capacity_logged(
         //
         &mut self,
         series_id: SeriesId,

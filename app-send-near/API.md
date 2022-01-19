@@ -10,7 +10,6 @@ methods:
 - `new`
 - `get_owner`
 - `change_owner`
-
 - `send_attached_logged`
 - `send_logged`
 - `get_balance`

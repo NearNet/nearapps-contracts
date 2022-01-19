@@ -107,6 +107,7 @@ pub struct AllowedCalls {
 impl AccountManager {
     #[init]
     pub fn new(owner_id: AccountId) -> Self {
+        ensure(!env::state_exists(), Error::AlreadyInitialized);
         Self {
             owner_id,
             accounts: UnorderedSet::new(StorageKey::Accounts),

@@ -1,3 +1,4 @@
+WIP
 
 ## Crypto Contract
 
@@ -10,27 +11,26 @@ methods:
 
 - `verify_msg`
 - `verify_hashed_msg`
-
-ecdsa_secp256k1_sign
-ecdsa_secp256k1_sign_recoverable
-ecdsa_secp256k1_verify_compressed_msg
-ecdsa_secp256k1_verify_uncompressed_msg
-ecdsa_secp256k1_verify_prehashed_compressed
-ecdsa_secp256k1_verify_prehashed_uncompressed
-secp256k1_pubkey_compressed
-secp256k1_pubkey_uncompressed
-eddsa_ed25519_sign
-eddsa_ed25519_sign_prehashed
-eddsa_ed25519_verify_bytes
-eddsa_ed25519_verify_msg
-eddsa_ed25519_verify_prehashed
-ed25519_pubkey
-verify_hashed_msg
-verify_msg
-hash_sha256
-hash_sha256_msg
-hash_sha512
-hash_sha512_msg
+- `ecdsa_secp256k1_sign`
+- `ecdsa_secp256k1_sign_recoverable`
+- `ecdsa_secp256k1_verify_compressed_msg`
+- `ecdsa_secp256k1_verify_uncompressed_msg`
+- `ecdsa_secp256k1_verify_prehashed_compressed`
+- `ecdsa_secp256k1_verify_prehashed_uncompressed`
+- `secp256k1_pubkey_compressed`
+- `secp256k1_pubkey_uncompressed`
+- `eddsa_ed25519_sign`
+- `eddsa_ed25519_sign_prehashed`
+- `eddsa_ed25519_verify_bytes`
+- `eddsa_ed25519_verify_msg`
+- `eddsa_ed25519_verify_prehashed`
+- `ed25519_pubkey`
+- `verify_hashed_msg`
+- `verify_msg`
+- `hash_sha256`
+- `hash_sha256_msg`
+- `hash_sha512`
+- `hash_sha512_msg`
 
 
 #### Verification of a Message

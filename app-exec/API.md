@@ -9,8 +9,8 @@ methods:
 
 - `new`
 - `execute`
-- `execute_then_log` (TODO)
-- `log` (TODO)
+- `execute_then_log`
+- `log`
 - `add_owner`
 - `remove_owner`
 - `is_owner`
@@ -31,30 +31,28 @@ Has no returns.
 
 ###### Sample
 
-<!-- TODO: update -->
-
 ```json
 {
+  "owner_id": "owner-account.near"
 }
 ```
 
 #### Execution of a Proxied Contract Call
 
 method: `execute`  
+description: Executes an external contract's function, where all of the logging should be proactively made by the contract that is to be called.  
+The logging information must be contained in `args`, under a field named `nearapps_tags`.
 
 ###### Parameters
 
-- `context`: the call context.
-    - `contract_call`: the contract call context.
-        - `contract_id`: string - the contract's AccountId that is being called.
-        - `method_name`: string - the name of the method being called.
-        - `args`: string - the arguments for the method that is being called.
-    - `tag_info`: the tags information.
+- `contract_id`: string - the contract's AccountId that is being called.
+- `method_name`: string - the name of the method being called.
+- `args`: string - the arguments for the method that is being called, plus the `nearapps_tags` information.
+    - `nearapps_tags`: object - the tags information. Must be contained inside of `args`.
         - `app_id`: string - app tag.
         - `action_id`: string - action number.
         - `user_id`: string - user account_id tag.
-    <!-- - `public_key`: string - the public key, in base58 which an optional `{header}:` as prefix. Can be a `Ed25519` or a `Secp256k1` public key. Note: currently disabled as the message still needs to be specified. A placeholder value is being used. -->
-    <!-- - `signature`: string - the signature, in base58. Can be a `Ed25519` or a `Secp256k1` signature. Note: currently disabled as the message still needs to be specified. A placeholder value is being used. -->
+
 
 ###### Returns
 
@@ -62,17 +60,73 @@ method: `execute`
 
 ###### Sample
 
-<!-- TODO: update -->
 
 ```json
 {
-  "context": {
-    "contract_call": {
-      "contract_id": "nft.naps.testnet",
-      "method_name": "nft_transfer_from",
-      "args": "\"token_id\": \"1\", \"sender_id\": \"my-account.testnet\", \"receiver_id\": \"my-friend.testnet\", \"approval_id\": \"4711\""
-    }
-  }
+  "contract_id": "nft.naps.testnet",
+  "method_name": "ft_transfer_logged",
+  "args": "\"receiver_id\": \"my-friend.testnet\", \"token_id\": \"1\",  \"msg\": \"\", \"nearapps_tags\": {\"app_id\": \"the-app\", \"action_id\": \"0\", \"user_id\": \"the-user\"}"
+}
+```
+
+#### Execution of a Proxied Contract Call (2)
+
+
+method: `execute_then_log`  
+description: Similar to `execute`, executes an external contract's function, but the logging is made on the callback, when forwarding the result back to the caller.  
+This should be used for methods that don't log for themselves.
+
+###### Parameters
+
+- `contract_id`: string - the contract's AccountId that is being called.
+- `method_name`: string - the name of the method being called.
+- `args`: string - the arguments for the method that is being called.
+- `nearapps_tags`: object - the tags information. Note that this is not contained inside of `args`.
+    - `app_id`: string - app tag.
+    - `action_id`: string - action number.
+    - `user_id`: string - user account_id tag.
+
+
+###### Returns
+
+- `result` - the same return that `contract_id`'s method `method_name` with `args` would return.
+
+###### Sample
+
+
+```json
+{
+  "contract_id": "nft.naps.testnet",
+  "method_name": "change_owner",
+  "args": "{\"new_owner\": \"my-friend.testnet\"}",
+  "nearapps_tags": {"app_id": "the-app", "action_id": "0", "user_id": "the-user"}
+}
+```
+
+#### Logging
+
+method: `log`  
+description: Emits a nearapps log.
+
+###### Parameters
+
+- `nearapps_tags`: object - the tags information.
+    - `app_id`: string - app tag.
+    - `action_id`: string - action number.
+    - `user_id`: string - user account_id tag.
+
+
+###### Returns
+
+Has no returns.
+
+
+###### Sample
+
+
+```json
+{
+  "nearapps_tags": {"app_id": "the-app", "action_id": "0", "user_id": "the-user"}
 }
 ```
 
@@ -87,7 +141,8 @@ methods:
 
 ##### Add Owner
 
-method: `add_owner`
+method: `add_owner`  
+description: Adds a new owner.  
 
 ###### Parameters
 
@@ -95,20 +150,20 @@ method: `add_owner`
 
 ###### Returns
 
-- `added`: boolean - whether the account was newly added as an owner.
+- `added`: boolean - whether the added account was a newly added one.
 
 ###### Sample
 
-<!-- TODO: update -->
-
 ```json
 {
+  "owner_id": "new-owner.testnet"
 }
 ```
 
 ##### Remove Owner
 
-method: `remove_owner`
+method: `remove_owner`  
+description: Removes a owner.  
 
 ###### Parameters
 
@@ -116,20 +171,20 @@ method: `remove_owner`
 
 ###### Returns
 
-- `removed`: boolean - whether the account just removed was as an owner.
+- `removed`: boolean - whether the removed account was just removed.
 
 ###### Sample
 
-<!-- TODO: update -->
-
 ```json
 {
+  "owner_id": "no-longer-owner.testnet"
 }
 ```
 
 ##### Check Owner
 
-method: `is_owner`
+method: `is_owner`  
+description: Checks if the given account is an owner.  
 
 ###### Parameters
 
@@ -141,20 +196,21 @@ method: `is_owner`
 
 ###### Sample
 
-<!-- TODO: update -->
-
 ```json
 {
+  "owner_id": "are-you-an-owner.testnet"
 }
 ```
 
 ##### Get Owners
 
-method: `get_owner`
+method: `get_owners`  
+description: Show owners.
 
 ###### Parameters
 
-No parameters required.
+- `from_index`: optional string - the number of how many owners to skip.
+- `limit`: optional number - 16-bits number to limit how many owners to show.
 
 ###### Returns
 
@@ -162,9 +218,10 @@ No parameters required.
 
 ###### Sample
 
-<!-- TODO: update -->
 
 ```json
 {
+  "from_index": "0",
+  "limit": 1
 }
 ```

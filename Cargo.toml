@@ -6,7 +6,7 @@ members = [
   "app-counter",
   "app-crypto",
   "app-exec",
-  "app-nft",
+  "app-nft-series",
   "app-send-near",
   "app-send-nft",
   "app-wallet",

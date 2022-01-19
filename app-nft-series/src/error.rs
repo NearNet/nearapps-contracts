@@ -16,19 +16,38 @@ pub enum Error {
     /// by a different predecessor.
     #[strum(serialize = "ERR_NOT_OWNER")]
     NotOwner,
+
     /// A standard minting operation tried to use the
     /// token-series delimiter on the token's name, which
     /// must not be allowed.
     #[strum(serialize = "ERR_NFT_TOKEN_ID_WITH_DELIMITER")]
     TokenIdWithSeriesDelimiter,
+
     #[strum(serialize = "ERR_NFT_SERIES_MISSING")]
     MissingSeries,
+
     #[strum(serialize = "ERR_NFT_SERIES_MAX_CAPACITY")]
     SeriesMaxCapacity,
+
     #[strum(serialize = "ERR_NFT_SERIES_NOT_MINTABLE")]
     SeriesNotMintable,
+
     #[strum(serialize = "ERR_NFT_SERIES_NOT_ENOUGH_CAPACITY")]
     SeriesNotEnoughtCapacity,
+
+    /// For security reasons, the nft transfers require an attached
+    /// amount of one yocto.
+    ///
+    /// For the nft contracts, this avoids limited accounts from directly
+    /// and explicitly  invoking the transfers. Because of this, we need
+    /// to attach this one yocto, but in order to not have to manage this
+    /// internally on the contract, it simply also requires that amount to
+    /// be attached, and forwards it to the transfer method call.
+    #[strum(serialize = "ERR_NFT_SERIES_REQUIRED_ONE_YOCTO")]
+    OneYoctoNearRequired,
+
+    #[strum(serialize = "ERR_NFT_SERIES_SERIES_ALREADY_CREATED")]
+    SeriesAlreadyCreated,
 }
 
 impl Error {

@@ -56,6 +56,8 @@ impl Executor {
             Error::CallCurrentAccount,
         );
 
+        // TODO: change how much GAS is forwarded.
+        // (the majority should be forwarded)
         Promise::new(contract_id).function_call(
             method_name,
             args.as_bytes().to_vec(),

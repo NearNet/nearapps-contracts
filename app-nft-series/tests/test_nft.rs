@@ -2,12 +2,13 @@
 
 use near_contract_standards::non_fungible_token as nft;
 pub use near_sdk::json_types::{Base64VecU8, U64};
+use near_sdk::serde_json::json;
 use near_sdk_sim::{call, init_simulator};
 use near_units::parse_near;
 use nearapps_log::{print_vec, NearAppsTags};
 use nearapps_near_ext::ExecutionExt;
-use nearapps_nft::error::Error;
-use nearapps_nft::series::{SeriesId, SeriesTokenIndex};
+use nearapps_nft_series::error::Error;
+use nearapps_nft_series::series::{SeriesId, SeriesTokenIndex};
 
 pub mod utils;
 
@@ -93,6 +94,10 @@ fn test_nft() {
 
     // ok: root mints the series for user0
     let tags = NearAppsTags::new("nft", 3, "root");
+    let args = json!({
+        "series_id": "1",
+        "token_owner_id": "receiver.testnet",
+    });
     let res = call!(
         &root,
         nft.nft_series_mint_logged(series_01_id, user(0), None, tags.clone()),

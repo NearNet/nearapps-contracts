@@ -47,6 +47,8 @@ trait OnSend {
 impl SendNear {
     #[init]
     pub fn new(owner: AccountId, nearapps_logger: AccountId) -> Self {
+        ensure(!env::state_exists(), Error::AlreadyInitialized);
+
         Self {
             owner,
             deposits: LookupMap::new(StorageKey::UserDeposits),

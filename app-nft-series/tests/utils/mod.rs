@@ -8,11 +8,11 @@ use near_units::parse_near;
 use nearapps_exec::ExecutorContract;
 use nft::metadata::TokenMetadata;
 
-use nearapps_nft::NftContract;
+use nearapps_nft_series::NftSeriesContract;
 
 near_sdk_sim::lazy_static_include::lazy_static_include_bytes! {
     EXEC_WASM_BYTES => "../res/nearapps_exec.wasm",
-    NFT_WASM_BYTES => "../res/nearapps_nft.wasm",
+    NFT_SERIES_WASM_BYTES => "../res/nearapps_nft_series.wasm",
 }
 
 pub fn setup_exec(root: &UserAccount) -> ContractAccount<ExecutorContract> {
@@ -27,11 +27,14 @@ pub fn setup_exec(root: &UserAccount) -> ContractAccount<ExecutorContract> {
     contract
 }
 
-pub fn setup_nft(root: &UserAccount, nearapps_acc: AccountId) -> ContractAccount<NftContract> {
+pub fn setup_nft(
+    root: &UserAccount,
+    nearapps_acc: AccountId,
+) -> ContractAccount<NftSeriesContract> {
     deploy!(
-        contract: NftContract,
+        contract: NftSeriesContract,
         contract_id: "nft".to_string(),
-        bytes: &NFT_WASM_BYTES,
+        bytes: &NFT_SERIES_WASM_BYTES,
         signer_account: root,
         deposit: parse_near!("200 N"),
         init_method: new_default_meta(root.account_id(), nearapps_acc)

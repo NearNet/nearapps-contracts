@@ -56,7 +56,11 @@ pub trait Owners {
     /// Show owners.
     ///
     /// Returns a list of `AccountId`'s.
-    fn get_owners(&self) -> Vec<AccountId>;
+    fn get_owners(
+        &self,
+        from_index: Option<near_sdk::json_types::U128>,
+        limit: Option<u16>,
+    ) -> Vec<AccountId>;
 }
 
 #[near_bindgen]
@@ -89,7 +93,13 @@ impl Owners for Executor {
     /// Show owners.
     ///
     /// Returns a list of `AccountId`'s.
-    fn get_owners(&self) -> Vec<AccountId> {
-        self.owner_ids.iter().collect()
+    fn get_owners(
+        &self,
+        from_index: Option<near_sdk::json_types::U128>,
+        limit: Option<u16>,
+    ) -> Vec<AccountId> {
+        let from_index = from_index.unwrap_or_else(|| 0.into()).0 as usize;
+        let limit = limit.unwrap_or(u16::MAX) as usize;
+        self.owner_ids.iter().skip(from_index).take(limit).collect()
     }
 }

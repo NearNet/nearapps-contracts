@@ -12,9 +12,12 @@ use strum_macros::Display;
 /// debugging and fixing the problem.
 #[derive(Debug, Display)]
 pub enum Error {
+    #[strum(serialize = "ERR_SEND_NEAR_ALREADY_INITIALIZED")]
+    AlreadyInitialized,
+
     /// A call that was supposed to be made by the owner was made
     /// by a different predecessor.
-    #[strum(serialize = "ERR_NOT_OWNER")]
+    #[strum(serialize = "ERR_SEND_NEAR_NOT_OWNER")]
     NotOwner,
 
     /// A [`env::promise_results_count()`] count != 1 was returned into

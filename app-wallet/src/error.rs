@@ -12,12 +12,18 @@ use strum_macros::Display;
 /// debugging and fixing the problem.
 #[derive(Debug, Display)]
 pub enum Error {
+    #[strum(serialize = "_ALREADY_INITIALIZED")]
+    AlreadyInitialized,
+
     #[strum(serialize = "ERR_WALLET_NOT_OWNER")]
     NotOwner,
+
     #[strum(serialize = "ERR_WALLET_CALLBACK_RESULTS")]
     BadCallbackResults,
+
     #[strum(serialize = "ERR_WALLET_ALREADY_QUEUED")]
     AccountAlreadyQueued,
+
     #[strum(serialize = "ERR_WALLET_LOW_DEPOSIT")]
     NotEnoughtDeposit,
 }
