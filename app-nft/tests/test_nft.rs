@@ -2,6 +2,7 @@
 
 use near_contract_standards::non_fungible_token as nft;
 pub use near_sdk::json_types::{Base64VecU8, U64};
+use near_sdk::serde_json;
 use near_sdk_sim::{call, init_simulator};
 use near_units::parse_near;
 use nearapps_log::{print_vec, NearAppsTags};
@@ -27,6 +28,7 @@ fn test_nft() {
         .collect();
 
     // ok: root mints a token for user0
+    let metadata = utils::token_metadata();
     let token_id_01 = &"token-01".to_string();
     let tags = NearAppsTags::new("nft", 0, "root");
     let res = call!(
