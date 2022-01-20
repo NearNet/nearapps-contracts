@@ -9,6 +9,7 @@ use nft::metadata::{
 };
 
 pub mod error;
+pub mod migration;
 pub mod series;
 pub mod transfer_call;
 pub mod utils;
@@ -24,19 +25,29 @@ pub struct NftSeries {
     series: UnorderedMap<series::SeriesId, series::Series>,
     next_series_id: series::SeriesId,
     series_minted_tokens: UnorderedMap<series::SeriesId, UnorderedSet<series::SeriesTokenIndex>>,
+    owner_ids: UnorderedSet<AccountId>,
     nearapps_logger: AccountId,
 }
 
 #[derive(BorshSerialize, BorshStorageKey)]
 enum StorageKey {
+    ///
+    /// Note: must be a name-only variant, otherwise it could
+    /// collide with [`nft::StorageKey::TokensPerOwner`].
     NonFungibleToken,
+    ///
+    /// Note: must be a name-only variant, otherwise it could
+    /// collide with [`nft::StorageKey::TokenPerOwnerInner`].
     Metadata,
     TokenMetadata,
     Enumeration,
     Approval,
     Series,
     TokensBySeries,
-    TokensBySeriesInner { series_id: series::SeriesId },
+    TokensBySeriesInner {
+        series_id: series::SeriesId,
+    },
+    Owners,
 }
 
 #[near_bindgen]
@@ -52,6 +63,8 @@ impl NftSeries {
     ) -> Self {
         require!(!env::state_exists(), "Already initialized");
         metadata.assert_valid();
+        let mut owner_ids = UnorderedSet::new(StorageKey::Owners);
+        owner_ids.insert(&owner_id);
         Self {
             tokens: nft::NonFungibleToken::new(
                 StorageKey::NonFungibleToken,
@@ -65,6 +78,7 @@ impl NftSeries {
             next_series_id: series::SeriesId(0),
             series_minted_tokens: UnorderedMap::new(StorageKey::TokensBySeries),
             nearapps_logger,
+            owner_ids,
         }
     }
 
