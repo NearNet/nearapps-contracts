@@ -49,15 +49,6 @@ METHOD="nft_series_create_logged"
 ARGS='{\"name\": \"my-series\", \"capacity\": \"5\", \"creator\": \"'"$USER0"'\", \"nearapps_tags\": '"$TAGS"'}'
 ARGS='{"contract_id": "'"$NFT_SERIES"'", "method_name": "'"$METHOD"'", "args": "'"$ARGS"'"}'
 METHOD="execute"
-near call \
-    "$EXEC" \
-    "$METHOD" \
-    "$ARGS" \
-    --accountId "$EXEC" \
-    --gas 300000000000000 
-# {"contract_id": "nft-series.dev-1642588081954-96822413824209", "method_name": "nft_series_create_logged", "args": "{\"name\": \"my-series\", \"capacity\": \"5\", \"creator\": \"user-0.dev-1642588081954-96822413824209\", \"nearapps_tags\": {"app_id": "nft_series", "action_id": "0", "user_id": "user0"}}"}
-
-
 eval SERIES_ID=`near call \
     "$EXEC" \
     "$METHOD" \
@@ -70,11 +61,12 @@ eval SERIES_ID=`near call \
 # '' from it - otherwise it would have single quotes, like '0'
 
 # exec mints a token from a series for user0
+TAGS='{\"app_id\": \"nft_series\", \"action_id\": \"1\", \"user_id\": \"user0\"}'
 METHOD="nft_series_mint"
 # note: for series id, we are using a value that's already a 
 # number (without single quotes).
-ARGS='{\"series_id\": \"'"$SERIES_ID"'\", \"token_owner_id\": \"'"$USER0"'\", \"token_metadata\": {\"title\": \"default-title\", \"description\": null, \"media\": null, \"media_hash\": null, \"copies\": null, \"issued_at\": null, \"expires_at\": null, \"starts_at\": null, \"updated_at\": null, \"extra\": null, \"reference\": null, \"reference_hash\": null}}'
-ARGS='{"context": {"contract_call": {"contract_id": "'"$NFT_SERIES"'", "method_name": "'"$METHOD"'", "args": "'"$ARGS"'"}, "tag_info": {"app_id": "some-app", "action_id": "1", "user_id": "'"$USER0"'"}}}'
+ARGS='{\"series_id\": \"'"$SERIES_ID"'\", \"token_owner_id\": \"'"$USER0"'\", \"token_metadata\": {\"title\": \"default-title\", \"description\": null, \"media\": null, \"media_hash\": null, \"copies\": null, \"issued_at\": null, \"expires_at\": null, \"starts_at\": null, \"updated_at\": null, \"extra\": null, \"reference\": null, \"reference_hash\": null}, \"nearapps_tags\": '"$TAGS"'}'
+ARGS='{"contract_id": "'"$NFT_SERIES"'", "method_name": "'"$METHOD"'", "args": "'"$ARGS"'"}'
 METHOD="execute"
 near call \
     "$EXEC" \

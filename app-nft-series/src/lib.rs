@@ -10,11 +10,13 @@ use nft::metadata::{
 
 pub mod error;
 pub mod migration;
+pub mod owner;
 pub mod series;
 pub mod transfer_call;
 pub mod utils;
 
 use error::Error;
+use owner::Owners;
 pub use series::SERIES_DELIMETER;
 
 #[near_bindgen]
@@ -101,17 +103,6 @@ impl NftSeries {
             },
             nearapps_logger,
         )
-    }
-
-    /// Gets the contract's owner.
-    pub fn get_owner(&mut self) -> AccountId {
-        self.tokens.owner_id.clone()
-    }
-
-    /// Changes the contract's owner.
-    pub fn change_owner(&mut self, new_owner: AccountId) {
-        self.assert_owner();
-        self.tokens.owner_id = new_owner;
     }
 
     /// Creates a new nft token.
@@ -616,19 +607,6 @@ pub mod std_impls {
 impl NonFungibleTokenMetadataProvider for NftSeries {
     fn nft_metadata(&self) -> NFTContractMetadata {
         self.metadata.get().unwrap()
-    }
-}
-
-pub trait Owner {
-    fn assert_owner(&self);
-}
-
-impl Owner for NftSeries {
-    fn assert_owner(&self) {
-        ensure(
-            env::predecessor_account_id() == self.tokens.owner_id,
-            Error::NotOwner,
-        )
     }
 }
 
