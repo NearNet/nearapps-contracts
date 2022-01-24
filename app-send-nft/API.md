@@ -21,7 +21,6 @@ methods:
 - `get_enabled_nfts_for_user`
 - `get_tokens_owned_by_users`
 - `get_tokens_for_user`
-- `user_send_logged`
 - `send_logged`
 - `send_call_logged`
 
@@ -265,8 +264,6 @@ methods:
 
 - `send_logged`
 - `send_call_logged`
-- `user_send_logged`
-- `user_send_call_logged`
 
 
 ##### Send
@@ -319,51 +316,3 @@ In case of an (external contract call) transfer failure, an internall callback w
 
 - `transfer_success`: bool - Whether the transfer was successful.
 
-##### Send (by user)
-
-method: `user_send_logged`  
-description: Sends the `token_id` to `receiver`.  
-This function is intended to be called by users, not by the send-nft owner. The `sender` is implicitly the predecessor. The send-nft owner should use `send_logged` instead.  
-This will de-register the token from the current user.
-In case of an (external contract call) transfer failure, an internall callback will re-register the token for the previous user.
-
-###### Parameters
-
-- `nft_contract`: string - The account_id of the nft contract where the token resides.
-- `receiver`: string - The account_id of who will receive the token on the nft_contract.
-- `token_id`: string - The token_id of the token that is being transferred.
-- `approval_id`: optional number - Expected approval ID. A number smaller than 2^53, and therefore representable as JSON. 
-- `memo`: optional string - free-form information.
-- `nearapps_tags`: object - the tags information.
-    - `app_id`: string - app tag.
-    - `action_id`: string - action number.
-    - `user_id`: string - user account_id tag.
-
-###### Returns
-
-- `transfer_success`: bool - Whether the transfer was successful.
-
-##### Send call (by user)
-
-method: `user_send_call_logged`  
-description: Sends the `token_id` to `receiver`, making the nft call a function on the receiver.  
-This function is intended to be called by users, not by the send-nft contract owner. The `sender` is implicitly the predecessor. The send-nft owner should use `send_call_logged` instead.  
-This will de-register the token from the current user.
-In case of an (external contract call) transfer failure, an internall callback will re-register the token for the previous user.
-
-###### Parameters
-
-- `nft_contract`: string - The account_id of the nft contract where the token resides.
-- `receiver`: string - The account_id of who will receive the token on the nft_contract.
-- `token_id`: string - The token_id of the token that is being transferred.
-- `approval_id`: optional number - Expected approval ID. A number smaller than 2^53, and therefore representable as JSON. 
-- `memo`: optional string - free-form information.
-- `memo`: optional string - free-form information that will be send to the receiver.
-- `nearapps_tags`: object - the tags information.
-    - `app_id`: string - app tag.
-    - `action_id`: string - action number.
-    - `user_id`: string - user account_id tag.
-
-###### Returns
-
-- `transfer_success`: bool - Whether the transfer was successful.

@@ -2,7 +2,6 @@ use near_contract_standards::non_fungible_token as nft;
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::{LazyOption, UnorderedMap, UnorderedSet};
 use near_sdk::{env, near_bindgen, require, AccountId, BorshStorageKey, PanicOnDefault};
-use nearapps_log::{NearAppsAccount, NearAppsTags};
 use nearapps_near_ext::ensure;
 use nft::metadata::{
     NFTContractMetadata, NonFungibleTokenMetadataProvider, TokenMetadata, NFT_METADATA_SPEC,
@@ -107,12 +106,11 @@ impl NftSeries {
     ///
     /// Adapted from the standard example.
     #[payable]
-    pub fn nft_mint_logged(
+    pub fn nft_mint(
         &mut self,
         token_id: nft::TokenId,
         token_owner_id: AccountId,
         token_metadata: TokenMetadata,
-        nearapps_tags: NearAppsTags,
     ) -> nft::Token {
         self.assert_owner();
 
@@ -123,26 +121,19 @@ impl NftSeries {
         );
 
         // standard minting
-        let token = self
-            .tokens
-            .internal_mint(token_id, token_owner_id, Some(token_metadata));
-
-        // best-effort call for nearapps log
-        let _ = self.log(nearapps_tags);
-
-        token
+        self.tokens
+            .internal_mint(token_id, token_owner_id, Some(token_metadata))
     }
 
     /// Creates a new nft token from a created token series.
     ///
     /// Adapted from the standard example.
     #[payable]
-    pub fn nft_series_mint_logged(
+    pub fn nft_series_mint(
         &mut self,
         series_id: series::SeriesId,
         token_owner_id: AccountId,
         token_metadata: Option<TokenMetadata>,
-        nearapps_tags: NearAppsTags,
     ) -> nft::Token {
         self.assert_owner();
 
@@ -178,14 +169,8 @@ impl NftSeries {
         });
 
         // standard minting
-        let token = self
-            .tokens
-            .internal_mint(token.0, token_owner_id, Some(token_metadata));
-
-        // best-effort call for nearapps log
-        let _ = self.log(nearapps_tags);
-
-        token
+        self.tokens
+            .internal_mint(token.0, token_owner_id, Some(token_metadata))
     }
 }
 

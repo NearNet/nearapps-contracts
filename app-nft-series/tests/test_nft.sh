@@ -45,18 +45,16 @@ near create-account \
 
 # exec creates a series for user0
 TAGS='{\"app_id\": \"nft_series\", \"action_id\": \"0\", \"user_id\": \"user0\"}'
-METHOD="nft_series_create_logged"
-ARGS='{\"name\": \"my-series\", \"capacity\": \"5\", \"creator\": \"'"$USER0"'\", \"nearapps_tags\": '"$TAGS"'}'
-ARGS='{"contract_id": "'"$NFT_SERIES"'", "method_name": "'"$METHOD"'", "args": "'"$ARGS"'"}'
-METHOD="execute"
+METHOD="nft_series_create"
+ARGS='{\"name\": \"my-series\", \"capacity\": \"5\", \"creator\": \"'"$USER0"'\"}'
+ARGS='{"contract_id": "'"$NFT_SERIES"'", "method_name": "'"$METHOD"'", "args": "'"$ARGS"'", "nearapps_tags": '"$TAGS"'}'
+METHOD="execute_then_log"
 near call \
     "$EXEC" \
     "$METHOD" \
     "$ARGS" \
     --accountId "$EXEC" \
     --gas 300000000000000 
-# {"contract_id": "nft-series.dev-1642588081954-96822413824209", "method_name": "nft_series_create_logged", "args": "{\"name\": \"my-series\", \"capacity\": \"5\", \"creator\": \"user-0.dev-1642588081954-96822413824209\", \"nearapps_tags\": {"app_id": "nft_series", "action_id": "0", "user_id": "user0"}}"}
-
 
 eval SERIES_ID=`near call \
     "$EXEC" \

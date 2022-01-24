@@ -2,7 +2,6 @@
 
 use near_contract_standards::non_fungible_token as nft;
 pub use near_sdk::json_types::{Base64VecU8, U64};
-use near_sdk::serde_json::{self, json};
 use near_sdk_sim::{call, init_simulator};
 use near_units::parse_near;
 use nearapps_log::{print_vec, NearAppsTags};
@@ -28,34 +27,20 @@ fn test_nft() {
         .collect();
 
     // ok: root mints a token for user0
-    let metadata = utils::token_metadata();
     let token_id_01 = &"token-01".to_string();
-    let tags = NearAppsTags::new("nft", 0, "root");
     let res = call!(
         &root,
-        nft.nft_mint_logged(
-            token_id_01.clone(),
-            user(0),
-            utils::token_metadata(),
-            tags.clone()
-        ),
+        nft.nft_mint(token_id_01.clone(), user(0), utils::token_metadata()),
         deposit = parse_near!("5630 microN")
     );
     print_vec(&res.all_logs());
-    assert!(res.all_logs().contains(&tags.to_string()));
     res.assert_success();
 
     // fail: similar, but not enought storage deposit
     let token_id_02 = &"token-02".to_string();
-    let tags = &NearAppsTags::new("nft", 1, "root");
     let res = call!(
         &root,
-        nft.nft_mint_logged(
-            token_id_02.clone(),
-            user(0),
-            utils::token_metadata(),
-            tags.clone()
-        ),
+        nft.nft_mint(token_id_02.clone(), user(0), utils::token_metadata()),
         // not enought deposit
         deposit = parse_near!("4290 microN") - 1
     );
@@ -79,33 +64,20 @@ fn test_nft() {
 
     // ok: root creates a series
     let series_01 = &"series-01".to_string();
-    let tags = NearAppsTags::new("nft", 2, "root");
     let res = call!(
         &root,
-        nft.nft_series_create_logged(
-            series_01.clone(),
-            SeriesTokenIndex(2),
-            root.account_id(),
-            tags.clone()
-        )
+        nft.nft_series_create(series_01.clone(), SeriesTokenIndex(2), root.account_id())
     );
     print_vec(&res.all_logs());
-    assert!(res.all_logs().contains(&tags.to_string()));
     let series_01_id: SeriesId = res.unwrap_json();
 
     // ok: root mints the series for user0
-    let tags = NearAppsTags::new("nft", 3, "root");
-    let args = json!({
-        "series_id": "1",
-        "token_owner_id": "receiver.testnet",
-    });
     let res = call!(
         &root,
-        nft.nft_series_mint_logged(series_01_id, user(0), None, tags.clone()),
+        nft.nft_series_mint(series_01_id, user(0), None),
         deposit = COMMON_ATTACHMENT
     );
     print_vec(&res.all_logs());
-    assert!(res.all_logs().contains(&tags.to_string()));
     let series_01_token_0: nft::Token = res.unwrap_json();
 
     // ok: user0 transfers it to user1
@@ -136,14 +108,12 @@ fn test_nft() {
     assert_eq!(tokens, vec!["series-01:0:0", "token-01"]);
 
     // ok: root mints the series for user2
-    let tags = NearAppsTags::new("nft", 4, "root");
     let res = call!(
         &root,
-        nft.nft_series_mint_logged(series_01_id, user(2), None, tags.clone()),
+        nft.nft_series_mint(series_01_id, user(2), None),
         deposit = COMMON_ATTACHMENT
     );
     print_vec(&res.all_logs());
-    assert!(res.all_logs().contains(&tags.to_string()));
     let _series_01_token_1: nft::Token = res.unwrap_json();
 
     // ok: get user2 tokens
@@ -158,10 +128,9 @@ fn test_nft() {
 
     // fail: root tries to mint on the same series again
     // (no more capacity)
-    let tags = &NearAppsTags::new("nft", 0, "user2");
     let res = call!(
         &root,
-        nft.nft_series_mint_logged(series_01_id, user(2), None, tags.clone()),
+        nft.nft_series_mint(series_01_id, user(2), None),
         deposit = COMMON_ATTACHMENT
     );
     print_vec(&res.all_logs());

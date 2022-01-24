@@ -13,14 +13,14 @@ methods:
 - `new_default_meta`
 - `get_owner`
 - `change_owner`
-- `nft_mint_logged`
-- `nft_series_create_logged`
-- `nft_series_mint_logged`
+- `nft_mint`
+- `nft_series_create`
+- `nft_series_mint`
 - `nft_series_supply`
 - `nft_series_get`
 - `nft_series_get_minted_tokens_vec`
-- `nft_series_set_mintable_logged`
-- `nft_series_set_capacity_logged`
+- `nft_series_set_mintable`
+- `nft_series_set_capacity`
 - `nft_transfer_logged`
 - `nft_transfer_call_logged`
 - `nft_token`
@@ -110,7 +110,7 @@ Has no returns.
 
 #### NFT Minting
 
-method: `nft_mint_logged`  
+method: `nft_mint`  
 description: Creates a new nft token.
 The `token_id` cannot contain the series delimiter character, which is `:`.
 
@@ -280,17 +280,17 @@ Has no return.
 
 methods:
 
-- `nft_series_create_logged`
+- `nft_series_create`
 - `nft_series_supply`
-- `nft_series_mint_logged`
+- `nft_series_mint`
 - `nft_series_get`
 - `nft_series_get_minted_tokens_vec`
-- `nft_series_set_mintable_logged`
-- `nft_series_set_capacity_logged`
+- `nft_series_set_mintable`
+- `nft_series_set_capacity`
 
 ##### NFT Series Creation
 
-method: `nft_series_create_logged`  
+method: `nft_series_create`  
 description: Creates a new NFT series.
 
 ###### Parameters
@@ -322,7 +322,7 @@ Has no parameters.
 
 ##### NFT Series Token Minting
 
-method: `nft_series_mint_logged`  
+method: `nft_series_mint`  
 description: Creates a new nft token from a created token series.
 
 ###### Parameters
@@ -377,7 +377,7 @@ description: Get minted tokens from a series.
 
 ##### NFT Series Set Mintable
 
-method: `nft_series_set_mintable_logged`  
+method: `nft_series_set_mintable`  
 description: Sets whether a series is mintable or not.
 
 ###### Parameters
@@ -395,7 +395,7 @@ Has no returns.
 
 ##### NFT Series Set Capacity
 
-method: `nft_series_set_capacity_logged`  
+method: `nft_series_set_capacity`  
 description: Sets the token capacity (the token max length) of a series.
 
 ###### Parameters
