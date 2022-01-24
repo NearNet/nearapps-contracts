@@ -41,19 +41,12 @@ fn test_nft() {
     ];
 
     // ok: root mints token0 for user0 on nftA
-    let tags = NearAppsTags::new("nftA", 0, "root");
     let res = call!(
         &root,
-        nftA.nft_mint_logged(
-            tokens[0].into(),
-            user(0),
-            utils::token_metadata(),
-            tags.clone()
-        ),
+        nftA.nft_mint(tokens[0].into(), user(0), utils::token_metadata()),
         deposit = parse_near!("5630 microN")
     );
     print_vec(&res.all_logs());
-    assert!(res.all_logs().contains(&tags.to_string()));
     res.assert_success();
 
     // fail: user0 sends token0 to send-nft,

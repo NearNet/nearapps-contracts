@@ -5,7 +5,6 @@ use near_sdk::collections::UnorderedSet;
 use near_sdk::json_types::U64;
 use near_sdk::serde::{Deserialize, Serialize};
 use near_sdk::{near_bindgen, AccountId};
-use nearapps_log::{NearAppsAccount, NearAppsTags};
 use nearapps_near_ext::{ensure, OrPanicStr};
 use serde_with::{serde_as, FromInto};
 
@@ -154,12 +153,11 @@ impl NftSeries {
     }
 
     /// Creates a new NFT series.
-    pub fn nft_series_create_logged(
+    pub fn nft_series_create(
         &mut self,
         name: SeriesName,
         capacity: SeriesTokenIndex,
         creator: AccountId,
-        nearapps_tags: NearAppsTags,
     ) -> SeriesId {
         self.assert_owner();
 
@@ -187,19 +185,15 @@ impl NftSeries {
 
         self.series.insert(&id, &series);
 
-        // best-effort call for nearapps log
-        let _ = self.log(nearapps_tags);
-
         id
     }
 
     /// Sets whether a series is mintable or not.
-    pub fn nft_series_set_mintable_logged(
+    pub fn nft_series_set_mintable(
         //
         &mut self,
         series_id: SeriesId,
         is_mintable: bool,
-        nearapps_tags: NearAppsTags,
     ) {
         self.assert_owner();
         let mut series = self.nft_series_get(series_id);
@@ -207,19 +201,15 @@ impl NftSeries {
             series.is_mintable = is_mintable;
             self.series.insert(&series_id, &series);
         }
-
-        // best-effort call for nearapps log
-        let _ = self.log(nearapps_tags);
     }
 
     /// Sets the token capacity (the token max length) of a
     /// series.
-    pub fn nft_series_set_capacity_logged(
+    pub fn nft_series_set_capacity(
         //
         &mut self,
         series_id: SeriesId,
         capacity: SeriesTokenIndex,
-        nearapps_tags: NearAppsTags,
     ) {
         self.assert_owner();
 
@@ -233,8 +223,5 @@ impl NftSeries {
         }
 
         self.series.insert(&series_id, &series);
-
-        // best-effort call for nearapps log
-        let _ = self.log(nearapps_tags);
     }
 }
