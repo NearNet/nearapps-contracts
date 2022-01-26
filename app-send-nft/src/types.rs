@@ -38,6 +38,8 @@ impl AsRef<[u8]> for NftContractId {
     }
 }
 
+struct TokenIdOwner {}
+
 /// The accountId of a Nft token owner.
 #[derive(BorshDeserialize, BorshSerialize, Serialize, Deserialize, PartialEq, Clone)]
 #[serde(crate = "near_sdk::serde")]

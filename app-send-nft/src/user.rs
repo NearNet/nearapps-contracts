@@ -7,7 +7,7 @@ use near_contract_standards::non_fungible_token as nft;
 use near_sdk::collections::{UnorderedMap, UnorderedSet};
 use near_sdk::json_types::U128;
 use near_sdk::{env, near_bindgen};
-use nearapps_near_ext::{ensure, OrPanicStr};
+use nearapps_near_ext::{ensure, fun, OrPanicStr};
 
 #[cfg(not(target_arch = "wasm32"))]
 use crate::SendNftContract;
@@ -154,11 +154,6 @@ impl SendNft {
 
         let from_index = from_index.map(u128::from).unwrap_or_default() as usize;
 
-        if tokens.len() != 1 {
-            env::log_str(&format!("line: {}. amount: {}", std::line!(), tokens.len()));
-        } else {
-            env::log_str(&format!("line: {}", std::line!()));
-        }
         let mut cursor = tokens.into_iter();
 
         let (limit, mut v) = {
@@ -177,15 +172,10 @@ impl SendNft {
         let first = cursor.nth(from_index);
         match first {
             None => {
-                env::log_str(&format!("line: {}", std::line!()));
                 return v;
             }
-            Some((token_id, user)) => {
-                env::log_str(&format!("line: {}", std::line!()));
-                v.push((token_id, user))
-            }
+            Some((token_id, user)) => v.push((token_id, user)),
         };
-        env::log_str(&format!("line: {}", std::line!()));
 
         // add remaining elements
         for (token_id, user) in cursor.take(limit) {

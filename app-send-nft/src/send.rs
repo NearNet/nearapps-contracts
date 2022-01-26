@@ -9,7 +9,7 @@ use near_sdk::{
 };
 use near_units::{parse_gas, parse_near};
 use nearapps_log::{NearAppsAccount, NearAppsTags};
-use nearapps_near_ext::{ensure, OrPanicStr};
+use nearapps_near_ext::{ensure, OrPanicStr, fun};
 
 #[cfg(not(target_arch = "wasm32"))]
 use crate::SendNftContract;
@@ -378,13 +378,19 @@ impl SendNft {
         nearapps_tags: NearAppsTags,
     ) -> bool {
         let undo_send = || {
-            SendNft::internal_receive_token_logged(
+            let undo_failed = SendNft::internal_receive_token_logged(
                 self,
                 nft_contract,
                 sender,
                 token_id,
                 nearapps_tags.clone(),
-            )
+            );
+
+            if undo_failed {
+                unimplemented!("undoing a transfer has failed");
+            }
+
+            false
         };
 
         if env::promise_results_count() != 1 {
@@ -456,23 +462,31 @@ impl SendNft {
         nearapps_tags: NearAppsTags,
     ) -> bool {
         let undo_send = || {
-            SendNft::internal_receive_token_logged(
+            let undo_failed = SendNft::internal_receive_token_logged(
                 self,
                 nft_contract,
                 sender,
                 token_id,
                 nearapps_tags.clone(),
-            )
+            );
+
+            if undo_failed {
+                unimplemented!("undoing a transfer has failed");
+            }
+
+            false
         };
 
         if env::promise_results_count() != 1 {
-            return !undo_send();
+            return undo_send();
         }
 
         use near_sdk::PromiseResult;
         match env::promise_result(0) {
             PromiseResult::NotReady => unimplemented!(),
-            PromiseResult::Failed => !undo_send(),
+            PromiseResult::Failed => {
+                undo_send()
+            },
             PromiseResult::Successful(success) => {
                 let success = near_sdk::serde_json::from_slice::<bool>(&success)
                     // the nft contract misbehaved.
@@ -482,7 +496,7 @@ impl SendNft {
                 if success {
                     true
                 } else {
-                    !undo_send()
+                    undo_send()
                 }
             }
         }
@@ -523,7 +537,6 @@ impl SendNft {
 
 
 impl SendNft {
-
 
     pub fn internal_unregister_token(
         &mut self,

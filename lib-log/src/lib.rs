@@ -1,3 +1,22 @@
+use near_sdk::Gas;
+
+/// Expected Gas that the best-effort logging operation could
+/// take.
+///
+/// Note:  This is currently a somehow high number because
+/// it's not defined whether some signature verification should
+/// take place during the logging operation.
+pub const GAS_FOR_BEST_EFFORT_LOG: Gas = Gas(15_000_000_000_000);
+
+/// Expected Gas that the callback logging operation could
+/// take.
+///
+/// Note:  This is currently a somehow high number because
+/// it's not defined whether some signature verification should
+/// take place and how high the result bytes forwarding
+/// operations could cost.
+pub const GAS_FOR_ON_LOG: Gas = Gas(35_000_000_000_000);
+
 /// Tag information required by NearApps.
 #[derive(near_sdk::serde::Serialize, near_sdk::serde::Deserialize, Clone, Debug)]
 #[serde(crate = "near_sdk::serde")]
@@ -84,7 +103,7 @@ pub trait NearAppsAccount {
             nearapps_tags,
             self.nearapps_account(),
             0,
-            near_sdk::Gas(15_000_000_000_000),
+            GAS_FOR_BEST_EFFORT_LOG,
         )
     }
 
@@ -95,12 +114,7 @@ pub trait NearAppsAccount {
     ///
     /// Should be used as a callback for returning a value.
     fn on_log_result(&self, nearapps_tags: NearAppsTags) -> near_sdk::Promise {
-        ext_log::on_log_result(
-            nearapps_tags,
-            self.nearapps_account(),
-            0,
-            near_sdk::Gas(35_000_000_000_000),
-        )
+        ext_log::on_log_result(nearapps_tags, self.nearapps_account(), 0, GAS_FOR_ON_LOG)
     }
 }
 

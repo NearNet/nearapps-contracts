@@ -51,9 +51,6 @@ impl Counter {
     pub fn increment_non_logging(&mut self) -> u8 {
         self.val += 1;
 
-        // // best-effort call for nearapps log
-        // let _ = self.log(nearapps_tags);
-
         self.val
     }
 
