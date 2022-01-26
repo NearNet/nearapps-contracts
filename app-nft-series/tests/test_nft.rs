@@ -70,6 +70,8 @@ fn test_nft() {
     );
     print_vec(&res.all_logs());
     let series_01_id: SeriesId = res.unwrap_json();
+    let log = r#"EVENT_JSON:{"standard":"nep171","version":"1.0.0","event":"nft_series_create","data":[{"owner_id":"root","series":["series-01:0"]}]}"#;
+    assert!(res.logs().contains(&log.to_string()));
 
     // ok: root mints the series for user0
     let res = call!(
@@ -79,6 +81,8 @@ fn test_nft() {
     );
     print_vec(&res.all_logs());
     let series_01_token_0: nft::Token = res.unwrap_json();
+    let log = r#"EVENT_JSON:{"standard":"nep171","version":"1.0.0","event":"nft_mint","data":[{"owner_id":"user0","token_ids":["series-01:0:0"]}]}"#;
+    assert!(res.logs().contains(&log.to_string()));
 
     // ok: user0 transfers it to user1
     let tags = NearAppsTags::new("nft", 0, "user1");
@@ -115,6 +119,8 @@ fn test_nft() {
     );
     print_vec(&res.all_logs());
     let _series_01_token_1: nft::Token = res.unwrap_json();
+    let log = r#"EVENT_JSON:{"standard":"nep171","version":"1.0.0","event":"nft_mint","data":[{"owner_id":"user2","token_ids":["series-01:0:1"]}]}"#;
+    assert!(res.logs().contains(&log.to_string()));
 
     // ok: get user2 tokens
     let res = call!(
@@ -136,4 +142,6 @@ fn test_nft() {
     print_vec(&res.all_logs());
     assert!(res.all_logs().is_empty());
     res.assert_failure(0, Error::SeriesNotMintable);
+    let non_log = r#"EVENT_JSON:{"standard":"nep171","version":"1.0.0","event":"nft_mint","data":[{"owner_id":"user2","token_ids":["series-01:0:2"]}]}"#;
+    assert!(!res.logs().contains(&non_log.to_string()));
 }

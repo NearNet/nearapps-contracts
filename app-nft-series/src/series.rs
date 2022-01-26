@@ -4,7 +4,7 @@ use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::UnorderedSet;
 use near_sdk::json_types::U64;
 use near_sdk::serde::{Deserialize, Serialize};
-use near_sdk::{near_bindgen, AccountId};
+use near_sdk::{env, near_bindgen, AccountId};
 use nearapps_near_ext::{ensure, OrPanicStr};
 use serde_with::{serde_as, FromInto};
 
@@ -166,8 +166,8 @@ impl NftSeries {
 
         let series = Series {
             id,
-            name,
-            creator,
+            name: name.clone(),
+            creator: creator.clone(),
             len: SeriesTokenIndex(0),
             capacity,
             is_mintable: true,
@@ -184,6 +184,10 @@ impl NftSeries {
         );
 
         self.series.insert(&id, &series);
+
+        // ~NEP171 (Non-Fungible Token Event) 1.0.0(?)
+        // note: event:nft_series_create is not on the std 1.0.0
+        env::log_str(&format!("EVENT_JSON:{{\"standard\":\"nep171\",\"version\":\"1.0.0\",\"event\":\"nft_series_create\",\"data\":[{{\"owner_id\":\"{}\",\"series\":[\"{}:{}\"]}}]}}", creator.as_str(), name, id.0));
 
         id
     }

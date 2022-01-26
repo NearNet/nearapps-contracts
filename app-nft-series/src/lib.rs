@@ -121,8 +121,14 @@ impl NftSeries {
         );
 
         // standard minting
-        self.tokens
-            .internal_mint(token_id, token_owner_id, Some(token_metadata))
+        let token =
+            self.tokens
+                .internal_mint(token_id, token_owner_id.clone(), Some(token_metadata));
+
+        // NEP171 (Non-Fungible Token Event) 1.0.0
+        env::log_str(&format!("EVENT_JSON:{{\"standard\":\"nep171\",\"version\":\"1.0.0\",\"event\":\"nft_mint\",\"data\":[{{\"owner_id\":\"{}\",\"token_ids\":[\"{}\"]}}]}}", token_owner_id.as_str(), token.token_id.as_str()));
+
+        token
     }
 
     /// Creates a new nft token from a created token series.
@@ -169,8 +175,14 @@ impl NftSeries {
         });
 
         // standard minting
-        self.tokens
-            .internal_mint(token.0, token_owner_id, Some(token_metadata))
+        let token =
+            self.tokens
+                .internal_mint(token.0, token_owner_id.clone(), Some(token_metadata));
+
+        // NEP171 (Non-Fungible Token Event) 1.0.0
+        env::log_str(&format!("EVENT_JSON:{{\"standard\":\"nep171\",\"version\":\"1.0.0\",\"event\":\"nft_mint\",\"data\":[{{\"owner_id\":\"{}\",\"token_ids\":[\"{}\"]}}]}}", token_owner_id.as_str(), token.token_id.as_str()));
+
+        token
     }
 }
 
