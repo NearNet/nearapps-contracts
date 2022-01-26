@@ -13,7 +13,7 @@ fn simulate_increment() {
     let exec = utils::setup_exec(&root);
     let counter = utils::setup_counter(&root, exec.account_id());
 
-    let mut current_num: i8 = view!(counter.get()).unwrap_json();
+    let mut current_num: u32 = view!(counter.get()).unwrap_json();
     assert_eq!(&current_num, &0);
 
     let tags = NearAppsTags::new("counter", 0, "root");

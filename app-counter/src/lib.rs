@@ -9,7 +9,7 @@ use nearapps_near_ext::{ensure, OrPanicStr};
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize, PanicOnDefault)]
 pub struct Counter {
-    val: u8,
+    val: u32,
     nearapps_logger: AccountId,
 }
 
@@ -21,8 +21,8 @@ impl nearapps_log::NearAppsAccount for Counter {
 
 #[near_sdk::ext_contract(ext_self)]
 pub trait ExtSelf {
-    fn increment() -> u8;
-    fn call_until(value: u8, target: u8) -> u8;
+    fn increment() -> u32;
+    fn call_until(value: u32, target: u32) -> u32;
 }
 
 #[near_bindgen]
@@ -35,11 +35,11 @@ impl Counter {
         }
     }
 
-    pub fn get(&self) -> u8 {
+    pub fn get(&self) -> u32 {
         self.val
     }
 
-    pub fn increment(&mut self, nearapps_tags: NearAppsTags) -> u8 {
+    pub fn increment(&mut self, nearapps_tags: NearAppsTags) -> u32 {
         self.val += 1;
 
         // best-effort call for nearapps log
@@ -48,7 +48,7 @@ impl Counter {
         self.val
     }
 
-    pub fn increment_non_logging(&mut self) -> u8 {
+    pub fn increment_non_logging(&mut self) -> u32 {
         self.val += 1;
 
         // // best-effort call for nearapps log
@@ -57,7 +57,7 @@ impl Counter {
         self.val
     }
 
-    pub fn decrement(&mut self, nearapps_tags: NearAppsTags) -> u8 {
+    pub fn decrement(&mut self, nearapps_tags: NearAppsTags) -> u32 {
         self.val -= 1;
 
         // best-effort call for nearapps log
@@ -73,7 +73,7 @@ impl Counter {
         let _ = self.log(nearapps_tags);
     }
 
-    pub fn set(&mut self, val: u8, nearapps_tags: NearAppsTags) {
+    pub fn set(&mut self, val: u32, nearapps_tags: NearAppsTags) {
         self.val = val;
 
         // best-effort call for nearapps log
@@ -81,8 +81,8 @@ impl Counter {
     }
 
     // return multiple values
-    pub fn min_max() -> (u8, u8) {
-        (u8::MIN, u8::MAX)
+    pub fn min_max() -> (u32, u32) {
+        (u32::MIN, u32::MAX)
     }
 
     // returns promise
@@ -104,11 +104,11 @@ impl Counter {
     }
 
     #[payable]
-    pub fn deposit(&mut self, increment: bool, nearapps_tags: NearAppsTags) -> u8 {
+    pub fn deposit(&mut self, increment: bool, nearapps_tags: NearAppsTags) -> u32 {
         if increment {
             let attached = env::attached_deposit();
-            assert!(attached <= u8::MAX as u128);
-            self.val += attached as u8;
+            assert!(attached <= u32::MAX as u128);
+            self.val += attached as u32;
         }
 
         // best-effort call for nearapps log
@@ -119,9 +119,9 @@ impl Counter {
 
     #[payable]
     #[allow(clippy::let_and_return)]
-    pub fn withdraw(&mut self, qty: u8, decrement: bool, nearapps_tags: NearAppsTags) -> Promise {
+    pub fn withdraw(&mut self, qty: u32, decrement: bool, nearapps_tags: NearAppsTags) -> Promise {
         if decrement {
-            self.val -= qty as u8;
+            self.val -= qty as u32;
         }
         let transfer = Promise::new(env::predecessor_account_id())
             //
@@ -135,7 +135,7 @@ impl Counter {
 
     /// Calls repeteadly into itself until `value`
     /// reaches `target`.
-    pub fn call_until(value: u8, target: u8) -> near_sdk::PromiseOrValue<u8> {
+    pub fn call_until(value: u32, target: u32) -> near_sdk::PromiseOrValue<u32> {
         const GAS_CURRENT: Gas = Gas(parse_gas!("5 Tgas") as u64);
         let gas = env::prepaid_gas() - env::used_gas() - GAS_CURRENT;
 
