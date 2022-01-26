@@ -1,4 +1,6 @@
 #![allow(clippy::let_and_return)]
+#[macro_use]
+pub mod macros;
 
 pub mod error;
 

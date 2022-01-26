@@ -38,6 +38,13 @@ impl AsRef<[u8]> for NftContractId {
     }
 }
 
+// TODO: use for making stateful changes in a token situation
+// to prevent a nft contract from being deregistered
+// during a transfer_call of it's last token,
+// since that transfer_call might fail and the nft deregistration
+// should have been invalid
+struct TokenIdOwner {}
+
 /// The accountId of a Nft token owner.
 #[derive(BorshDeserialize, BorshSerialize, Serialize, Deserialize, PartialEq, Clone)]
 #[serde(crate = "near_sdk::serde")]

@@ -111,6 +111,16 @@ impl SendNft {
         Self::internal_receive_token(self, nft_contract, previous_owner_id, token_id)
     }
 
+    /// Receive tokens.
+    ///
+    /// Must not panic.
+    ///
+    /// Returns "token_denied",  
+    /// ie. `true` means the token was denied and
+    /// should be returned back to the previous_owner.  
+    /// Otherwise, `false` means the token receivement was accepted.
+    ///
+    /// Can also be used during a token transfer rollback.
     pub fn internal_receive_token(
         &mut self,
         nft_contract: NftContractId,
@@ -135,7 +145,6 @@ impl SendNft {
 
         let previous = token_owners.get(&token_id);
         if previous.is_some() {
-            env::log_str(&format!("previous owner: {}", previous.unwrap().0));
             env::log_str(Error::NftTokenAlreadyOwned.to_string().as_str());
             return true;
         }
@@ -171,7 +180,6 @@ impl SendNft {
             .nft_tokens_per_user
             .insert(&previous_owner_id, &tokens_per_owner);
 
-        env::log_str(&format!("line: {}", std::line!()));
         false
     }
 }

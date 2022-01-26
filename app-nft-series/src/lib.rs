@@ -201,8 +201,6 @@ pub mod std_impls {
     ///
     /// [core non-fungible token standard]: https://nomicon.io/Standards/NonFungibleToken/Core.html
     use nft::core::NonFungibleTokenCore;
-    use nft::core::NonFungibleTokenResolver;
-    use std::collections::HashMap;
     #[near_bindgen]
     impl NftSeries {
         /// Copy of the std documentation:  
@@ -288,32 +286,18 @@ pub mod std_impls {
             msg: String,
             nearapps_tags: NearAppsTags,
         ) -> PromiseOrValue<bool> {
-            let res = crate::transfer_call::nft_transfer_call(
+            // avoids using the standard implementation on
+            // `self.tokens.nft_transfer_call`
+            // because the GAS requirement setup isn't sufficient
+            crate::transfer_call::nft_transfer_call(
                 &mut self.tokens,
                 receiver_id,
                 token_id,
                 approval_id,
                 memo,
                 msg,
-            );
-
-            // avoids using the standard implementation,
-            // because the GAS requirement setup isn't sufficient
-            //
-            // self
-            //     .tokens
-            //     .nft_transfer_call(
-            //          receiver_id,
-            //          token_id,
-            //          approval_id,
-            //          memo,
-            //          msg
-            //      );
-
-            // best-effort call for nearapps log
-            let _ = self.log(nearapps_tags);
-
-            res
+                nearapps_tags,
+            )
         }
 
         /// Copy of the std documentation:  
@@ -324,58 +308,6 @@ pub mod std_impls {
             token_id: TokenId,
         ) -> Option<Token> {
             self.tokens.nft_token(token_id)
-        }
-    }
-
-    /// All functions are just the expanded macros from the standard,
-    /// except that a logging procedure is inserted at the end
-    /// of the state-changing  functions.
-    ///
-    /// Copy of the std documentation:  
-    /// Used when an NFT is transferred using `nft_transfer_call`. This is the method that's called after `nft_on_transfer`. This trait is implemented on the NFT contract.
-    #[near_bindgen]
-    impl NonFungibleTokenResolver for NftSeries {
-        /// Copy of the std documentation:  
-        /// Finalize an `nft_transfer_call` chain of cross-contract calls.
-        ///
-        /// The `nft_transfer_call` process:
-        ///
-        /// 1. Sender calls `nft_transfer_call` on FT contract
-        /// 2. NFT contract transfers token from sender to receiver
-        /// 3. NFT contract calls `nft_on_transfer` on receiver contract
-        /// 4+. [receiver contract may make other cross-contract calls]
-        /// N. NFT contract resolves promise chain with `nft_resolve_transfer`, and may
-        ///    transfer token back to sender
-        ///
-        /// Requirements:
-        /// * Contract MUST forbid calls to this function by any account except self
-        /// * If promise chain failed, contract MUST revert token transfer
-        /// * If promise chain resolves with `true`, contract MUST return token to
-        ///   `sender_id`
-        ///
-        /// Arguments:
-        /// * `previous_owner_id`: the owner prior to the call to `nft_transfer_call`
-        /// * `receiver_id`: the `receiver_id` argument given to `nft_transfer_call`
-        /// * `token_id`: the `token_id` argument given to `ft_transfer_call`
-        /// * `approvals`: if using Approval Management, contract MUST provide
-        ///   set of original approved accounts in this argument, and restore these
-        ///   approved accounts in case of revert.
-        ///
-        /// Returns true if token was successfully transferred to `receiver_id`.
-        #[private]
-        fn nft_resolve_transfer(
-            &mut self,
-            previous_owner_id: AccountId,
-            receiver_id: AccountId,
-            token_id: TokenId,
-            approved_account_ids: Option<HashMap<AccountId, u64>>,
-        ) -> bool {
-            self.tokens.nft_resolve_transfer(
-                previous_owner_id,
-                receiver_id,
-                token_id,
-                approved_account_ids,
-            )
         }
     }
 
