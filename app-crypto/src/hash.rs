@@ -12,7 +12,7 @@ impl Crypto {
     ///
     /// The returned hash has a total size of 32-bytes.
     ///
-    /// See also: [`Self::hash_sha256_msg`]
+    /// See also: [`Crypto::hash_sha256_msg`]
     pub fn hash_sha256(msg_bytes: Vec<u8>) -> Sha256 {
         Sha256::hash(msg_bytes)
     }
@@ -22,7 +22,7 @@ impl Crypto {
     ///
     /// The returned hash has a total size of 32-bytes.
     ///
-    /// See also: [`Self::hash_sha256`]
+    /// See also: [`Crypto::hash_sha256`]
     pub fn hash_sha256_msg(msg: String) -> Sha256 {
         Sha256::hash_msg(msg)
     }
@@ -31,7 +31,7 @@ impl Crypto {
     ///
     /// The returned hash has a total size of 64-bytes.
     ///
-    /// See also: [`Self::hash_sha512_msg`]
+    /// See also: [`Crypto::hash_sha512_msg`]
     pub fn hash_sha512(msg_bytes: Vec<u8>) -> Sha512 {
         Sha512::hash(msg_bytes)
     }
@@ -41,7 +41,7 @@ impl Crypto {
     ///
     /// The returned hash has a total size of 64-bytes.
     ///
-    /// See also: [`Self::hash_sha512`]
+    /// See also: [`Crypto::hash_sha512`]
     pub fn hash_sha512_msg(msg: String) -> Sha512 {
         Sha512::hash_msg(msg)
     }

@@ -5,6 +5,7 @@ use nearapps_near_ext::ensure;
 
 pub mod error;
 pub mod exec;
+pub mod version;
 
 use error::Error;
 

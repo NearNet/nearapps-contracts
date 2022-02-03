@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["Thiago Machado <thiago@chikai.io>"]
 edition = "2018"
 resolver = "2"
+build = "build.rs"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
@@ -73,6 +74,9 @@ version = "0.20.3"
 default-features = false
 # features = ["std", "recovery", "serde", "lowmemory"]
 features = ["alloc", "recovery", "serde"]
+
+[build-dependencies]
+nearapps-near-ext = {path = "../lib-near-ext/", default-features = false, features = []}
 
 # [profile.release]
 # codegen-units = 1

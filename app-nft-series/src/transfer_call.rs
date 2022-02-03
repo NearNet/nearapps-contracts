@@ -34,7 +34,9 @@ trait NFTResolver {
     ) -> bool;
 }
 
-/// Based on [`nft::NonFungibleToken::nft_transfer_call`].
+/// Based on impl
+/// [`nft::core::NonFungibleTokenCore::nft_transfer_call`]
+/// of [`nft::NonFungibleToken`].
 pub fn nft_transfer_call(
     token: &mut nft::NonFungibleToken,
     receiver_id: AccountId,
@@ -82,9 +84,15 @@ pub fn nft_transfer_call(
 #[near_bindgen]
 // impl NonFungibleTokenResolver for NonFungibleToken{}
 /// Copy of the std documentation:  
-/// Used when an NFT is transferred using `nft_transfer_call`. This is the method that's called after `nft_on_transfer`. This trait is implemented on the NFT contract.
+/// Used when an NFT is transferred using `nft_transfer_call`.
+/// This is the method that's called after `nft_on_transfer`.
+/// This trait is implemented on the NFT contract.
 impl NftSeries {
-    /// Based on [`nft::NonFungibleToken::nft_resolve_transfer`].
+    /// Based on impl
+    /// [`nft::core::NonFungibleTokenResolver::nft_resolve_transfer`]
+    /// of [`nft::NonFungibleToken`].
+    ///
+    ///
     ///
     /// Copy of the std documentation:  
     /// Finalize an `nft_transfer_call` chain of cross-contract calls.

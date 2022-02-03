@@ -10,6 +10,7 @@ use near_units::parse_gas;
 use nearapps_near_ext::ensure;
 
 pub mod error;
+pub mod version;
 
 pub use error::Error;
 
@@ -123,7 +124,7 @@ impl AccountManager {
     /// The accounts, while being created, first enter a queue from which
     /// they are removed once the successfull creation has been
     /// confirmed.  
-    /// The created account names are then tracked in [`Self::accounts`].
+    /// The created account names are then tracked in [`AccountManager::accounts`].
     #[payable]
     pub fn create_account(
         &mut self,

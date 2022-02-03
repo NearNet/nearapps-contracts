@@ -20,7 +20,7 @@ pub enum Error {
     #[strum(serialize = "ERR_SEND_NEAR_NOT_OWNER")]
     NotOwner,
 
-    /// A [`env::promise_results_count()`] count != 1 was returned into
+    /// A [`near_sdk::env::promise_results_count()`] count != 1 was returned into
     /// the callback.  
     /// It should be exactly `1`.
     ///
