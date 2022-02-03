@@ -1,10 +1,12 @@
 #![allow(clippy::let_and_return)]
+
 #[macro_use]
 pub mod macros;
 
 pub mod error;
-
 pub mod types;
+
+pub mod version;
 
 #[cfg(feature = "sim")]
 pub mod sim;
@@ -22,3 +24,5 @@ pub use sim::ExecutionExt;
 
 #[cfg(feature = "sim")]
 pub use workspace::Call;
+
+pub use version::{IVersion, Version};

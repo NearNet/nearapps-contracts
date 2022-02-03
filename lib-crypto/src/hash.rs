@@ -124,7 +124,7 @@ impl Sha256 {
     ///
     /// The returned hash has a total size of 32-bytes.
     ///
-    /// See also: [`Self::hash_sha256_msg`]
+    /// See also: [`Sha256::hash_sha256_msg`]
     pub fn hash(msg_bytes: Vec<u8>) -> Self {
         let hash = env::sha256(&msg_bytes);
         let hash = hash.as_slice();
@@ -139,7 +139,7 @@ impl Sha256 {
     ///
     /// The returned hash has a total size of 32-bytes.
     ///
-    /// See also: [`Self::hash_sha256`]
+    /// See also: [`Sha256::hash_sha256`]
     pub fn hash_msg(msg: String) -> Self {
         let hash = env::sha256(msg.as_bytes());
         let hash = hash.as_slice();
@@ -155,7 +155,7 @@ impl Sha512 {
     ///
     /// The returned hash has a total size of 64-bytes.
     ///
-    /// See also: [`Self::hash_sha512_msg`]
+    /// See also: [`Sha512::hash_sha512_msg`]
     pub fn hash(msg_bytes: Vec<u8>) -> Self {
         Sha512::hash_bytes(&msg_bytes)
     }
@@ -165,7 +165,7 @@ impl Sha512 {
     ///
     /// The returned hash has a total size of 64-bytes.
     ///
-    /// See also: [`Self::hash_sha512`]
+    /// See also: [`Sha512::hash_sha512`]
     pub fn hash_msg(msg: String) -> Self {
         Sha512::hash_bytes(msg.as_bytes())
     }

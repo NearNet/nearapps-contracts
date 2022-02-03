@@ -6,6 +6,8 @@ use near_units::parse_gas;
 use nearapps_log::{NearAppsAccount, NearAppsTags};
 use nearapps_near_ext::{ensure, OrPanicStr};
 
+pub mod version;
+
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize, PanicOnDefault)]
 pub struct Counter {

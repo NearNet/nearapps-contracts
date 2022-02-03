@@ -8,6 +8,10 @@ use near_sdk::{env, near_bindgen, AccountId};
 use nearapps_near_ext::{ensure, OrPanicStr};
 use serde_with::{serde_as, FromInto};
 
+#[allow(unused_imports)]
+use near_contract_standards::non_fungible_token as nft;
+// note: import used for documentation
+
 pub const SERIES_DELIMETER: char = ':';
 
 #[cfg(not(target_arch = "wasm32"))]

@@ -6,6 +6,10 @@ use near_sdk::collections::{LookupMap, UnorderedMap};
 use near_sdk::{env, near_bindgen, AccountId, BorshStorageKey, PanicOnDefault};
 use nearapps_near_ext::ensure;
 
+#[allow(unused_imports)]
+use near_contract_standards::non_fungible_token as nft;
+// note: import used for documentation
+
 pub mod error;
 pub mod ext_nft;
 pub mod nft_receiver;
@@ -14,6 +18,7 @@ pub mod protocol;
 pub mod send;
 pub mod types;
 pub mod user;
+pub mod version;
 
 use error::Error;
 use types::{NftContractId, NftUserAccountId, Sha256From, TokenSetForNftContract, UserByTokenId};

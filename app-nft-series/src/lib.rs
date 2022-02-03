@@ -11,6 +11,7 @@ pub mod error;
 pub mod series;
 pub mod transfer_call;
 pub mod utils;
+pub mod version;
 
 use error::Error;
 pub use series::SERIES_DELIMETER;
@@ -224,11 +225,11 @@ pub mod std_impls {
         /// * Contract MUST panic if called by someone other than token owner or,
         ///   if using Approval Management, one of the approved accounts
         /// * `approval_id` is for use with Approval Management,
-        ///   see https://nomicon.io/Standards/NonFungibleToken/ApprovalManagement.html
+        ///   see <https://nomicon.io/Standards/NonFungibleToken/ApprovalManagement.html>
         /// * If using Approval Management, contract MUST nullify approved accounts on
         ///   successful transfer.
         /// * TODO: needed? Both accounts must be registered with the contract for transfer to
-        ///   succeed. See see https://nomicon.io/Standards/StorageManagement.html
+        ///   succeed. See see <https://nomicon.io/Standards/StorageManagement.html>
         ///
         /// Arguments:
         /// * `receiver_id`: the valid NEAR account receiving the token

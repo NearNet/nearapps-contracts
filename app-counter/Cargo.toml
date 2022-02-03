@@ -4,9 +4,11 @@ version = "0.1.0"
 authors = ["Near Inc <hello@near.org>", "Thiago Machado <thiago@chikai.io>"]
 edition = "2018"
 resolver = "2"
+build = "build.rs"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
+
 
 [dependencies]
 near-sdk = {version = "4.0.0-pre.4", features = ["unstable"]}
@@ -14,7 +16,11 @@ near-units = "0.1.0"
 nearapps-near-ext = {path = "../lib-near-ext/", default-features = false, features = []}
 nearapps-log = {path = "../lib-log"}
 
+
 [dev-dependencies]
 near-sdk-sim = "4.0.0-pre.4"
 nearapps-near-ext = {path = "../lib-near-ext/", features = ["sim"]}
 nearapps-exec = { path = "../app-exec" }
+
+[build-dependencies]
+nearapps-near-ext = {path = "../lib-near-ext/", default-features = false, features = []}

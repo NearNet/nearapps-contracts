@@ -18,7 +18,7 @@ impl SendNft {
     /// Register a user on this contract.
     ///
     /// The user must also have specific nft contracts enabled
-    /// for them. See [`Self::enable_nft_for_user`].
+    /// for them. See [`SendNft::enable_nft_for_user`].
     #[payable]
     pub fn add_user(&mut self, user: NftUserAccountId) {
         self.assert_owner();
@@ -58,7 +58,7 @@ impl SendNft {
     /// from that nft contract.
     ///
     /// The user must also be registered themselves,
-    /// see [`Self::add_user`].
+    /// see [`SendNft::add_user`].
     pub fn enable_nft_for_user(&mut self, user: NftUserAccountId, nft: NftContractId) {
         self.assert_owner();
 

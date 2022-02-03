@@ -3,4 +3,4 @@ set -ex
 
 PROJECT_NAME="nearapps-nft-series"
 
-./../build.sh -p "$PROJECT_NAME" "$@"
+./../test.sh -p "$PROJECT_NAME" "$@"

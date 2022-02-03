@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["Thiago Machado <thiago@chikai.io>"]
 edition = "2018"
 resolver = "2"
+build = "build.rs"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
@@ -31,3 +32,6 @@ path = "../app-exec/"
 # version = "1.0.1"
 # default-features = false
 # features = ["u64_backend"]
+
+[build-dependencies]
+nearapps-near-ext = {path = "../lib-near-ext/", default-features = false, features = []}

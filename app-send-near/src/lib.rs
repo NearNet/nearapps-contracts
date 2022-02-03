@@ -14,6 +14,7 @@ use nearapps_log::{NearAppsAccount, NearAppsTags};
 use nearapps_near_ext::{ensure, types::JBalance, OrPanicStr};
 
 pub mod error;
+pub mod version;
 
 use error::Error;
 

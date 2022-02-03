@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["Thiago Machado <thiago@chikai.io>"]
 edition = "2018"
 resolver = "2"
+build = "build.rs"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
@@ -22,6 +23,9 @@ near-sdk-sim = "4.0.0-pre.4"
 nearapps-near-ext = {path = "../lib-near-ext/", features = ["sim"]}
 nearapps-exec = { path = "../app-exec" }
 nearapps-nft-series = { path = "../app-nft-series" }
+
+[build-dependencies]
+nearapps-near-ext = {path = "../lib-near-ext/", default-features = false, features = []}
 
 # [profile.release]
 # codegen-units = 1
