@@ -9,6 +9,7 @@ members = [
   "app-nft-series",
   "app-send-near",
   "app-send-nft",
+  "app-user-factory",
   "app-wallet",
   "lib-crypto",
   "lib-log",

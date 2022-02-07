@@ -11,6 +11,7 @@ PROJECT_DIR=( \
   "app-nft-series" \
   "app-send-near" \
   "app-send-nft" \
+  "app-user-factory" \
   "app-wallet" \
 )
 # every app's binary name
@@ -21,6 +22,7 @@ PROJECT_NAME=( \
   "nearapps-nft-series" \
   "nearapps-send-near" \
   "nearapps-send-nft" \
+  "nearapps-user-factory" \
   "nearapps-wallet" \
 )
 

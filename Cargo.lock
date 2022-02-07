@@ -2772,6 +2772,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "nearapps-user-factory"
+version = "0.1.0"
+dependencies = [
+ "ed25519-dalek",
+ "near-sdk",
+ "near-sdk-sim",
+ "near-units",
+ "nearapps-exec",
+ "nearapps-lib-crypto",
+ "nearapps-log",
+ "nearapps-near-ext",
+ "strum 0.23.0",
+ "strum_macros 0.23.1",
+]
+
+[[package]]
 name = "nearapps-wallet"
 version = "0.1.0"
 dependencies = [
