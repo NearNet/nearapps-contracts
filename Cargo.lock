@@ -2640,7 +2640,6 @@ dependencies = [
  "near-sdk",
  "near-sdk-sim",
  "near-units",
- "nearapps-exec",
  "nearapps-log",
  "nearapps-near-ext",
 ]

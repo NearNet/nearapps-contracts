@@ -2,7 +2,7 @@ use std::marker::PhantomData;
 
 use near_contract_standards::non_fungible_token as nft;
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
-use near_sdk::collections::{TreeMap, UnorderedMap, UnorderedSet};
+use near_sdk::collections::{TreeMap, UnorderedMap};
 use near_sdk::serde::{Deserialize, Serialize};
 use near_sdk::{env, AccountId};
 
@@ -15,7 +15,7 @@ pub enum NftProtocol {
 }
 
 /// The AccountId of a Nft contract.
-#[derive(Clone, BorshDeserialize, BorshSerialize, Serialize, Deserialize)]
+#[derive(Clone, Debug, BorshDeserialize, BorshSerialize, Serialize, Deserialize)]
 #[serde(crate = "near_sdk::serde")]
 #[serde(transparent)]
 pub struct NftContractId(pub AccountId);
@@ -38,15 +38,29 @@ impl AsRef<[u8]> for NftContractId {
     }
 }
 
-// TODO: use for making stateful changes in a token situation
-// to prevent a nft contract from being deregistered
-// during a transfer_call of it's last token,
-// since that transfer_call might fail and the nft deregistration
-// should have been invalid
-struct TokenIdOwner {}
+/// The status that a token can be.
+///
+/// This is necessary because we need to track when a token is
+/// being sent, so we don't have to completely remove it before
+/// the confirmation that the sending was successful.
+#[derive(Clone, Debug, BorshDeserialize, BorshSerialize, Serialize, Deserialize)]
+#[serde(crate = "near_sdk::serde")]
+pub enum TokenStatus {
+    OnStandby,
+    OnSending,
+}
+
+impl TokenStatus {
+    pub fn is_on_standby(&self) -> bool {
+        matches!(self, Self::OnStandby)
+    }
+    pub fn is_on_sending(&self) -> bool {
+        matches!(self, Self::OnSending)
+    }
+}
 
 /// The accountId of a Nft token owner.
-#[derive(BorshDeserialize, BorshSerialize, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(BorshDeserialize, BorshSerialize, Serialize, Deserialize, PartialEq, Clone, Debug)]
 #[serde(crate = "near_sdk::serde")]
 #[serde(transparent)]
 pub struct NftUserAccountId(pub AccountId);
@@ -69,13 +83,18 @@ impl AsRef<[u8]> for NftUserAccountId {
     }
 }
 
-/// Maps a Nft token owner per [`nft::TokenId`] of a certain Nft contract.
-pub type UserByTokenId = TreeMap<nft::TokenId, NftUserAccountId>;
+/// Maps a Nft token owner and the token status per
+/// [`nft::TokenId`] of a certain Nft contract.
+pub type UserByTokenId = TreeMap<nft::TokenId, (NftUserAccountId, TokenStatus)>;
 
-/// Maps a set of [`nft::TokenId`] per [`NftContractId`].
-pub type TokenSetForNftContract = UnorderedMap<NftContractId, UnorderedSet<nft::TokenId>>;
+/// Maps [`TokenStatusByTokenId`] per [`NftContractId`].
+pub type TokenSetForNftContract = UnorderedMap<NftContractId, TokenStatusByTokenId>;
+
+/// Maps [`TokenStatus`] per [`nft::TokenId`].
+pub type TokenStatusByTokenId = UnorderedMap<nft::TokenId, TokenStatus>;
 
 /// Sha256 result from the byte representation of some value.
+#[derive(Debug)]
 pub struct Sha256From<T> {
     pub value: [u8; 32],
     _phantom: PhantomData<T>,

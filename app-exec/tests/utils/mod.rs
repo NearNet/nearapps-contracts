@@ -8,7 +8,6 @@ use near_units::parse_near;
 use nearapps_counter::CounterContract;
 use nearapps_exec::ExecutorContract;
 
-
 near_sdk_sim::lazy_static_include::lazy_static_include_bytes! {
     EXEC_WASM_BYTES => "../res/nearapps_exec.wasm",
     COUNTER_WASM_BYTES => "../res/nearapps_counter.wasm",

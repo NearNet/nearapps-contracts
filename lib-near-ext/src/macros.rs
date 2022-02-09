@@ -1,3 +1,4 @@
+/// Based on dbg!() macro.
 #[macro_export]
 macro_rules! fun {
     (@name) => {{
@@ -15,6 +16,34 @@ macro_rules! fun {
     }};
     () => {{
         let name = fun!(@name);
-        near_sdk::env::log_str(&format!("[{}::{}:{}]", std::file!(), name, std::line!()));
+        near_sdk::env::log_str(
+            &format!(
+                "[{}::{}:{}]",
+                std::file!(),
+                name,
+                std::line!()
+            )
+        );
     }};
+    ($val:expr $(,)?) => {{
+        let name = fun!(@name);
+        match $val {
+            tmp => {
+                near_sdk::env::log_str(
+                    &format!(
+                        "[{}::{}:{}] {} = {:#?}",
+                        std::file!(),
+                        name,
+                        std::line!(),
+                        std::stringify!($val),
+                        &tmp
+                    )
+                );
+                tmp
+            }
+        }
+    }};
+    ($($val:expr),+ $(,)?) => {
+        ($($fun!($val)),+,)
+    };
 }
