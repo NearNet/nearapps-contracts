@@ -8,23 +8,9 @@ use near_sdk_sim::ExecutionResult;
 use near_sdk_sim::{deploy, ContractAccount, UserAccount};
 use near_units::parse_near;
 use nearapps_counter::CounterContract;
-use nearapps_exec::ExecutorContract;
 
 near_sdk_sim::lazy_static_include::lazy_static_include_bytes! {
-    EXEC_WASM_BYTES => "../res/nearapps_exec.wasm",
     COUNTER_WASM_BYTES => "../res/nearapps_counter.wasm",
-}
-
-pub fn setup_exec(root: &UserAccount) -> ContractAccount<ExecutorContract> {
-    let contract = deploy!(
-        contract: ExecutorContract,
-        contract_id: "executor".to_string(),
-        bytes: &EXEC_WASM_BYTES,
-        signer_account: root,
-        deposit: parse_near!("200 N"),
-        init_method: new(root.account_id())
-    );
-    contract
 }
 
 pub fn setup_counter(

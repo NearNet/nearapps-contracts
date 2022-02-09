@@ -63,6 +63,16 @@ pub enum Error {
     #[strum(serialize = "ERR_SEND_NFT_MISSING_TOKEN_ID")]
     MissingTokenId,
 
+    /// When a token is received, it's status gets to be on
+    /// "standby". If it fails to get sent, it also returns
+    /// to the "standby" status.
+    #[strum(serialize = "ERR_SEND_NFT_TOKEN_NOT_ON_STANDBY")]
+    TokenNotOnSending,
+
+    /// When trying to send the token, it must first be on standby.
+    #[strum(serialize = "ERR_SEND_NFT_TOKEN_NOT_ON_STANDBY")]
+    TokenNotOnStandby,
+
     #[strum(serialize = "ERR_SEND_NFT_NOT_TOKEN_OWNER")]
     NotTokenOwner,
 

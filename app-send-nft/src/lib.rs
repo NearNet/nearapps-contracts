@@ -23,6 +23,10 @@ pub mod version;
 use error::Error;
 use types::{NftContractId, NftUserAccountId, Sha256From, TokenSetForNftContract, UserByTokenId};
 
+#[allow(unused_imports)]
+use types::TokenStatus;
+// note: import used for documentation
+
 pub use types::NftProtocol;
 
 #[near_bindgen]
@@ -31,21 +35,27 @@ pub struct SendNft {
     owner: AccountId,
     nearapps_logger: AccountId,
 
-    /// [`NftContractId`] -> [`NftProtocol`].
+    /// [`NftContractId`]
+    /// -> [`NftProtocol`].
     nft_protocols: UnorderedMap<
         //
         NftContractId,
         NftProtocol,
     >,
 
-    /// [`NftContractId`] -> [`nft::TokenId`] -> [`NftUserAccountId`].
+    /// [`NftContractId`]
+    /// -> [`nft::TokenId`]
+    /// -> ([`NftUserAccountId`], [`TokenStatus`] ).
     nft_token_users: UnorderedMap<
         //
         NftContractId,
         UserByTokenId,
     >,
 
-    /// [`NftUserAccountId`] -> [`NftContractId`] -> [`nft::TokenId`].
+    /// [`NftUserAccountId`]
+    /// -> [`NftContractId`]
+    /// -> [`nft::TokenId`]
+    /// -> [`TokenStatus`].
     nft_tokens_per_user: LookupMap<
         //
         NftUserAccountId,

@@ -1,5 +1,9 @@
-[build]
-target = "wasm32-unknown-unknown"
+# this is commented-out because otherwise rust-analyzer
+# must be manually set with a native target, instead of the
+# default one
+#
+# [build]
+# target = "wasm32-unknown-unknown"
 
 [alias]
 test-linux = "test --target=x86_64-unknown-linux-gnu"

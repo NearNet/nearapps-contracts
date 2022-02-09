@@ -4,7 +4,7 @@ use crate::types::{NftContractId, NftUserAccountId};
 use crate::SendNft;
 use crate::StorageKey;
 use near_contract_standards::non_fungible_token as nft;
-use near_sdk::collections::{UnorderedMap, UnorderedSet};
+use near_sdk::collections::UnorderedMap;
 use near_sdk::json_types::U128;
 use near_sdk::near_bindgen;
 use nearapps_near_ext::{ensure, OrPanicStr};
@@ -75,7 +75,7 @@ impl SendNft {
             Error::NftContractAlreadyEnabled,
         );
 
-        let token_set = UnorderedSet::new(StorageKey::NftTokensPerUserInnerInner {
+        let token_set = UnorderedMap::new(StorageKey::NftTokensPerUserInnerInner {
             user_id: user.clone(),
             contract_id: nft.clone(),
         });
@@ -174,11 +174,11 @@ impl SendNft {
             None => {
                 return v;
             }
-            Some((token_id, user)) => v.push((token_id, user)),
+            Some((token_id, (user, _token_status))) => v.push((token_id, user)),
         };
 
         // add remaining elements
-        for (token_id, user) in cursor.take(limit) {
+        for (token_id, (user, _token_status)) in cursor.take(limit) {
             v.push((token_id, user));
         }
 
@@ -208,6 +208,6 @@ impl SendNft {
 
         let from_index = from_index.unwrap_or_else(|| 0.into()).0 as usize;
         let limit = limit.unwrap_or(u16::MAX) as usize;
-        tokens.iter().skip(from_index).take(limit).collect()
+        tokens.keys().skip(from_index).take(limit).collect()
     }
 }

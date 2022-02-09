@@ -39,7 +39,7 @@ cargo +stable build --target $TARGET --release "$@"
 # they are stored on $REPO/target/$TARGET/release
 
 # creates the contract's code documentation
-eval "cargo doc --release --document-private-items --no-deps $(printf ' -p %q ' "${PROJECT_NAME[@]}")"
+eval "cargo doc --release --target $TARGET --document-private-items --no-deps $(printf ' -p %q ' "${PROJECT_NAME[@]}")"
 # they are stored on $REPO/target/$TARGET/doc/
 # inside of it there are index.html files, such as:
 # $REPO/target/$TARGET/doc/nearapps_counter/index.html

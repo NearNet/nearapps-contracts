@@ -70,7 +70,7 @@ macro_rules! version_from_env {
 }
 
 fn set_env(key: &str, value: &str) {
-    assert!(!key.contains("="));
+    assert!(!key.contains('='));
     println!("cargo:rustc-env={}={}", key, value);
 }
 
@@ -80,6 +80,7 @@ pub mod build {
     use std::path::{Path, PathBuf};
     use std::process::Command;
 
+    #[allow(clippy::print_literal)]
     pub fn setup_rerun() {
         println!("cargo:rerun-if-changed={}", "build.rs");
 
@@ -184,13 +185,13 @@ pub mod build {
         Version {
             name: NAME.to_string(),
             semver: SEMVER.to_string(),
-            git_sha: git_sha,
-            git_dirty: git_dirty,
-            cargo_features: cargo_features,
-            cargo_profile: cargo_profile,
-            rustc_semver: rustc_semver,
-            rustc_llvm: rustc_llvm,
-            rustc_sha: rustc_sha,
+            git_sha,
+            git_dirty,
+            cargo_features,
+            cargo_profile,
+            rustc_semver,
+            rustc_llvm,
+            rustc_sha,
         }
 
         // set_env("NEARAPPS_GIT_SHA", &git_sha);
