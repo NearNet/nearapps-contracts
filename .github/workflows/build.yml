@@ -89,10 +89,10 @@ jobs:
           key: ubuntu-latest-stable-cargo-release-target-${{ hashFiles('**/Cargo.toml') }}
       # build and strips the wasm binaries; copies them to ./res/
       - name: Build wasm binaries and the doc
-        run: ./.build.sh
+        run: ./build.sh
       # run the tests (which depend on the binaries from ./res/)
       - name: Run native tests
-        run: ./.test.sh -- --nocapture
+        run: ./test.sh -- --nocapture
         
       # TODO: activate. Needs secrets.GITHUB_TOKEN to be configured.
 
