@@ -91,8 +91,9 @@ jobs:
       - name: Build wasm binaries and the doc
         run: ./build.sh
       # run the tests (which depend on the binaries from ./res/)
-      - name: Run native tests
-        run: ./test.sh -- --nocapture
+      # TODO: activate
+      # - name: Run native tests
+      #   run: ./test.sh -- --nocapture
         
       # TODO: activate. Needs secrets.GITHUB_TOKEN to be configured.
 
