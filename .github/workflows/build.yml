@@ -97,7 +97,7 @@ jobs:
           echo "`pwd`/binaryen-version_105/bin" >> $GITHUB_PATH
       - name: Test wasm-opt binary (temporary action)
         run: |
-        wasm-opt --version
+          wasm-opt --version
       # build and strips the wasm binaries; copies them to ./res/
       - name: Build wasm binaries and the doc
         run: ./build.sh
