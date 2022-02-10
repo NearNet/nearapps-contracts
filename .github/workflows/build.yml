@@ -94,7 +94,8 @@ jobs:
         run: |
           set -e
           curl -L https://github.com/WebAssembly/binaryen/releases/download/version_105/binaryen-version_105-x86_64-linux.tar.gz | tar xzf -
-          echo "`pwd`/binaryen-version_105" > $GITHUB_PATH
+          echo "`pwd`/binaryen-version_105/bin" >> $GITHUB_PATH
+          wasm-opt --version
       # build and strips the wasm binaries; copies them to ./res/
       - name: Build wasm binaries and the doc
         run: ./build.sh
