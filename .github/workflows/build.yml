@@ -87,6 +87,15 @@ jobs:
         with:
           path: target/x86_64-unknown-linux-gnu
           key: ubuntu-latest-stable-cargo-release-target-${{ hashFiles('**/Cargo.toml') }}
+      # binary requirements (binaryen)
+      # based on
+      # https://github.com/rustwasm/walrus/blob/9d6c9de432d6a97478dc76ebdf18aed51584c3af/.github/workflows/main.yml#L56
+      - name: Install binaryen
+        run: |
+          set -e
+          binaryen-version_105-x86_64-linux.tar.gz
+          curl -L https://github.com/WebAssembly/binaryen/releases/download/version_105/binaryen-version_105-x86_64-linux.tar.gz | tar xzf -
+          echo "`pwd`/binaryen-version_105" > $GITHUB_PATH
       # build and strips the wasm binaries; copies them to ./res/
       - name: Build wasm binaries and the doc
         run: ./build.sh
