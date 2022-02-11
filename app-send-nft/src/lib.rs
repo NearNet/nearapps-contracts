@@ -2,7 +2,7 @@
 #![allow(clippy::too_many_arguments)]
 
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
-use near_sdk::collections::{LookupMap, UnorderedMap};
+use near_sdk::collections::{LookupMap, UnorderedMap, UnorderedSet};
 use near_sdk::{env, near_bindgen, AccountId, BorshStorageKey, PanicOnDefault};
 use nearapps_near_ext::ensure;
 
@@ -13,7 +13,7 @@ use near_contract_standards::non_fungible_token as nft;
 pub mod error;
 pub mod ext_nft;
 pub mod nft_receiver;
-pub mod owner;
+pub mod owners;
 pub mod protocol;
 pub mod send;
 pub mod types;
@@ -32,7 +32,7 @@ pub use types::NftProtocol;
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize, PanicOnDefault)]
 pub struct SendNft {
-    owner: AccountId,
+    owner_ids: UnorderedSet<AccountId>,
     nearapps_logger: AccountId,
 
     /// [`NftContractId`]
@@ -66,6 +66,7 @@ pub struct SendNft {
 #[derive(BorshSerialize, BorshStorageKey)]
 #[allow(clippy::enum_variant_names)]
 enum StorageKey {
+    Owners,
     NftProtocols,
     NftTokenUsers,
     NftTokenUsersInner {
@@ -89,10 +90,12 @@ enum StorageKey {
 impl SendNft {
     /// Initializes the contract.
     #[init]
-    pub fn new(owner: AccountId, nearapps_logger: AccountId) -> Self {
+    pub fn new(owner_id: AccountId, nearapps_logger: AccountId) -> Self {
         ensure(!env::state_exists(), Error::AlreadyInitialized);
+        let mut owner_ids = UnorderedSet::new(StorageKey::Owners);
+        owner_ids.insert(&owner_id);
         Self {
-            owner,
+            owner_ids,
             nearapps_logger,
             nft_protocols: UnorderedMap::new(StorageKey::NftProtocols),
             nft_token_users: UnorderedMap::new(StorageKey::NftTokenUsers),

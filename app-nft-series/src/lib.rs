@@ -8,6 +8,7 @@ use nft::metadata::{
 };
 
 pub mod error;
+pub mod owners;
 pub mod series;
 pub mod transfer_call;
 pub mod utils;
@@ -24,19 +25,27 @@ pub struct NftSeries {
     series: UnorderedMap<series::SeriesId, series::Series>,
     next_series_id: series::SeriesId,
     series_minted_tokens: UnorderedMap<series::SeriesId, UnorderedSet<series::SeriesTokenIndex>>,
+    owner_ids: UnorderedSet<AccountId>,
     nearapps_logger: AccountId,
 }
 
 #[derive(BorshSerialize, BorshStorageKey)]
 enum StorageKey {
+    /// Note: must be a name-only variant, otherwise it could
+    /// collide with [`nft::core::StorageKey::TokensPerOwner`].
     NonFungibleToken,
+    /// Note: must be a name-only variant, otherwise it could
+    /// collide with [`nft::core::StorageKey::TokenPerOwnerInner`].
     Metadata,
     TokenMetadata,
     Enumeration,
     Approval,
     Series,
     TokensBySeries,
-    TokensBySeriesInner { series_id: series::SeriesId },
+    TokensBySeriesInner {
+        series_id: series::SeriesId,
+    },
+    Owners,
 }
 
 #[near_bindgen]
@@ -52,6 +61,8 @@ impl NftSeries {
     ) -> Self {
         require!(!env::state_exists(), "Already initialized");
         metadata.assert_valid();
+        let mut owner_ids = UnorderedSet::new(StorageKey::Owners);
+        owner_ids.insert(&owner_id);
         Self {
             tokens: nft::NonFungibleToken::new(
                 StorageKey::NonFungibleToken,
@@ -64,6 +75,7 @@ impl NftSeries {
             series: UnorderedMap::new(StorageKey::Series),
             next_series_id: series::SeriesId(0),
             series_minted_tokens: UnorderedMap::new(StorageKey::TokensBySeries),
+            owner_ids,
             nearapps_logger,
         }
     }
@@ -87,17 +99,6 @@ impl NftSeries {
             },
             nearapps_logger,
         )
-    }
-
-    /// Gets the contract's owner.
-    pub fn get_owner(&mut self) -> AccountId {
-        self.tokens.owner_id.clone()
-    }
-
-    /// Changes the contract's owner.
-    pub fn change_owner(&mut self, new_owner: AccountId) {
-        self.assert_owner();
-        self.tokens.owner_id = new_owner;
     }
 
     /// Creates a new nft token.
@@ -532,19 +533,6 @@ pub mod std_impls {
 impl NonFungibleTokenMetadataProvider for NftSeries {
     fn nft_metadata(&self) -> NFTContractMetadata {
         self.metadata.get().unwrap()
-    }
-}
-
-pub trait Owner {
-    fn assert_owner(&self);
-}
-
-impl Owner for NftSeries {
-    fn assert_owner(&self) {
-        ensure(
-            env::predecessor_account_id() == self.tokens.owner_id,
-            Error::NotOwner,
-        )
     }
 }
 

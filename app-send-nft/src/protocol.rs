@@ -1,5 +1,4 @@
 use crate::error::Error;
-use crate::owner::Owner;
 use crate::types::{NftContractId, NftProtocol, Sha256From};
 use crate::SendNft;
 use crate::StorageKey;

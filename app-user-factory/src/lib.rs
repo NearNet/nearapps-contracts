@@ -1,11 +1,13 @@
 #![allow(clippy::let_and_return)]
 
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
+use near_sdk::collections::UnorderedSet;
 use near_sdk::json_types::U128;
-use near_sdk::{env, near_bindgen, AccountId, PanicOnDefault, Promise};
+use near_sdk::{env, near_bindgen, AccountId, BorshStorageKey, PanicOnDefault, Promise};
 use nearapps_near_ext::ensure;
 
 pub mod error;
+pub mod owners;
 pub mod version;
 
 pub use error::Error;
@@ -14,7 +16,12 @@ pub use error::Error;
 #[derive(PanicOnDefault, BorshDeserialize, BorshSerialize)]
 pub struct UserFactory {
     /// Owner of this account.
-    pub owner_id: AccountId,
+    pub owner_ids: UnorderedSet<AccountId>,
+}
+
+#[derive(BorshSerialize, BorshStorageKey)]
+enum StorageKey {
+    Owners,
 }
 
 #[near_bindgen]
@@ -23,9 +30,9 @@ impl UserFactory {
     pub fn new() -> Self {
         ensure(!env::state_exists(), Error::AlreadyInitialized);
         let predecessor = env::predecessor_account_id();
-        Self {
-            owner_id: predecessor,
-        }
+        let mut owner_ids = UnorderedSet::new(StorageKey::Owners);
+        owner_ids.insert(&predecessor);
+        Self { owner_ids }
     }
 
     /// Creates a new user sub-account on the current contract account.  
@@ -34,10 +41,7 @@ impl UserFactory {
     ///
     #[payable]
     pub fn create_subaccount(&mut self, prefix: AccountId, yocto: Option<U128>) -> Promise {
-        ensure(
-            self.owner_id == env::predecessor_account_id(),
-            Error::NotOwner,
-        );
+        self.assert_owner();
 
         let amount = yocto.unwrap_or(U128(1000000000000000000000000)).0;
 

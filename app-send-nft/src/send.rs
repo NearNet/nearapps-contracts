@@ -471,7 +471,7 @@ impl SendNft {
                 // token owner
                 predecessor == sender.0
                 // or by the send-nft contract owner
-                || predecessor == self.owner,
+                || self.owner_ids.contains(&predecessor),
                 //
                 Error::NotTokenOwner,
             );
