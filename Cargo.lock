@@ -2642,6 +2642,8 @@ dependencies = [
  "near-units",
  "nearapps-log",
  "nearapps-near-ext",
+ "strum 0.23.0",
+ "strum_macros 0.23.1",
 ]
 
 [[package]]

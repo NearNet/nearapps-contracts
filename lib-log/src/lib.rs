@@ -1,4 +1,4 @@
-use near_sdk::Gas;
+use near_sdk::{AccountId, Gas};
 
 /// Expected Gas that the best-effort logging operation could
 /// take.
@@ -92,16 +92,14 @@ pub trait ExtLog {
     fn log(nearapps_tags: NearAppsTags);
 }
 
-pub trait NearAppsAccount {
-    fn nearapps_account(&self) -> near_sdk::AccountId;
-
+pub trait LoggerAccount: ILoggerAccount {
     // TODO: stress and check maximum gas requirement.
     //
     /// Makes a new call to the nearapps account for logging.
     fn log(&self, nearapps_tags: NearAppsTags) -> near_sdk::Promise {
         ext_log::log(
             nearapps_tags,
-            self.nearapps_account(),
+            self.get_logger_account(),
             0,
             GAS_FOR_BEST_EFFORT_LOG,
         )
@@ -114,8 +112,24 @@ pub trait NearAppsAccount {
     ///
     /// Should be used as a callback for returning a value.
     fn on_log_result(&self, nearapps_tags: NearAppsTags) -> near_sdk::Promise {
-        ext_log::on_log_result(nearapps_tags, self.nearapps_account(), 0, GAS_FOR_ON_LOG)
+        ext_log::on_log_result(nearapps_tags, self.get_logger_account(), 0, GAS_FOR_ON_LOG)
     }
+}
+
+pub trait ILoggerAccount {
+    fn set_logger_account(&mut self, account: AccountId);
+
+    /// Checks if the given account is an owner.  
+    ///
+    /// Returns `true` if it is, and `false` otherwise.
+    fn is_logger_account(&self, account: AccountId) -> bool {
+        account == self.get_logger_account()
+    }
+
+    /// Show owners.
+    ///
+    /// Returns a list of `AccountId`'s.
+    fn get_logger_account(&self) -> near_sdk::AccountId;
 }
 
 pub fn vec_to_string(strings: &[String]) -> String {

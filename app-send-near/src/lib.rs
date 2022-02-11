@@ -10,10 +10,11 @@ use near_sdk::{
     Promise,
 };
 use near_units::parse_gas;
-use nearapps_log::{NearAppsAccount, NearAppsTags};
+use nearapps_log::{LoggerAccount, NearAppsTags};
 use nearapps_near_ext::{ensure, types::JBalance, OrPanicStr};
 
 pub mod error;
+pub mod logging;
 pub mod owners;
 pub mod version;
 
@@ -211,11 +212,5 @@ impl SendNear {
                 false
             }
         }
-    }
-}
-
-impl nearapps_log::NearAppsAccount for SendNear {
-    fn nearapps_account(&self) -> near_sdk::AccountId {
-        self.nearapps_logger.clone()
     }
 }

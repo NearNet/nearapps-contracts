@@ -1,24 +1,30 @@
 #![allow(unused_imports)]
 
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
-use near_sdk::{env, near_bindgen, AccountId, Gas, PanicOnDefault, Promise, PromiseOrValue};
+use near_sdk::collections::UnorderedSet;
+use near_sdk::{
+    env, near_bindgen, AccountId, BorshStorageKey, Gas, PanicOnDefault, Promise, PromiseOrValue,
+};
 use near_units::parse_gas;
-use nearapps_log::{NearAppsAccount, NearAppsTags};
+use nearapps_log::{LoggerAccount, NearAppsTags};
 use nearapps_near_ext::{ensure, OrPanicStr};
 
+pub mod error;
+pub mod logging;
+pub mod owners;
 pub mod version;
 
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize, PanicOnDefault)]
 pub struct Counter {
     val: u32,
+    owner_ids: UnorderedSet<AccountId>,
     nearapps_logger: AccountId,
 }
 
-impl nearapps_log::NearAppsAccount for Counter {
-    fn nearapps_account(&self) -> near_sdk::AccountId {
-        self.nearapps_logger.clone()
-    }
+#[derive(BorshSerialize, BorshStorageKey)]
+enum StorageKey {
+    Owners,
 }
 
 #[near_sdk::ext_contract(ext_self)]
@@ -30,9 +36,13 @@ pub trait ExtSelf {
 #[near_bindgen]
 impl Counter {
     #[init]
-    pub fn new(nearapps_logger: AccountId) -> Self {
+    pub fn new(owner_id: AccountId, nearapps_logger: AccountId) -> Self {
+        near_sdk::require!(!env::state_exists(), "Already initialized");
+        let mut owner_ids = UnorderedSet::new(StorageKey::Owners);
+        owner_ids.insert(&owner_id);
         Self {
             val: 0,
+            owner_ids,
             nearapps_logger,
         }
     }

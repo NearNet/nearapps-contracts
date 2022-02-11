@@ -10,6 +10,7 @@ use near_units::parse_gas;
 use nearapps_near_ext::ensure;
 
 pub mod error;
+pub mod logging;
 pub mod owners;
 pub mod version;
 
@@ -38,6 +39,7 @@ enum StorageKey {
 pub struct AccountManager {
     /// Owners of this account.
     pub owner_ids: UnorderedSet<AccountId>,
+    pub nearapps_logger: AccountId,
     // Accounts that were successfuly created.
     pub accounts: UnorderedSet<AccountId>,
     /// Accounts that have been asked to be created.
@@ -109,12 +111,13 @@ pub struct AllowedCalls {
 #[near_bindgen]
 impl AccountManager {
     #[init]
-    pub fn new(owner_id: AccountId) -> Self {
+    pub fn new(owner_id: AccountId, nearapps_logger: AccountId) -> Self {
         ensure(!env::state_exists(), Error::AlreadyInitialized);
         let mut owner_ids = UnorderedSet::new(StorageKey::Owners);
         owner_ids.insert(&owner_id);
         Self {
             owner_ids,
+            nearapps_logger,
             accounts: UnorderedSet::new(StorageKey::Accounts),
             accounts_queue: UnorderedSet::new(StorageKey::AccountsQueue),
         }

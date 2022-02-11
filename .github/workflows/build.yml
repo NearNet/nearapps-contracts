@@ -93,7 +93,9 @@ jobs:
         run: ./build.sh
       # run the tests (which depend on the binaries from ./res/)
       - name: Run native tests
-        run: ./test.sh -- --nocapture
+        run: ./test.sh --jobs=2 -- --nocapture
+      # based on 
+      # https://raw.githubusercontent.com/BurntSushi/ripgrep/master/.github/workflows/release.yml
       # in case a tag was set, a binary release will be made.
       # creates a file archive containing the wasm binaries into ./contracts-(tags).tar.gz
       - name: Build archive
