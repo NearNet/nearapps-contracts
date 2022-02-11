@@ -48,7 +48,8 @@ use nearapps_wallet::AccountConfig;
 #[test]
 fn test_wallet_account() {
     let root = init_simulator(None);
-    let wallet = utils::setup_wallet(&root);
+    let exec = utils::setup_exec(&root);
+    let wallet = utils::setup_wallet(&root, exec.account_id(), "wallet");
 
     // let created_01: &near_sdk::AccountId =
     //     &"0123456789012345678901234567890123456789012345678.root"

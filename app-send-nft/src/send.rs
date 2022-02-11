@@ -5,7 +5,7 @@ use crate::SendNft;
 use near_contract_standards::non_fungible_token as nft;
 use near_sdk::{env, ext_contract, near_bindgen, Balance, Gas, Promise};
 use near_units::{parse_gas, parse_near};
-use nearapps_log::{NearAppsAccount, NearAppsTags};
+use nearapps_log::{LoggerAccount, NearAppsTags};
 use nearapps_near_ext::{ensure, OrPanicStr};
 
 #[cfg(not(target_arch = "wasm32"))]

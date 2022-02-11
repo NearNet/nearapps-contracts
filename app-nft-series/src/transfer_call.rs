@@ -6,7 +6,7 @@ use near_contract_standards::non_fungible_token as nft;
 use near_sdk::{env, require, AccountId, Balance, Gas, PromiseOrValue};
 use near_sdk::{ext_contract, near_bindgen, PromiseResult};
 use near_units::parse_near;
-use nearapps_log::{NearAppsAccount, NearAppsTags};
+use nearapps_log::{LoggerAccount, NearAppsTags};
 use nearapps_near_ext::ensure;
 use std::collections::HashMap;
 

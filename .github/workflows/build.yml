@@ -103,7 +103,7 @@ jobs:
         run: ./build.sh
       # run the tests (which depend on the binaries from ./res/)
       - name: Run native tests
-        run: ./test.sh -- --nocapture
+        run: ./test.sh --jobs=2 -- --nocapture
         
       # TODO: activate. Needs secrets.GITHUB_TOKEN to be configured.
 

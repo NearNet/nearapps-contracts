@@ -8,6 +8,7 @@ use nft::metadata::{
 };
 
 pub mod error;
+pub mod logging;
 pub mod owners;
 pub mod series;
 pub mod transfer_call;
@@ -192,7 +193,7 @@ pub mod std_impls {
     use super::nft::{self, Token, TokenId};
     use super::NftSeries;
     use near_sdk::{near_bindgen, AccountId, Promise, PromiseOrValue};
-    use nearapps_log::{NearAppsAccount, NearAppsTags};
+    use nearapps_log::{LoggerAccount, NearAppsTags};
 
     #[allow(unused_imports)]
     use near_contract_standards as ncs;
@@ -533,12 +534,6 @@ pub mod std_impls {
 impl NonFungibleTokenMetadataProvider for NftSeries {
     fn nft_metadata(&self) -> NFTContractMetadata {
         self.metadata.get().unwrap()
-    }
-}
-
-impl nearapps_log::NearAppsAccount for NftSeries {
-    fn nearapps_account(&self) -> near_sdk::AccountId {
-        self.nearapps_logger.clone()
     }
 }
 

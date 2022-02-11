@@ -5,22 +5,40 @@ use near_sdk::{AccountId, Gas};
 use near_sdk_sim::transaction::ExecutionStatus;
 use near_sdk_sim::{deploy, init_simulator, ContractAccount, ExecutionResult, UserAccount};
 use near_units::parse_near;
+use nearapps_exec::ExecutorContract;
 
 use nearapps_wallet::{AccountManagerContract, AllowedCalls, Defaults};
 
 near_sdk_sim::lazy_static_include::lazy_static_include_bytes! {
-    WALLET_WASM_BYTES => "../res/nearapps_wallet.wasm",
+    EXEC_WASM_BYTES => "../res/nearapps_exec.wasm",
+    WALLET_WASM_BYTES => "../res/nearapps_wallet.wasm"
 }
 
-#[allow(clippy::identity_op)]
-pub fn setup_wallet(root: &UserAccount) -> ContractAccount<AccountManagerContract> {
-    deploy!(
-        contract: AccountManagerContract,
-        contract_id: "wallet".to_string(),
-        bytes: &WALLET_WASM_BYTES,
+pub fn setup_exec(root: &UserAccount) -> ContractAccount<ExecutorContract> {
+    let contract = deploy!(
+        contract: ExecutorContract,
+        contract_id: "executor".to_string(),
+        bytes: &EXEC_WASM_BYTES,
         signer_account: root,
         deposit: parse_near!("200 N"),
         init_method: new(root.account_id())
+    );
+    contract
+}
+
+#[allow(clippy::identity_op)]
+pub fn setup_wallet(
+    root: &UserAccount,
+    nearapps_acc: AccountId,
+    contract_id: &str,
+) -> ContractAccount<AccountManagerContract> {
+    deploy!(
+        contract: AccountManagerContract,
+        contract_id: contract_id.to_string(),
+        bytes: &WALLET_WASM_BYTES,
+        signer_account: root,
+        deposit: parse_near!("200 N"),
+        init_method: new(root.account_id(), nearapps_acc)
     )
 }
 

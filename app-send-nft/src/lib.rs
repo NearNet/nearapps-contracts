@@ -12,6 +12,7 @@ use near_contract_standards::non_fungible_token as nft;
 
 pub mod error;
 pub mod ext_nft;
+pub mod logging;
 pub mod nft_receiver;
 pub mod owners;
 pub mod protocol;
@@ -101,11 +102,5 @@ impl SendNft {
             nft_token_users: UnorderedMap::new(StorageKey::NftTokenUsers),
             nft_tokens_per_user: LookupMap::new(StorageKey::NftTokensPerUser),
         }
-    }
-}
-
-impl nearapps_log::NearAppsAccount for SendNft {
-    fn nearapps_account(&self) -> AccountId {
-        self.nearapps_logger.clone()
     }
 }

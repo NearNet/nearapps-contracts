@@ -7,7 +7,7 @@ use crate::SendNft;
 use near_contract_standards::non_fungible_token as nft;
 use near_sdk::PromiseOrValue;
 use near_sdk::{env, near_bindgen, AccountId};
-use nearapps_log::{NearAppsAccount, NearAppsTags, NearAppsTagsContained};
+use nearapps_log::{LoggerAccount, NearAppsTags, NearAppsTagsContained};
 use nearapps_near_ext::{ensure, OrPanicStr};
 
 use nft::core::NonFungibleTokenReceiver;

@@ -22,7 +22,7 @@ pub fn setup_counter(
         contract_id: "counter".to_string(),
         bytes: &COUNTER_WASM_BYTES,
         signer_account: root,
-        init_method: new(nearapps_acc)
+        init_method: new(nearapps_acc.clone(), nearapps_acc)
     );
 
     counter
