@@ -30,7 +30,7 @@ PROJECT_NAME=( \
 TARGET="wasm32-unknown-unknown"
 
 # triggers all build.rs steps
-for i in "${PROJECT_DIR[@]}"; do touch --no-create "$REPO/$i/build.rs"; done
+for i in "${PROJECT_DIR[@]}"; do touch -c "$REPO/$i/build.rs"; done
 # in this way the wasm files will have up to date
 # versioning information
 
