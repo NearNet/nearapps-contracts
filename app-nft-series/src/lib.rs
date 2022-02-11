@@ -8,6 +8,7 @@ use nft::metadata::{
 };
 
 pub mod error;
+pub mod migration;
 pub mod owners;
 pub mod series;
 pub mod transfer_call;
