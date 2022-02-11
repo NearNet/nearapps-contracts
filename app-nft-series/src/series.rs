@@ -1,5 +1,5 @@
 use crate::error::Error;
-use crate::{NftSeries, Owner, StorageKey};
+use crate::{NftSeries, StorageKey};
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::UnorderedSet;
 use near_sdk::json_types::U64;

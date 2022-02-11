@@ -10,6 +10,7 @@ use near_units::parse_gas;
 use nearapps_near_ext::ensure;
 
 pub mod error;
+pub mod owners;
 pub mod version;
 
 pub use error::Error;
@@ -29,13 +30,14 @@ pub trait ExtParent {
 enum StorageKey {
     Accounts,
     AccountsQueue,
+    Owners,
 }
 
 #[near_bindgen]
 #[derive(PanicOnDefault, BorshDeserialize, BorshSerialize)]
 pub struct AccountManager {
-    /// Owner of this account.
-    pub owner_id: AccountId,
+    /// Owners of this account.
+    pub owner_ids: UnorderedSet<AccountId>,
     // Accounts that were successfuly created.
     pub accounts: UnorderedSet<AccountId>,
     /// Accounts that have been asked to be created.
@@ -109,8 +111,10 @@ impl AccountManager {
     #[init]
     pub fn new(owner_id: AccountId) -> Self {
         ensure(!env::state_exists(), Error::AlreadyInitialized);
+        let mut owner_ids = UnorderedSet::new(StorageKey::Owners);
+        owner_ids.insert(&owner_id);
         Self {
-            owner_id,
+            owner_ids,
             accounts: UnorderedSet::new(StorageKey::Accounts),
             accounts_queue: UnorderedSet::new(StorageKey::AccountsQueue),
         }
@@ -141,10 +145,7 @@ impl AccountManager {
         const GAS_CREATE_ACC_CALL: Gas = Gas(parse_gas!("11 Tgas") as u64);
         const GAS_CALLBACK: Gas = Gas(parse_gas!("8 Tgas") as u64);
 
-        ensure(
-            self.owner_id == env::predecessor_account_id(),
-            Error::NotOwner,
-        );
+        self.assert_owner();
 
         let user_manager_public_key = new_public_key.unwrap_or_else(env::signer_account_pk);
 

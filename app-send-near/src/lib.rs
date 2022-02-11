@@ -4,7 +4,7 @@
 // then the fund should be absorbed by the contract.
 
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
-use near_sdk::collections::LookupMap;
+use near_sdk::collections::{LookupMap, UnorderedSet};
 use near_sdk::{
     env, ext_contract, near_bindgen, AccountId, Balance, BorshStorageKey, Gas, PanicOnDefault,
     Promise,
@@ -14,6 +14,7 @@ use nearapps_log::{NearAppsAccount, NearAppsTags};
 use nearapps_near_ext::{ensure, types::JBalance, OrPanicStr};
 
 pub mod error;
+pub mod owners;
 pub mod version;
 
 use error::Error;
@@ -23,7 +24,7 @@ const GAS_ON_SEND: Gas = Gas(parse_gas!("30 Tgas") as u64);
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize, PanicOnDefault)]
 pub struct SendNear {
-    owner: AccountId,
+    owner_ids: UnorderedSet<AccountId>,
     deposits: LookupMap<AccountId, Balance>,
     nearapps_logger: AccountId,
 }
@@ -31,6 +32,7 @@ pub struct SendNear {
 #[derive(BorshSerialize, BorshStorageKey)]
 enum StorageKey {
     UserDeposits,
+    Owners,
 }
 
 #[ext_contract(ext_self)]
@@ -47,23 +49,15 @@ trait OnSend {
 #[near_bindgen]
 impl SendNear {
     #[init]
-    pub fn new(owner: AccountId, nearapps_logger: AccountId) -> Self {
+    pub fn new(owner_id: AccountId, nearapps_logger: AccountId) -> Self {
         ensure(!env::state_exists(), Error::AlreadyInitialized);
-
+        let mut owner_ids = UnorderedSet::new(StorageKey::Owners);
+        owner_ids.insert(&owner_id);
         Self {
-            owner,
+            owner_ids,
             deposits: LookupMap::new(StorageKey::UserDeposits),
             nearapps_logger,
         }
-    }
-
-    pub fn get_owner(&mut self) -> AccountId {
-        self.owner.clone()
-    }
-
-    pub fn change_owner(&mut self, new_owner: AccountId) {
-        self.assert_owner();
-        self.owner = new_owner;
     }
 
     /// Sends the attached amount to `receiver`. On failure`*`,
@@ -217,16 +211,6 @@ impl SendNear {
                 false
             }
         }
-    }
-}
-
-pub trait Owner {
-    fn assert_owner(&self);
-}
-
-impl Owner for SendNear {
-    fn assert_owner(&self) {
-        ensure(env::predecessor_account_id() == self.owner, Error::NotOwner)
     }
 }
 

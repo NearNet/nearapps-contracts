@@ -2666,7 +2666,7 @@ dependencies = [
 
 [[package]]
 name = "nearapps-exec"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "near-sdk",
  "near-sdk-sim",
@@ -2724,7 +2724,7 @@ dependencies = [
 
 [[package]]
 name = "nearapps-nft-series"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "digest 0.9.0",
  "near-contract-standards",
@@ -2742,7 +2742,7 @@ dependencies = [
 
 [[package]]
 name = "nearapps-send-near"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "near-sdk",
  "near-sdk-sim",
@@ -2756,7 +2756,7 @@ dependencies = [
 
 [[package]]
 name = "nearapps-send-nft"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "near-contract-standards",
  "near-sdk",
@@ -2772,7 +2772,7 @@ dependencies = [
 
 [[package]]
 name = "nearapps-user-factory"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "ed25519-dalek",
  "near-sdk",
@@ -2788,7 +2788,7 @@ dependencies = [
 
 [[package]]
 name = "nearapps-wallet"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "ed25519-dalek",
  "near-sdk",
